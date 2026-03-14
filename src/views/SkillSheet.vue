@@ -85,9 +85,9 @@ watch(character, (newChar) => {
 
           <!-- Stats row -->
           <div class="stats-grid">
-            <!-- Angriffswürfel: gold -->
+            <!-- Angriffswürfel: green -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-gold)">
+              <div class="diamond" style="border-color: var(--color-green)">
                 <input
                   v-model.number="attackDice"
                   class="diamond-input"
@@ -100,9 +100,9 @@ watch(character, (newChar) => {
               <label class="stat-label">Angriffs-<br />würfel</label>
             </div>
 
-            <!-- Verteidigungswürfel: yellow -->
+            <!-- Verteidigungswürfel: red -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-yellow)">
+              <div class="diamond" style="border-color: var(--color-red)">
                 <input
                   v-model.number="defenseDice"
                   class="diamond-input"
@@ -115,9 +115,9 @@ watch(character, (newChar) => {
               <label class="stat-label">Verteidi-<br />gungs-<br />würfel</label>
             </div>
 
-            <!-- Körperkraft: red -->
+            <!-- Körperkraft: yellow -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-red)">
+              <div class="diamond" style="border-color: var(--color-yellow)">
                 <input
                   v-model.number="bodyStrength"
                   class="diamond-input"
