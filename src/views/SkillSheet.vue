@@ -37,10 +37,10 @@ watch(character, (newChar) => {
     <!-- Parchment card -->
     <div class="card-wrap">
       <!-- Corner ornaments -->
-      <span class="ornament -top-3 -left-3">✦</span>
-      <span class="ornament -top-3 -right-3">✦</span>
-      <span class="ornament -bottom-3 -left-3">✦</span>
-      <span class="ornament -bottom-3 -right-3">✦</span>
+      <span class="ornament -top-5 -left-3">✦</span>
+      <span class="ornament -top-5 -right-3">✦</span>
+      <span class="ornament -bottom-5 -left-3">✦</span>
+      <span class="ornament -bottom-5 -right-3">✦</span>
 
       <!-- Card body -->
       <div class="card">
