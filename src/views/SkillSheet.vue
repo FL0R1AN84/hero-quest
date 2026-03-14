@@ -6,13 +6,19 @@ import { storeToRefs } from 'pinia'
 const store = useSkillSheetStore()
 const { name, character, attackDice, defenseDice, bodyStrength, intelligence } = storeToRefs(store)
 
-const characterOptions = ['Barbar', 'Druide', 'Elf', 'Zwerg']
+const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 
-const defaultStats: Record<string, { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }> = {
+const defaultStats: Record<
+  string,
+  { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }
+> = {
   Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
-  Druide: { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
-  Elf:    { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
-  Zwerg:  { attackDice: 2, defenseDice: 2, bodyStrength: 7, intelligence: 3 },
+  Barde: { attackDice: 2, defenseDice: 2, bodyStrength: 5, intelligence: 4 },
+  Druide: { attackDice: 1, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
+  Elf: { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
+  Ritter: { attackDice: 2, defenseDice: 3, bodyStrength: 7, intelligence: 2 },
+  Zwerg: { attackDice: 2, defenseDice: 2, bodyStrength: 7, intelligence: 3 },
+  Zauberer: { attackDice: 1, defenseDice: 2, bodyStrength: 4, intelligence: 6 },
 }
 
 watch(character, (newChar) => {
