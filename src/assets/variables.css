@@ -1,6 +1,7 @@
 /* Raw palette – never changes */
 :root {
   --color-yellow: #e9d022;
+  --color-green: #52b422;
   --color-blue: #0ba0ab;
   --color-red: #f67449;
   --color-dark: #242623;
