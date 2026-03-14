@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { watch } from 'vue'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { storeToRefs } from 'pinia'
 
@@ -6,6 +7,23 @@ const store = useSkillSheetStore()
 const { name, character, attackDice, defenseDice, bodyStrength, intelligence } = storeToRefs(store)
 
 const characterOptions = ['Barbar', 'Druide', 'Elf', 'Zwerg']
+
+const defaultStats: Record<string, { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }> = {
+  Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
+  Druide: { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
+  Elf:    { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
+  Zwerg:  { attackDice: 2, defenseDice: 2, bodyStrength: 7, intelligence: 3 },
+}
+
+watch(character, (newChar) => {
+  const stats = defaultStats[newChar]
+  if (stats) {
+    attackDice.value = stats.attackDice
+    defenseDice.value = stats.defenseDice
+    bodyStrength.value = stats.bodyStrength
+    intelligence.value = stats.intelligence
+  }
+})
 </script>
 
 <template>
