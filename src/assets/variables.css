@@ -1,6 +1,75 @@
+/* Raw palette – never changes */
 :root {
   --color-yellow: #e9d022;
   --color-blue: #0ba0ab;
   --color-red: #f67449;
   --color-dark: #242623;
+  --color-parchment: #f5e6c8;
+  --color-parchment-dark: #e8d5a3;
+  --color-ink: #2c1a0e;
+  --color-gold: #c9a84c;
+  --font-fantasy: 'MedievalSharp', serif;
+  --font-body: 'IM Fell English', serif;
+}
+
+/* ── Light mode (default) ───────────────────────────────── */
+:root {
+  --hq-bg: #bfaf96; /* warm stone, lighter */
+  --hq-card-bg: var(--color-parchment);
+  --hq-card-bg-dark: var(--color-parchment-dark);
+  --hq-card-border: var(--color-gold);
+  --hq-card-shadow: rgba(0, 0, 0, 0.45);
+
+  --hq-title: var(--color-dark);
+  --hq-subtitle: var(--color-ink);
+  --hq-label: var(--color-ink);
+  --hq-input-text: var(--color-ink);
+  --hq-input-placeholder: rgba(44, 26, 14, 0.35);
+  --hq-input-border: rgba(201, 168, 76, 0.6);
+  --hq-input-border-focus: var(--color-gold);
+
+  --hq-divider: rgba(201, 168, 76, 0.4);
+  --hq-ornament: var(--color-gold);
+
+  --hq-btn-save-bg: var(--color-gold);
+  --hq-btn-save-text: var(--color-dark);
+  --hq-btn-save-hover-bg: #a07830;
+  --hq-btn-save-hover-text: var(--color-parchment);
+  --hq-btn-reset-text: rgba(44, 26, 14, 0.55);
+  --hq-btn-reset-border: rgba(201, 168, 76, 0.4);
+
+  --hq-hint: rgba(44, 26, 14, 0.38);
+  --hq-footer: rgba(44, 26, 14, 0.4);
+}
+
+/* ── Dark mode ──────────────────────────────────────────── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --hq-bg: #1a1a18; /* near-black stone */
+    --hq-card-bg: #2e2416; /* very dark parchment */
+    --hq-card-bg-dark: #231b0f;
+    --hq-card-border: #a07830; /* muted gold */
+    --hq-card-shadow: rgba(0, 0, 0, 0.85);
+
+    --hq-title: #f0d898; /* warm cream */
+    --hq-subtitle: #c8a86a;
+    --hq-label: #c8a86a;
+    --hq-input-text: #f0d898;
+    --hq-input-placeholder: rgba(240, 216, 152, 0.3);
+    --hq-input-border: rgba(160, 120, 48, 0.55);
+    --hq-input-border-focus: #c9a84c;
+
+    --hq-divider: rgba(160, 120, 48, 0.35);
+    --hq-ornament: #a07830;
+
+    --hq-btn-save-bg: #a07830;
+    --hq-btn-save-text: #1a1a18;
+    --hq-btn-save-hover-bg: #c9a84c;
+    --hq-btn-save-hover-text: #1a1a18;
+    --hq-btn-reset-text: rgba(200, 168, 106, 0.55);
+    --hq-btn-reset-border: rgba(160, 120, 48, 0.35);
+
+    --hq-hint: rgba(200, 168, 106, 0.35);
+    --hq-footer: rgba(200, 168, 106, 0.35);
+  }
 }

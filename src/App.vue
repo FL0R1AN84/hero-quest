@@ -1,11 +1,15 @@
-<script setup lang="ts"></script>
+<script lang="ts" setup>
+import AppVersion from '@/components/AppVersion.vue'
+import { RouterView } from 'vue-router'
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="min-h-screen font-body">
+    <RouterView />
+    <footer class="text-center py-2 text-xs font-body" style="color: var(--hq-footer)">
+      <AppVersion />
+    </footer>
+  </div>
 </template>
 
 <style scoped></style>
