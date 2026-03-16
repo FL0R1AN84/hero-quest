@@ -36,12 +36,6 @@ watch(character, (newChar) => {
   <main class="main-bg">
     <!-- Parchment card -->
     <div class="card-wrap">
-      <!-- Corner ornaments -->
-      <span class="ornament -top-5 -left-3">✦</span>
-      <span class="ornament -top-5 -right-3">✦</span>
-      <span class="ornament -bottom-5 -left-3">✦</span>
-      <span class="ornament -bottom-5 -right-3">✦</span>
-
       <!-- Card body -->
       <div class="card">
         <!-- Title -->
@@ -49,9 +43,7 @@ watch(character, (newChar) => {
           <h1 class="title">HeroQuest</h1>
           <div class="flex items-center gap-3 mt-2">
             <div class="divider-line"></div>
-            <span class="ornament-inline">⚔</span>
             <p class="subtitle">Persönlichkeits-Pass</p>
-            <span class="ornament-inline">⚔</span>
             <div class="divider-line"></div>
           </div>
         </div>
@@ -78,8 +70,6 @@ watch(character, (newChar) => {
 
           <!-- Divider -->
           <div class="section-divider">
-            <div class="divider-line"></div>
-            <span class="ornament-inline text-xs">⚜</span>
             <div class="divider-line"></div>
           </div>
 
@@ -148,8 +138,6 @@ watch(character, (newChar) => {
 
           <!-- Divider -->
           <div class="section-divider">
-            <div class="divider-line"></div>
-            <span class="ornament-inline text-xs">⚜</span>
             <div class="divider-line"></div>
           </div>
 
@@ -294,27 +282,15 @@ watch(character, (newChar) => {
   padding: 0.25rem 0;
 }
 
-.ornament {
-  position: absolute;
-  font-size: 1.5rem;
-  user-select: none;
-  color: var(--hq-ornament);
-  transition: color 0.4s;
-}
-
-.ornament-inline {
-  color: var(--hq-ornament);
-  font-size: 1rem;
-  transition: color 0.4s;
-}
-
 /* ── Stat diamonds ──────────────────────────────────────── */
 
 /* 2×2 on mobile, 4×1 on wider screens */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1.5rem 1rem;
+  gap: 1rem 1rem;
+  padding-block-start: 2rem;
+  padding-block-end: 1rem;
 }
 
 @media (min-width: 480px) {
@@ -328,7 +304,7 @@ watch(character, (newChar) => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
+  gap: 1rem;
 }
 
 .diamond {
@@ -426,14 +402,6 @@ watch(character, (newChar) => {
 
   .field-label {
     font-size: 0.75rem;
-  }
-
-  .ornament {
-    font-size: 1.875rem;
-  }
-
-  .ornament-inline {
-    font-size: 1.125rem;
   }
 }
 
