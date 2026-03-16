@@ -282,20 +282,6 @@ watch(character, (newChar) => {
   padding: 0.25rem 0;
 }
 
-.ornament {
-  position: absolute;
-  font-size: 1.5rem;
-  user-select: none;
-  color: var(--hq-ornament);
-  transition: color 0.4s;
-}
-
-.ornament-inline {
-  color: var(--hq-ornament);
-  font-size: 1rem;
-  transition: color 0.4s;
-}
-
 /* ── Stat diamonds ──────────────────────────────────────── */
 
 /* 2×2 on mobile, 4×1 on wider screens */
@@ -416,14 +402,6 @@ watch(character, (newChar) => {
 
   .field-label {
     font-size: 0.75rem;
-  }
-
-  .ornament {
-    font-size: 1.875rem;
-  }
-
-  .ornament-inline {
-    font-size: 1.125rem;
   }
 }
 
