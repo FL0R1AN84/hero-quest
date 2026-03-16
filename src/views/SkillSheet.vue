@@ -8,6 +8,16 @@ const { name, character, attackDice, defenseDice, bodyStrength, intelligence } =
 
 const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 
+const characterAvatars: Record<string, { symbol: string; color: string }> = {
+  Barbar: { symbol: '⚔️', color: 'var(--color-red)' },
+  Barde: { symbol: '📯', color: 'var(--color-blue)' },
+  Druide: { symbol: '🧙', color: 'var(--color-green)' },
+  Elf: { symbol: '🧝‍♂️', color: 'var(--color-green)' },
+  Ritter: { symbol: '🏰', color: 'var(--color-yellow)' },
+  Zwerg: { symbol: '⚒️', color: 'var(--color-yellow)' },
+  Zauberer: { symbol: '🪄', color: 'var(--color-blue)' },
+}
+
 const defaultStats: Record<
   string,
   { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }
@@ -71,6 +81,20 @@ watch(character, (newChar) => {
           </div>
 
           <!-- Divider -->
+          <div class="section-divider">
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Avatar -->
+          <div v-if="character" class="avatar-wrap">
+            <div :style="{ borderColor: characterAvatars[character]?.color }" class="avatar-frame">
+              <span :style="{ color: characterAvatars[character]?.color }" class="avatar-symbol">
+                {{ characterAvatars[character]?.symbol }}
+              </span>
+            </div>
+            <p class="avatar-name">{{ character }}</p>
+          </div>
+
           <div class="section-divider">
             <div class="divider-line"></div>
           </div>
@@ -355,6 +379,48 @@ watch(character, (newChar) => {
   text-transform: uppercase;
   text-align: center;
   line-height: 1.4;
+  color: var(--hq-label);
+  transition: color 0.4s;
+}
+
+/* ── Avatar ─────────────────────────────────────────────── */
+.avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+}
+
+.avatar-frame {
+  width: 5.5rem;
+  height: 5.5rem;
+  border-radius: 50%;
+  border: 3px solid;
+  background-color: var(--hq-card-bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    0 0 0 4px var(--hq-card-bg),
+    0 0 0 5px var(--hq-divider),
+    0 4px 12px var(--hq-card-shadow);
+  transition:
+    border-color 0.3s,
+    background-color 0.4s;
+}
+
+.avatar-symbol {
+  font-size: 2.25rem;
+  line-height: 1;
+  transition: color 0.3s;
+}
+
+.avatar-name {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
   color: var(--hq-label);
   transition: color 0.4s;
 }
