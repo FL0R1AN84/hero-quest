@@ -43,7 +43,9 @@ watch(character, (newChar) => {
           <h1 class="title">HeroQuest</h1>
           <div class="flex items-center gap-3 mt-2">
             <div class="divider-line"></div>
+            <span class="sword-ornament">⚔</span>
             <p class="subtitle">Persönlichkeits-Pass</p>
+            <span class="sword-ornament">⚔</span>
             <div class="divider-line"></div>
           </div>
         </div>
@@ -153,7 +155,7 @@ watch(character, (newChar) => {
           </div>
 
           <!-- Saved indicator -->
-          <p class="hint">Deine Werte werden automatisch gespeichert.</p>
+          <p class="hint">Deine Werte werden automatisch im Browser gespeichert.</p>
         </form>
       </div>
     </div>
@@ -282,7 +284,11 @@ watch(character, (newChar) => {
   padding: 0.25rem 0;
 }
 
-/* ── Stat diamonds ──────────────────────────────────────── */
+.sword-ornament {
+  font-size: 1.25rem;
+  color: var(--hq-ornament);
+  transition: color 0.4s;
+}
 
 /* 2×2 on mobile, 4×1 on wider screens */
 .stats-grid {
