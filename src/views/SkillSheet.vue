@@ -186,6 +186,7 @@ watch(character, (newChar) => {
   background-color: var(--hq-card-bg);
   border: 4px solid var(--hq-card-border);
   border-radius: 2px;
+  overflow: hidden;
   padding: 1.5rem 1rem 2rem;
   box-shadow: 0 0 60px var(--hq-card-shadow);
   transition:
@@ -238,6 +239,7 @@ watch(character, (newChar) => {
   outline: none;
   padding: 0.5rem 0.5rem;
   font-family: var(--font-body), serif;
+  font-size: 1rem; /* ≥ 16 px — prevents iOS Safari from auto-zooming on focus */
   transition:
     border-color 0.2s,
     background-color 0.4s,
