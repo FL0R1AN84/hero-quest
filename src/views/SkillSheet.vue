@@ -86,13 +86,19 @@ watch(character, (newChar) => {
           </div>
 
           <!-- Avatar -->
-          <div v-if="character" class="avatar-wrap">
-            <div :style="{ borderColor: characterAvatars[character]?.color }" class="avatar-frame">
-              <span :style="{ color: characterAvatars[character]?.color }" class="avatar-symbol">
-                {{ characterAvatars[character]?.symbol }}
-              </span>
+          <div class="avatar-wrap">
+            <div
+              :class="{ 'avatar-frame--empty': !character }"
+              :style="character ? { borderColor: characterAvatars[character]?.color } : {}"
+              class="avatar-frame"
+            >
+              <span
+                :class="{ 'avatar-symbol--empty': !character }"
+                :style="character ? { color: characterAvatars[character]?.color } : {}"
+                class="avatar-symbol"
+              >{{ character ? characterAvatars[character]?.symbol : '–' }}</span>
             </div>
-            <p class="avatar-name">{{ character }}</p>
+            <p v-if="character" class="avatar-name">{{ character }}</p>
           </div>
 
           <div class="section-divider">
@@ -307,7 +313,7 @@ watch(character, (newChar) => {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.25rem 0;
+  padding: 0.5rem 0;
 }
 
 .sword-ornament {
@@ -410,10 +416,20 @@ watch(character, (newChar) => {
     background-color 0.4s;
 }
 
+.avatar-frame--empty {
+  border-color: var(--hq-input-border);
+  border-style: dashed;
+}
+
 .avatar-symbol {
   font-size: 2.25rem;
   line-height: 1;
   transition: color 0.3s;
+}
+
+.avatar-symbol--empty {
+  font-size: 1.5rem;
+  color: var(--hq-input-placeholder);
 }
 
 .avatar-name {
