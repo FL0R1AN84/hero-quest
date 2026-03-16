@@ -14,6 +14,7 @@ async function handleVersionClick() {
   if (clicks.value >= 5) {
     showReset.value = true
     await nextTick()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })
   }
 }
@@ -26,13 +27,20 @@ function resetAll() {
 </script>
 
 <template>
-  <p class="text-sm" :class="{ 'version-unlocked': showReset }" style="cursor: default; user-select: none" @click="handleVersionClick">Version {{ version }}</p>
+  <p
+    :class="{ 'version-unlocked': showReset }"
+    class="text-sm"
+    style="cursor: default; user-select: none"
+    @click="handleVersionClick"
+  >
+    Version {{ version }}
+  </p>
   <button v-if="showReset" class="reset-btn" @click="resetAll">✦ Alles zurücksetzen</button>
 </template>
 
 <style scoped>
 .reset-btn {
-  margin-top: 0.5rem;
+  margin-top: 2rem;
   font-family: var(--font-fantasy), serif;
   font-size: 0.65rem;
   letter-spacing: 0.08em;
@@ -58,12 +66,26 @@ function resetAll() {
 }
 
 @keyframes unlock-shake {
-  0%   { transform: translateX(0); }
-  15%  { transform: translateX(-4px) rotate(-1deg); }
-  30%  { transform: translateX(4px) rotate(1deg); }
-  45%  { transform: translateX(-3px); }
-  60%  { transform: translateX(3px); }
-  75%  { transform: translateX(-1px); }
-  100% { transform: translateX(0); }
+  0% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-4px) rotate(-1deg);
+  }
+  30% {
+    transform: translateX(4px) rotate(1deg);
+  }
+  45% {
+    transform: translateX(-3px);
+  }
+  60% {
+    transform: translateX(3px);
+  }
+  75% {
+    transform: translateX(-1px);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 </style>
