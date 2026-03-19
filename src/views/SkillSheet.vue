@@ -149,6 +149,7 @@ const effectiveDefenseDice = computed({
 
 // ── Restriction helpers ───────────────────────────────────
 function canEquipWeapon(w: WeaponOption): boolean {
+  if (character.value === 'Zauberer') return false
   return !w.allowedCharacters || w.allowedCharacters.includes(character.value)
 }
 
@@ -186,6 +187,11 @@ function toggleSpecialItem(id: string) {
 
 function markItemUsed(id: string) {
   if (!usedSpecialItems.value.includes(id)) usedSpecialItems.value.push(id)
+}
+
+function resetItemUsed(id: string) {
+  const idx = usedSpecialItems.value.indexOf(id)
+  if (idx >= 0) usedSpecialItems.value.splice(idx, 1)
 }
 </script>
 
@@ -259,7 +265,9 @@ function markItemUsed(id: string) {
             <div class="stat-cell">
               <div class="stat-diamond-wrap">
                 <div class="diamond" style="border-color: var(--color-green)">
+                  <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
                   <input
+                    v-else
                     v-model.number="effectiveAttackDice"
                     class="diamond-input"
                     max="99"
@@ -276,7 +284,9 @@ function markItemUsed(id: string) {
             <div class="stat-cell">
               <div class="stat-diamond-wrap">
                 <div class="diamond" style="border-color: var(--color-red)">
+                  <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
                   <input
+                    v-else
                     v-model.number="effectiveDefenseDice"
                     class="diamond-input"
                     max="99"
@@ -330,7 +340,7 @@ function markItemUsed(id: string) {
           </div>
 
           <!-- Waffen -->
-          <div class="equip-block">
+          <div v-if="character !== 'Zauberer'" class="equip-block">
             <div class="equip-block-header">
               <span class="equip-block-label">Waffen</span>
               <span
@@ -340,25 +350,30 @@ function markItemUsed(id: string) {
               >
             </div>
             <div class="equip-list">
-              <button
-                v-for="w in visibleWeapons"
-                :key="w.id"
-                :class="{
-                  'equip-item--selected': equippedWeapon.includes(w.id),
-                  'equip-item--disabled': !equippedWeapon.includes(w.id) && equippedWeapon.length >= 2,
-                }"
-                class="equip-item"
-                type="button"
-                @click="toggleWeapon(w.id)"
-              >
-                <span class="equip-item-icon">⚔</span>
-                <span class="equip-item-content">
-                  <span class="equip-item-name">{{ w.label }}</span>
-                  <span v-if="w.note" class="equip-item-note">{{ w.note }}</span>
-                </span>
-                <span class="equip-item-bonus">+{{ w.bonus }}</span>
-                <span v-if="equippedWeapon.includes(w.id)" class="equip-item-check">✓</span>
-              </button>
+              <div v-if="!character" class="equip-item equip-item--placeholder">
+                <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
+              </div>
+              <template v-else>
+                <button
+                  v-for="w in visibleWeapons"
+                  :key="w.id"
+                  :class="{
+                    'equip-item--selected': equippedWeapon.includes(w.id),
+                    'equip-item--disabled': !equippedWeapon.includes(w.id) && equippedWeapon.length >= 2,
+                  }"
+                  class="equip-item"
+                  type="button"
+                  @click="toggleWeapon(w.id)"
+                >
+                  <span class="equip-item-icon">⚔</span>
+                  <span class="equip-item-content">
+                    <span class="equip-item-name">{{ w.label }}</span>
+                    <span v-if="w.note" class="equip-item-note">{{ w.note }}</span>
+                  </span>
+                  <span class="equip-item-bonus">+{{ w.bonus }}</span>
+                  <span v-if="equippedWeapon.includes(w.id)" class="equip-item-check">✓</span>
+                </button>
+              </template>
             </div>
           </div>
 
@@ -373,21 +388,26 @@ function markItemUsed(id: string) {
               >
             </div>
             <div class="equip-list">
-              <button
-                v-for="a in armorOptions"
-                :key="a.id"
-                :class="{ 'equip-item--selected equip-item--armor': equippedArmor.includes(a.id) }"
-                class="equip-item"
-                type="button"
-                @click="toggleArmor(a.id)"
-              >
-                <span class="equip-item-icon">🛡</span>
-                <span class="equip-item-content">
-                  <span class="equip-item-name">{{ a.label }}</span>
-                </span>
-                <span class="equip-item-bonus" :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }">+{{ a.bonus }}</span>
-                <span v-if="equippedArmor.includes(a.id)" class="equip-item-check equip-item-check--armor">✓</span>
-              </button>
+              <div v-if="!character" class="equip-item equip-item--placeholder">
+                <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
+              </div>
+              <template v-else>
+                <button
+                  v-for="a in armorOptions"
+                  :key="a.id"
+                  :class="{ 'equip-item--selected equip-item--armor': equippedArmor.includes(a.id) }"
+                  class="equip-item"
+                  type="button"
+                  @click="toggleArmor(a.id)"
+                >
+                  <span class="equip-item-icon">🛡</span>
+                  <span class="equip-item-content">
+                    <span class="equip-item-name">{{ a.label }}</span>
+                  </span>
+                  <span class="equip-item-bonus" :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }">+{{ a.bonus }}</span>
+                  <span v-if="equippedArmor.includes(a.id)" class="equip-item-check equip-item-check--armor">✓</span>
+                </button>
+              </template>
             </div>
           </div>
 
@@ -410,7 +430,7 @@ function markItemUsed(id: string) {
                   :disabled="usedSpecialItems.includes(item.id)"
                   class="equip-item-toggle"
                   type="button"
-                  @click="toggleSpecialItem(item.id)"
+                  @click.stop="toggleSpecialItem(item.id)"
                 >
                   <span class="equip-item-icon">{{ item.symbol }}</span>
                   <span class="equip-item-content">
@@ -432,9 +452,18 @@ function markItemUsed(id: string) {
                 >
                   ✦ Benutzen
                 </button>
+                <button
+                  v-if="usedSpecialItems.includes(item.id)"
+                  class="btn-restore-item"
+                  type="button"
+                  @click="resetItemUsed(item.id)"
+                >
+                  ↺ Wiederherstellen
+                </button>
               </div>
             </div>
           </div>
+
 
           <!-- Actions -->
           <div class="flex gap-3 pt-1">
@@ -639,6 +668,15 @@ function markItemUsed(id: string) {
 
 .diamond-input::placeholder {
   color: var(--hq-input-placeholder);
+}
+
+.diamond-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--hq-input-placeholder);
+  pointer-events: none;
+  user-select: none;
 }
 
 .stat-label {
@@ -885,6 +923,24 @@ input[type='number'] {
     background-color 0.2s;
 }
 
+.equip-item--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-style: dashed;
+  cursor: default;
+}
+
+.equip-item-placeholder {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 0.7rem;
+  color: var(--hq-input-placeholder);
+  text-align: center;
+}
+
 /* When used as a plain button (weapons, armor) */
 button.equip-item {
   display: flex;
@@ -1042,6 +1098,32 @@ button.equip-item {
 }
 
 .btn-use-item:active {
+  transform: scale(0.98);
+}
+
+.btn-restore-item {
+  width: 100%;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background-color: color-mix(in srgb, var(--hq-hint) 12%, var(--hq-card-bg-dark));
+  color: var(--hq-hint);
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--hq-hint) 20%, transparent);
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.btn-restore-item:hover {
+  background-color: color-mix(in srgb, var(--hq-hint) 22%, var(--hq-card-bg-dark));
+  color: var(--hq-input-text);
+}
+
+.btn-restore-item:active {
   transform: scale(0.98);
 }
 </style>
