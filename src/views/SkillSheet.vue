@@ -855,6 +855,7 @@ input[type='number'] {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  padding-block: 0.25rem;
 }
 
 .equip-block-header {
