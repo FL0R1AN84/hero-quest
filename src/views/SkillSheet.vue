@@ -1,10 +1,21 @@
 <script lang="ts" setup>
-import { watch } from 'vue'
+import { watch, computed } from 'vue'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { storeToRefs } from 'pinia'
 
 const store = useSkillSheetStore()
-const { name, character, attackDice, defenseDice, bodyStrength, intelligence } = storeToRefs(store)
+const {
+  name,
+  character,
+  attackDice,
+  defenseDice,
+  bodyStrength,
+  intelligence,
+  equippedWeapon,
+  equippedArmor,
+  equippedSpecialItems,
+  usedSpecialItems,
+} = storeToRefs(store)
 
 const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 
@@ -39,7 +50,143 @@ watch(character, (newChar) => {
     bodyStrength.value = stats.bodyStrength
     intelligence.value = stats.intelligence
   }
+  // Remove weapons the new character can't use
+  equippedWeapon.value = equippedWeapon.value.filter((id) => {
+    const w = weaponOptions.find((w) => w.id === id)
+    return !w?.allowedCharacters || w.allowedCharacters.includes(newChar)
+  })
+  // Remove special items the new character can't use
+  equippedSpecialItems.value = equippedSpecialItems.value.filter((id) => {
+    const item = specialItemOptions.find((i) => i.id === id)
+    return !item?.allowedCharacters || item.allowedCharacters.includes(newChar)
+  })
 })
+
+// ── Equipment data ────────────────────────────────────────
+interface WeaponOption {
+  id: string
+  label: string
+  note: string | null
+  bonus: number
+  allowedCharacters: string[] | null
+}
+
+interface SpecialItemOption {
+  id: string
+  label: string
+  symbol: string
+  ability: string
+  allowedCharacters: string[] | null
+}
+
+const weaponOptions: WeaponOption[] = [
+  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'langschwert', label: 'Langschwert', note: 'Kann auch diagonal angreifen', bonus: 1, allowedCharacters: null },
+  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 1, allowedCharacters: null },
+  { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
+  {
+    id: 'ork-kurzschwert',
+    label: 'Ork-Kurzschwert',
+    note: 'Orks können zweimal hintereinander angegriffen werden',
+    bonus: 1,
+    allowedCharacters: null,
+  },
+]
+
+const armorOptions: { id: string; label: string; bonus: number }[] = [
+  { id: 'helm', label: 'Helm', bonus: 1 },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2 },
+  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1 },
+  { id: 'schild', label: 'Schild', bonus: 1 },
+  { id: 'armpanzer', label: 'Armpanzer', bonus: 1 },
+]
+
+const specialItemOptions: SpecialItemOption[] = [
+  {
+    id: 'stab-der-magie',
+    label: 'Stab der Magie',
+    symbol: '🪄',
+    ability: '2× hintereinander zaubern',
+    allowedCharacters: ['Druide', 'Zauberer'],
+  },
+  {
+    id: 'ring-der-magie',
+    label: 'Ring der Magie',
+    symbol: '💍',
+    ability: 'Klont einen Zauber und speichert ihn im Ring – einlösbar in einer anderen Runde',
+    allowedCharacters: ['Druide', 'Zauberer'],
+  },
+]
+
+// ── Equipment bonuses ─────────────────────────────────────
+const weaponBonus = computed(() =>
+  equippedWeapon.value.reduce((sum, id) => {
+    const w = weaponOptions.find((w) => w.id === id)
+    return sum + (w?.bonus ?? 1)
+  }, 0),
+)
+const armorBonus = computed(() =>
+  equippedArmor.value.reduce((sum, id) => {
+    const a = armorOptions.find((a) => a.id === id)
+    return sum + (a?.bonus ?? 1)
+  }, 0),
+)
+
+// ── Effective stats (base + bonus) shown in the diamonds ──
+const effectiveAttackDice = computed({
+  get: () => (attackDice.value ?? 0) + weaponBonus.value,
+  set: (v: number) => {
+    attackDice.value = v - weaponBonus.value
+  },
+})
+
+const effectiveDefenseDice = computed({
+  get: () => (defenseDice.value ?? 0) + armorBonus.value,
+  set: (v: number) => {
+    defenseDice.value = v - armorBonus.value
+  },
+})
+
+// ── Restriction helpers ───────────────────────────────────
+function canEquipWeapon(w: WeaponOption): boolean {
+  return !w.allowedCharacters || w.allowedCharacters.includes(character.value)
+}
+
+function canEquipSpecialItem(item: SpecialItemOption): boolean {
+  return !item.allowedCharacters || item.allowedCharacters.includes(character.value)
+}
+
+// ── Filtered lists (only show items the current character can carry) ──
+const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
+const visibleSpecialItems = computed(() => specialItemOptions.filter(canEquipSpecialItem))
+
+// ── Toggle helpers ────────────────────────────────────────
+function toggleWeapon(id: string) {
+  const w = weaponOptions.find((w) => w.id === id)
+  if (!w || !canEquipWeapon(w)) return
+  const idx = equippedWeapon.value.indexOf(id)
+  if (idx >= 0) equippedWeapon.value.splice(idx, 1)
+  else if (equippedWeapon.value.length < 2) equippedWeapon.value.push(id)
+}
+
+function toggleArmor(id: string) {
+  const idx = equippedArmor.value.indexOf(id)
+  if (idx >= 0) equippedArmor.value.splice(idx, 1)
+  else equippedArmor.value.push(id)
+}
+
+function toggleSpecialItem(id: string) {
+  if (usedSpecialItems.value.includes(id)) return
+  const item = specialItemOptions.find((i) => i.id === id)
+  if (!item || !canEquipSpecialItem(item)) return
+  const idx = equippedSpecialItems.value.indexOf(id)
+  if (idx >= 0) equippedSpecialItems.value.splice(idx, 1)
+  else equippedSpecialItems.value.push(id)
+}
+
+function markItemUsed(id: string) {
+  if (!usedSpecialItems.value.includes(id)) usedSpecialItems.value.push(id)
+}
 </script>
 
 <template>
@@ -96,7 +243,8 @@ watch(character, (newChar) => {
                 :class="{ 'avatar-symbol--empty': !character }"
                 :style="character ? { color: characterAvatars[character]?.color } : {}"
                 class="avatar-symbol"
-              >{{ character ? characterAvatars[character]?.symbol : '–' }}</span>
+                >{{ character ? characterAvatars[character]?.symbol : '–' }}</span
+              >
             </div>
             <p v-if="character" class="avatar-name">{{ character }}</p>
           </div>
@@ -109,30 +257,34 @@ watch(character, (newChar) => {
           <div class="stats-grid">
             <!-- Angriffswürfel: green -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-green)">
-                <input
-                  v-model.number="attackDice"
-                  class="diamond-input"
-                  max="99"
-                  min="0"
-                  placeholder="–"
-                  type="number"
-                />
+              <div class="stat-diamond-wrap">
+                <div class="diamond" style="border-color: var(--color-green)">
+                  <input
+                    v-model.number="effectiveAttackDice"
+                    class="diamond-input"
+                    max="99"
+                    min="0"
+                    placeholder="–"
+                    type="number"
+                  />
+                </div>
               </div>
               <label class="stat-label">Angriffs-<br />würfel</label>
             </div>
 
             <!-- Verteidigungswürfel: red -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-red)">
-                <input
-                  v-model.number="defenseDice"
-                  class="diamond-input"
-                  max="99"
-                  min="0"
-                  placeholder="–"
-                  type="number"
-                />
+              <div class="stat-diamond-wrap">
+                <div class="diamond" style="border-color: var(--color-red)">
+                  <input
+                    v-model.number="effectiveDefenseDice"
+                    class="diamond-input"
+                    max="99"
+                    min="0"
+                    placeholder="–"
+                    type="number"
+                  />
+                </div>
               </div>
               <label class="stat-label">Verteidi-<br />gungs-<br />würfel</label>
             </div>
@@ -168,9 +320,120 @@ watch(character, (newChar) => {
             </div>
           </div>
 
-          <!-- Divider -->
-          <div class="section-divider">
+          <!-- ── Ausrüstung ─────────────────────────────── -->
+          <div class="equip-section-header">
             <div class="divider-line"></div>
+            <span class="sword-ornament">🛡</span>
+            <span class="equip-section-title">Ausrüstung</span>
+            <span class="sword-ornament">🛡</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <!-- Waffen -->
+          <div class="equip-block">
+            <div class="equip-block-header">
+              <span class="equip-block-label">Waffen</span>
+              <span
+                :class="weaponBonus > 0 ? 'equip-badge--attack-active' : 'equip-badge--inactive'"
+                class="equip-badge"
+                >+{{ weaponBonus }} ⚔</span
+              >
+            </div>
+            <div class="equip-list">
+              <button
+                v-for="w in visibleWeapons"
+                :key="w.id"
+                :class="{
+                  'equip-item--selected': equippedWeapon.includes(w.id),
+                  'equip-item--disabled': !equippedWeapon.includes(w.id) && equippedWeapon.length >= 2,
+                }"
+                class="equip-item"
+                type="button"
+                @click="toggleWeapon(w.id)"
+              >
+                <span class="equip-item-icon">⚔</span>
+                <span class="equip-item-content">
+                  <span class="equip-item-name">{{ w.label }}</span>
+                  <span v-if="w.note" class="equip-item-note">{{ w.note }}</span>
+                </span>
+                <span class="equip-item-bonus">+{{ w.bonus }}</span>
+                <span v-if="equippedWeapon.includes(w.id)" class="equip-item-check">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Rüstung -->
+          <div class="equip-block">
+            <div class="equip-block-header">
+              <span class="equip-block-label">Rüstung</span>
+              <span
+                :class="armorBonus > 0 ? 'equip-badge--defense-active' : 'equip-badge--inactive'"
+                class="equip-badge"
+                >+{{ armorBonus }} 🛡</span
+              >
+            </div>
+            <div class="equip-list">
+              <button
+                v-for="a in armorOptions"
+                :key="a.id"
+                :class="{ 'equip-item--selected equip-item--armor': equippedArmor.includes(a.id) }"
+                class="equip-item"
+                type="button"
+                @click="toggleArmor(a.id)"
+              >
+                <span class="equip-item-icon">🛡</span>
+                <span class="equip-item-content">
+                  <span class="equip-item-name">{{ a.label }}</span>
+                </span>
+                <span class="equip-item-bonus" :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }">+{{ a.bonus }}</span>
+                <span v-if="equippedArmor.includes(a.id)" class="equip-item-check equip-item-check--armor">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Gegenstände (special one-time items) -->
+          <div v-if="visibleSpecialItems.length > 0" class="equip-block">
+            <div class="equip-block-header">
+              <span class="equip-block-label">Gegenstände</span>
+            </div>
+            <div class="equip-list">
+              <div
+                v-for="item in visibleSpecialItems"
+                :key="item.id"
+                :class="{
+                  'equip-item--selected': equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id),
+                  'equip-item--used': usedSpecialItems.includes(item.id),
+                }"
+                class="equip-item equip-item--special-wrap"
+              >
+                <button
+                  :disabled="usedSpecialItems.includes(item.id)"
+                  class="equip-item-toggle"
+                  type="button"
+                  @click="toggleSpecialItem(item.id)"
+                >
+                  <span class="equip-item-icon">{{ item.symbol }}</span>
+                  <span class="equip-item-content">
+                    <span class="equip-item-name">{{ item.label }}</span>
+                    <span class="equip-item-note">{{ item.ability }}</span>
+                  </span>
+                  <span
+                    v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
+                    class="equip-item-check"
+                    >✓</span
+                  >
+                  <span v-if="usedSpecialItems.includes(item.id)" class="equip-item-used-badge">✕ BENUTZT</span>
+                </button>
+                <button
+                  v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
+                  class="btn-use-item"
+                  type="button"
+                  @click="markItemUsed(item.id)"
+                >
+                  ✦ Benutzen
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Actions -->
@@ -503,5 +766,282 @@ input[type='number']::-webkit-outer-spin-button {
 }
 input[type='number'] {
   -moz-appearance: textfield;
+}
+
+/* ── Stat diamond with bonus badge ──────────────────────── */
+.stat-diamond-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-bonus {
+  position: absolute;
+  bottom: -0.6rem;
+  right: -0.6rem;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.65rem;
+  font-weight: bold;
+  letter-spacing: 0.04em;
+  background-color: var(--hq-card-bg);
+  border: 1px solid currentColor;
+  border-radius: 99px;
+  padding: 0.05rem 0.3rem;
+  line-height: 1.4;
+  pointer-events: none;
+  transition:
+    color 0.3s,
+    background-color 0.4s;
+}
+
+/* ── Equipment section ──────────────────────────────────── */
+.equip-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+}
+
+.equip-section-title {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hq-subtitle);
+  white-space: nowrap;
+  transition: color 0.4s;
+}
+
+.equip-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.equip-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.equip-block-label {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hq-label);
+  transition: color 0.4s;
+}
+
+.equip-badge {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  border-radius: 99px;
+  padding: 0.1rem 0.5rem;
+  border: 1px solid;
+  transition:
+    color 0.3s,
+    border-color 0.3s,
+    background-color 0.3s;
+}
+
+.equip-badge--inactive {
+  color: var(--hq-hint);
+  border-color: var(--hq-divider);
+  background-color: transparent;
+}
+
+.equip-badge--attack-active {
+  color: var(--color-green);
+  border-color: var(--color-green);
+  background-color: color-mix(in srgb, var(--color-green) 12%, transparent);
+}
+
+.equip-badge--defense-active {
+  color: var(--color-red);
+  border-color: var(--color-red);
+  background-color: color-mix(in srgb, var(--color-red) 12%, transparent);
+}
+
+.equip-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Base equip item (used as button or container) */
+.equip-item {
+  width: 100%;
+  background-color: var(--hq-card-bg-dark);
+  border: 1px solid var(--hq-input-border);
+  border-radius: 2px;
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s;
+}
+
+/* When used as a plain button (weapons, armor) */
+button.equip-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  min-height: 2.75rem;
+}
+
+.equip-item--selected {
+  border-color: var(--color-green);
+  background-color: color-mix(in srgb, var(--color-green) 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item--disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.equip-item--armor.equip-item--selected {
+  border-color: var(--color-red);
+  background-color: color-mix(in srgb, var(--color-red) 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item--used {
+  opacity: 0.5;
+  border-style: dashed;
+  cursor: default;
+}
+
+.equip-item-icon {
+  font-size: 1rem;
+  line-height: 1.4;
+  flex-shrink: 0;
+}
+
+.equip-item-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.equip-item-name {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+  color: var(--hq-input-text);
+  transition: color 0.4s;
+}
+
+.equip-item-note {
+  font-family: var(--font-body), serif;
+  font-style: italic;
+  font-size: 0.65rem;
+  color: var(--hq-hint);
+  line-height: 1.3;
+  transition: color 0.4s;
+}
+
+.equip-item-restriction {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--color-yellow);
+  opacity: 0.8;
+  transition: color 0.4s;
+}
+
+.equip-item-bonus {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--hq-hint);
+  flex-shrink: 0;
+  align-self: center;
+  transition: color 0.3s;
+}
+
+.equip-item--selected .equip-item-bonus {
+  color: var(--color-green);
+}
+
+.equip-item--armor.equip-item--selected .equip-item-bonus,
+.equip-item-bonus--armor {
+  color: var(--color-red);
+}
+
+.equip-item-check {
+  font-size: 0.85rem;
+  color: var(--color-green);
+  flex-shrink: 0;
+  align-self: center;
+  font-weight: bold;
+}
+
+.equip-item-check--armor {
+  color: var(--color-red);
+}
+
+.equip-item-used-badge {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.05em;
+  color: var(--hq-hint);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* Special item wrap: contains toggle button + use button */
+.equip-item--special-wrap {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.equip-item-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 0.65rem;
+  min-height: 2.75rem;
+  width: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.equip-item-toggle:disabled {
+  cursor: default;
+}
+
+.btn-use-item {
+  width: 100%;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background-color: color-mix(in srgb, var(--color-blue) 18%, var(--hq-card-bg-dark));
+  color: var(--color-blue);
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--color-blue) 30%, transparent);
+  padding: 0.45rem 0.65rem;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+}
+
+.btn-use-item:hover {
+  background-color: color-mix(in srgb, var(--color-blue) 28%, var(--hq-card-bg-dark));
+}
+
+.btn-use-item:active {
+  transform: scale(0.98);
 }
 </style>
