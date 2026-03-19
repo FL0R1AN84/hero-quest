@@ -55,6 +55,11 @@ watch(character, (newChar) => {
     const w = weaponOptions.find((w) => w.id === id)
     return !w?.allowedCharacters || w.allowedCharacters.includes(newChar)
   })
+  // Remove armor the new character can't use
+  equippedArmor.value = equippedArmor.value.filter((id) => {
+    const a = armorOptions.find((a) => a.id === id)
+    return !a?.allowedCharacters || a.allowedCharacters.includes(newChar)
+  })
   // Remove special items the new character can't use
   equippedSpecialItems.value = equippedSpecialItems.value.filter((id) => {
     const item = specialItemOptions.find((i) => i.id === id)
@@ -93,12 +98,12 @@ const weaponOptions: WeaponOption[] = [
   },
 ]
 
-const armorOptions: { id: string; label: string; bonus: number }[] = [
-  { id: 'helm', label: 'Helm', bonus: 1 },
-  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2 },
-  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1 },
-  { id: 'schild', label: 'Schild', bonus: 1 },
-  { id: 'armpanzer', label: 'Armpanzer', bonus: 1 },
+const armorOptions: { id: string; label: string; bonus: number; allowedCharacters: string[] | null }[] = [
+  { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
+  { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
+  { id: 'armpanzer', label: 'Armpanzer', bonus: 1, allowedCharacters: null },
 ]
 
 const specialItemOptions: SpecialItemOption[] = [
@@ -153,12 +158,17 @@ function canEquipWeapon(w: WeaponOption): boolean {
   return !w.allowedCharacters || w.allowedCharacters.includes(character.value)
 }
 
+function canEquipArmor(a: { allowedCharacters: string[] | null }): boolean {
+  return !a.allowedCharacters || a.allowedCharacters.includes(character.value)
+}
+
 function canEquipSpecialItem(item: SpecialItemOption): boolean {
   return !item.allowedCharacters || item.allowedCharacters.includes(character.value)
 }
 
 // ── Filtered lists (only show items the current character can carry) ──
 const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
+const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
 const visibleSpecialItems = computed(() => specialItemOptions.filter(canEquipSpecialItem))
 
 // ── Toggle helpers ────────────────────────────────────────
@@ -171,6 +181,8 @@ function toggleWeapon(id: string) {
 }
 
 function toggleArmor(id: string) {
+  const a = armorOptions.find((a) => a.id === id)
+  if (!a || !canEquipArmor(a)) return
   const idx = equippedArmor.value.indexOf(id)
   if (idx >= 0) equippedArmor.value.splice(idx, 1)
   else equippedArmor.value.push(id)
@@ -402,7 +414,7 @@ function resetItemUsed(id: string) {
               </div>
               <template v-else>
                 <button
-                  v-for="a in armorOptions"
+                  v-for="a in visibleArmor"
                   :key="a.id"
                   :class="{ 'equip-item--selected equip-item--armor': equippedArmor.includes(a.id) }"
                   class="equip-item"
