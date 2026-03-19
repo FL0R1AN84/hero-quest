@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { watch, computed } from 'vue'
+import { watch, computed, ref } from 'vue'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { storeToRefs } from 'pinia'
 
@@ -113,7 +113,7 @@ const specialItemOptions: SpecialItemOption[] = [
     id: 'ring-der-magie',
     label: 'Ring der Magie',
     symbol: '💍',
-    ability: 'Klont einen Zauber und speichert ihn im Ring – einlösbar in einer anderen Runde',
+    ability: 'Klont einen Zauber und speichert ihn im Ring',
     allowedCharacters: ['Druide', 'Zauberer'],
   },
 ]
@@ -186,8 +186,17 @@ function toggleSpecialItem(id: string) {
 }
 
 function markItemUsed(id: string) {
-  if (!usedSpecialItems.value.includes(id)) usedSpecialItems.value.push(id)
+  if (!usedSpecialItems.value.includes(id)) {
+    animatingItems.value.push(id)
+    usedSpecialItems.value.push(id)
+    setTimeout(() => {
+      const idx = animatingItems.value.indexOf(id)
+      if (idx >= 0) animatingItems.value.splice(idx, 1)
+    }, 900)
+  }
 }
+
+const animatingItems = ref<string[]>([])
 
 function resetItemUsed(id: string) {
   const idx = usedSpecialItems.value.indexOf(id)
@@ -425,6 +434,7 @@ function resetItemUsed(id: string) {
                 :class="{
                   'equip-item--selected': equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id),
                   'equip-item--used': usedSpecialItems.includes(item.id),
+                  'equip-item--magic-flash': animatingItems.includes(item.id),
                 }"
                 class="equip-item equip-item--special-wrap"
               >
@@ -1127,5 +1137,48 @@ button.equip-item {
 
 .btn-restore-item:active {
   transform: scale(0.98);
+}
+
+/* ── Magic item use effect ──────────────────────────────── */
+@keyframes magic-flash {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+    border-color: var(--color-blue);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.04);
+    box-shadow:
+      0 0 12px 4px color-mix(in srgb, var(--color-blue) 60%, transparent),
+      0 0 32px 8px color-mix(in srgb, var(--color-blue) 30%, transparent);
+    border-color: var(--color-blue);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow:
+      0 0 20px 6px color-mix(in srgb, var(--color-blue) 50%, transparent),
+      0 0 48px 12px color-mix(in srgb, var(--color-blue) 20%, transparent);
+  }
+  70% {
+    opacity: 0.7;
+    transform: scale(1.01);
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--color-blue) 25%, transparent);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.equip-item--magic-flash {
+  animation: magic-flash 0.9s ease-out forwards;
+  border-color: var(--color-blue) !important;
+  background-color: color-mix(in srgb, var(--color-blue) 12%, var(--hq-card-bg-dark)) !important;
+  z-index: 1;
+  position: relative;
 }
 </style>
