@@ -280,10 +280,10 @@ function resetItemUsed(id: string) {
               <label class="stat-label">Angriffs-<br />würfel</label>
             </div>
 
-            <!-- Verteidigungswürfel: red -->
+            <!-- Verteidigungswürfel: yellow -->
             <div class="stat-cell">
               <div class="stat-diamond-wrap">
-                <div class="diamond" style="border-color: var(--color-red)">
+                <div class="diamond" style="border-color: var(--color-yellow)">
                   <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
                   <input
                     v-else
@@ -299,9 +299,9 @@ function resetItemUsed(id: string) {
               <label class="stat-label">Verteidi-<br />gungs-<br />würfel</label>
             </div>
 
-            <!-- Körperkraft: yellow -->
+            <!-- Körperkraft: red -->
             <div class="stat-cell">
-              <div class="diamond" style="border-color: var(--color-yellow)">
+              <div class="diamond" style="border-color: var(--color-red)">
                 <input
                   v-model.number="bodyStrength"
                   class="diamond-input"
@@ -333,7 +333,7 @@ function resetItemUsed(id: string) {
           <!-- ── Ausrüstung ─────────────────────────────── -->
           <div class="equip-section-header">
             <div class="divider-line"></div>
-            <span class="sword-ornament">🛡</span>
+            <span class="sword-ornament">⚔️</span>
             <span class="equip-section-title">Ausrüstung</span>
             <span class="sword-ornament">🛡</span>
             <div class="divider-line"></div>
@@ -404,7 +404,9 @@ function resetItemUsed(id: string) {
                   <span class="equip-item-content">
                     <span class="equip-item-name">{{ a.label }}</span>
                   </span>
-                  <span class="equip-item-bonus" :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }">+{{ a.bonus }}</span>
+                  <span :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }" class="equip-item-bonus"
+                    >+{{ a.bonus }}</span
+                  >
                   <span v-if="equippedArmor.includes(a.id)" class="equip-item-check equip-item-check--armor">✓</span>
                 </button>
               </template>
@@ -463,7 +465,6 @@ function resetItemUsed(id: string) {
               </div>
             </div>
           </div>
-
 
           <!-- Actions -->
           <div class="flex gap-3 pt-1">
@@ -900,9 +901,9 @@ input[type='number'] {
 }
 
 .equip-badge--defense-active {
-  color: var(--color-red);
-  border-color: var(--color-red);
-  background-color: color-mix(in srgb, var(--color-red) 12%, transparent);
+  color: var(--color-yellow);
+  border-color: var(--color-yellow);
+  background-color: color-mix(in srgb, var(--color-yellow) 12%, transparent);
 }
 
 .equip-list {
@@ -962,8 +963,8 @@ button.equip-item {
 }
 
 .equip-item--armor.equip-item--selected {
-  border-color: var(--color-red);
-  background-color: color-mix(in srgb, var(--color-red) 8%, var(--hq-card-bg-dark));
+  border-color: var(--color-yellow);
+  background-color: color-mix(in srgb, var(--color-yellow) 8%, var(--hq-card-bg-dark));
 }
 
 .equip-item--used {
@@ -1028,7 +1029,7 @@ button.equip-item {
 
 .equip-item--armor.equip-item--selected .equip-item-bonus,
 .equip-item-bonus--armor {
-  color: var(--color-red);
+  color: var(--color-yellow);
 }
 
 .equip-item-check {
@@ -1040,7 +1041,7 @@ button.equip-item {
 }
 
 .equip-item-check--armor {
-  color: var(--color-red);
+  color: var(--color-yellow);
 }
 
 .equip-item-used-badge {
