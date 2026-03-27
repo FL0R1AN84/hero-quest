@@ -1,5 +1,6 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { weaponOptions, armorOptions } from '@/data/skillSheetData'
 
 export const useSkillSheetStore = defineStore(
   'skillSheet',
@@ -15,6 +16,20 @@ export const useSkillSheetStore = defineStore(
     const equippedArmor = ref<string[]>([])
     const equippedSpecialItems = ref<string[]>([])
     const usedSpecialItems = ref<string[]>([])
+
+    const weaponBonus = computed(() =>
+      equippedWeapon.value.reduce((sum, id) => {
+        const w = weaponOptions.find((w) => w.id === id)
+        return sum + (w?.bonus ?? 1)
+      }, 0),
+    )
+
+    const armorBonus = computed(() =>
+      equippedArmor.value.reduce((sum, id) => {
+        const a = armorOptions.find((a) => a.id === id)
+        return sum + (a?.bonus ?? 1)
+      }, 0),
+    )
 
     function reset() {
       name.value = ''
@@ -40,6 +55,8 @@ export const useSkillSheetStore = defineStore(
       equippedArmor,
       equippedSpecialItems,
       usedSpecialItems,
+      weaponBonus,
+      armorBonus,
       reset,
     }
   },
