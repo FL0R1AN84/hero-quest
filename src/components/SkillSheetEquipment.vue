@@ -288,9 +288,9 @@ function resetItemUsed(id: string) {
 }
 
 .equip-badge--defense-active {
-  color: var(--color-yellow);
-  border-color: var(--color-yellow);
-  background-color: color-mix(in srgb, var(--color-yellow) 12%, transparent);
+  color: var(--hq-color-defense);
+  border-color: var(--hq-color-defense);
+  background-color: color-mix(in srgb, var(--hq-color-defense) 12%, transparent);
 }
 
 .equip-list {
@@ -348,8 +348,8 @@ button.equip-item {
 }
 
 .equip-item--armor.equip-item--selected {
-  border-color: var(--color-yellow);
-  background-color: color-mix(in srgb, var(--color-yellow) 8%, var(--hq-card-bg-dark));
+  border-color: var(--hq-color-defense);
+  background-color: color-mix(in srgb, var(--hq-color-defense) 8%, var(--hq-card-bg-dark));
 }
 
 .equip-item--used {
@@ -405,7 +405,7 @@ button.equip-item {
 
 .equip-item--armor.equip-item--selected .equip-item-bonus,
 .equip-item-bonus--armor {
-  color: var(--color-yellow);
+  color: var(--hq-color-defense);
 }
 
 .equip-item-check {
@@ -417,7 +417,7 @@ button.equip-item {
 }
 
 .equip-item-check--armor {
-  color: var(--color-yellow);
+  color: var(--hq-color-defense);
 }
 
 .equip-item-used-badge {

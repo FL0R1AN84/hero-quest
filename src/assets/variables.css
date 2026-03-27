@@ -41,6 +41,8 @@
 
   --hq-hint: rgba(44, 26, 14, 0.38);
   --hq-footer: rgba(44, 26, 14, 0.4);
+
+  --hq-color-defense: var(--color-dark);
 }
 
 /* ── Dark mode ──────────────────────────────────────────── */
@@ -72,5 +74,8 @@
 
     --hq-hint: rgba(200, 168, 106, 0.35);
     --hq-footer: rgba(200, 168, 106, 0.35);
+
+    /* Armor/defense highlight – full yellow works on dark backgrounds */
+    --hq-color-defense: var(--color-yellow);
   }
 }
