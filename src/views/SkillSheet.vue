@@ -49,8 +49,7 @@ const store = useSkillSheetStore()
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: calc(1.25rem + env(safe-area-inset-top)) max(0.75rem, env(safe-area-inset-right))
-    calc(2rem + env(safe-area-inset-bottom)) max(0.75rem, env(safe-area-inset-left));
+  padding: 0;
   background-color: var(--hq-bg);
   transition: background-color 0.4s;
 }
@@ -63,11 +62,13 @@ const store = useSkillSheetStore()
 
 .card {
   background-color: var(--hq-card-bg);
-  border: 4px solid var(--hq-card-border);
-  border-radius: 2px;
+  border: none;
+  border-radius: 0;
   overflow: hidden;
-  padding: 1.5rem 1rem 2rem;
-  box-shadow: 0 0 60px var(--hq-card-shadow);
+  min-height: 100dvh;
+  padding: calc(1.25rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    calc(2rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  box-shadow: none;
   transition:
     background-color 0.4s,
     border-color 0.4s;
@@ -132,7 +133,11 @@ const store = useSkillSheetStore()
   }
 
   .card {
+    border: 4px solid var(--hq-card-border);
+    border-radius: 2px;
+    min-height: unset;
     padding: 2rem 2rem 2.5rem;
+    box-shadow: 0 0 60px var(--hq-card-shadow);
   }
 }
 </style>
