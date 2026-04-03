@@ -137,14 +137,3 @@ The exported `.json` file contains the full character state and can be re-import
   "usedSpecialItems": []
 }
 ```
-
----
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) extension (disable Vetur if installed).
-
-### Recommended Browser Extensions
-
-- **Chrome / Edge / Brave:** [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-- **Firefox:** [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
