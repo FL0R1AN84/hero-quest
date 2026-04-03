@@ -7,6 +7,58 @@ import SkillSheetStats from '@/components/SkillSheetStats.vue'
 import SkillSheetEquipment from '@/components/SkillSheetEquipment.vue'
 
 const store = useSkillSheetStore()
+
+function saveToFile() {
+  const data = {
+    name: store.name,
+    character: store.character,
+    attackDice: store.attackDice,
+    defenseDice: store.defenseDice,
+    bodyStrength: store.bodyStrength,
+    intelligence: store.intelligence,
+    equippedWeapon: [...store.equippedWeapon],
+    equippedArmor: [...store.equippedArmor],
+    equippedSpecialItems: [...store.equippedSpecialItems],
+    usedSpecialItems: [...store.usedSpecialItems],
+  }
+  const json = JSON.stringify(data, null, 2)
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `${store.name || 'Held'}_${store.character}.json`
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
+function loadFromFile() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json'
+  input.onchange = async (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      store.$patch({
+        name: data.name ?? '',
+        character: data.character ?? '',
+        attackDice: data.attackDice ?? null,
+        defenseDice: data.defenseDice ?? null,
+        bodyStrength: data.bodyStrength ?? null,
+        intelligence: data.intelligence ?? null,
+        equippedWeapon: data.equippedWeapon ?? [],
+        equippedArmor: data.equippedArmor ?? [],
+        equippedSpecialItems: data.equippedSpecialItems ?? [],
+        usedSpecialItems: data.usedSpecialItems ?? [],
+      })
+    } catch {
+      alert('Ungültige Datei – bitte eine gültige JSON-Skillsheet-Datei wählen.')
+    }
+  }
+  input.click()
+}
 </script>
 
 <template>
@@ -33,7 +85,8 @@ const store = useSkillSheetStore()
           <SkillSheetEquipment />
 
           <div class="flex gap-3 pt-1">
-            <button class="btn-save" type="button" @click="store.$patch({})">✦ Speichern</button>
+            <button class="btn-load" type="button" @click="loadFromFile">Laden</button>
+            <button :disabled="!store.character" class="btn-save" type="button" @click="saveToFile">Speichern</button>
           </div>
 
           <p class="hint">Deine Werte werden automatisch im Browser gespeichert.</p>
@@ -88,14 +141,13 @@ const store = useSkillSheetStore()
   padding: 0.5rem 0;
 }
 
-.btn-save {
+.btn-save,
+.btn-load {
   flex: 1;
   font-family: var(--font-fantasy), serif;
   font-size: 1rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  background-color: var(--hq-btn-save-bg);
-  color: var(--hq-btn-save-text);
   border: 2px solid var(--hq-card-border);
   padding: 0.75rem 1rem;
   cursor: pointer;
@@ -107,12 +159,33 @@ const store = useSkillSheetStore()
     border-color 0.4s;
 }
 
+.btn-save {
+  background-color: var(--hq-btn-save-bg);
+  color: var(--hq-btn-save-text);
+}
+
 .btn-save:hover {
   background-color: var(--hq-btn-save-hover-bg);
   color: var(--hq-btn-save-hover-text);
 }
 
-.btn-save:active {
+.btn-load {
+  background-color: transparent;
+  color: var(--hq-btn-save-text);
+}
+
+.btn-load:hover {
+  background-color: var(--hq-divider);
+}
+
+.btn-save:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-save:active,
+.btn-load:active {
   transform: scale(0.97);
 }
 
