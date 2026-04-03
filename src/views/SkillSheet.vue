@@ -171,7 +171,6 @@ function loadFromFile() {
 
 .btn-load {
   background-color: transparent;
-  color: var(--hq-btn-save-text);
 }
 
 .btn-load:hover {
