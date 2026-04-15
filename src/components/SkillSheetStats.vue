@@ -19,6 +19,13 @@ const effectiveDefenseDice = computed({
     defenseDice.value = v - store.armorBonus
   },
 })
+
+const effectiveIntelligence = computed({
+  get: () => (intelligence.value ?? 0) + store.intelligenceBonus,
+  set: (v: number) => {
+    intelligence.value = v - store.intelligenceBonus
+  },
+})
 </script>
 
 <template>
@@ -72,7 +79,16 @@ const effectiveDefenseDice = computed({
     <!-- Intelligenz: blue -->
     <div class="stat-cell">
       <div class="diamond" style="border-color: var(--color-blue)">
-        <input v-model.number="intelligence" class="diamond-input" max="99" min="0" placeholder="–" type="number" />
+        <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
+        <input
+          v-else
+          v-model.number="effectiveIntelligence"
+          class="diamond-input"
+          max="99"
+          min="0"
+          placeholder="–"
+          type="number"
+        />
       </div>
       <label class="stat-label">Intelli-<br />genz</label>
     </div>
@@ -161,6 +177,7 @@ const effectiveDefenseDice = computed({
   color: var(--hq-label);
   transition: color 0.4s;
 }
+
 
 /* Hide number spinners */
 input[type='number']::-webkit-inner-spin-button,
