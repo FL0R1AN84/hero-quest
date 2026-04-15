@@ -19,6 +19,8 @@ export interface SpecialItemOption {
   symbol: string
   ability: string
   allowedCharacters: string[] | null
+  passive?: boolean
+  intelligenceBonus?: number
 }
 
 export const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
@@ -55,7 +57,7 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 1,
     allowedCharacters: null,
   },
-  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 1, allowedCharacters: null },
+  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
   { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
   {
     id: 'ork-kurzschwert',
@@ -88,5 +90,14 @@ export const specialItemOptions: SpecialItemOption[] = [
     symbol: '💍',
     ability: 'Klont einen Zauber und speichert ihn im Ring',
     allowedCharacters: ['Druide', 'Zauberer'],
+  },
+  {
+    id: 'amulett-der-weisheit',
+    label: 'Amulett der Weisheit',
+    symbol: '📿',
+    ability: 'Dauerhaft +1 Intelligenz',
+    allowedCharacters: ['Barbar'],
+    passive: true,
+    intelligenceBonus: 1,
   },
 ]

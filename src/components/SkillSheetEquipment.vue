@@ -157,53 +157,84 @@ function resetItemUsed(id: string) {
   <div v-if="visibleSpecialItems.length > 0" class="equip-block">
     <div class="equip-block-header">
       <span class="equip-block-label">Gegenstände</span>
+      <span
+        v-if="store.intelligenceBonus > 0"
+        class="equip-badge equip-badge--intel-active"
+      >+{{ store.intelligenceBonus }} 🧠</span>
     </div>
     <div class="equip-list">
-      <div
-        v-for="item in visibleSpecialItems"
-        :key="item.id"
-        :class="{
-          'equip-item--selected': equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id),
-          'equip-item--used': usedSpecialItems.includes(item.id),
-          'equip-item--magic-flash': animatingItems.includes(item.id),
-        }"
-        class="equip-item equip-item--special-wrap"
-      >
-        <button
-          :disabled="usedSpecialItems.includes(item.id)"
-          class="equip-item-toggle"
-          type="button"
-          @click.stop="toggleSpecialItem(item.id)"
+      <template v-for="item in visibleSpecialItems" :key="item.id">
+        <!-- Passive item (e.g. Amulett der Weisheit) -->
+        <div
+          v-if="item.passive"
+          :class="{
+            'equip-item--selected equip-item--passive': equippedSpecialItems.includes(item.id),
+          }"
+          class="equip-item equip-item--special-wrap"
         >
-          <span class="equip-item-icon">{{ item.symbol }}</span>
-          <span class="equip-item-content">
-            <span class="equip-item-name">{{ item.label }}</span>
-            <span class="equip-item-note">{{ item.ability }}</span>
-          </span>
-          <span
-            v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
-            class="equip-item-check"
-            >✓</span
+          <button
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
           >
-          <span v-if="usedSpecialItems.includes(item.id)" class="equip-item-used-badge">✕ BENUTZT</span>
-        </button>
-        <button
-          v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
-          class="btn-use-item"
-          type="button"
-          @click="markItemUsed(item.id)"
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
+              +{{ item.intelligenceBonus }} 🧠
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive">✓</span>
+          </button>
+        </div>
+
+        <!-- Active item (needs to be used) -->
+        <div
+          v-else
+          :class="{
+            'equip-item--selected': equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id),
+            'equip-item--used': usedSpecialItems.includes(item.id),
+            'equip-item--magic-flash': animatingItems.includes(item.id),
+          }"
+          class="equip-item equip-item--special-wrap"
         >
-          ✦ Benutzen
-        </button>
-        <button
-          v-if="usedSpecialItems.includes(item.id)"
-          class="btn-restore-item"
-          type="button"
-          @click="resetItemUsed(item.id)"
-        >
-          ↺ Wiederherstellen
-        </button>
-      </div>
+          <button
+            :disabled="usedSpecialItems.includes(item.id)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <span
+              v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
+              class="equip-item-check"
+              >✓</span
+            >
+            <span v-if="usedSpecialItems.includes(item.id)" class="equip-item-used-badge">✕ BENUTZT</span>
+          </button>
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
+            class="btn-use-item"
+            type="button"
+            @click="markItemUsed(item.id)"
+          >
+            ✦ Benutzen
+          </button>
+          <button
+            v-if="usedSpecialItems.includes(item.id)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -291,6 +322,12 @@ function resetItemUsed(id: string) {
   color: var(--hq-color-defense);
   border-color: var(--hq-color-defense);
   background-color: color-mix(in srgb, var(--hq-color-defense) 12%, transparent);
+}
+
+.equip-badge--intel-active {
+  color: var(--color-blue);
+  border-color: var(--color-blue);
+  background-color: color-mix(in srgb, var(--color-blue) 12%, transparent);
 }
 
 .equip-list {
@@ -418,6 +455,19 @@ button.equip-item {
 
 .equip-item-check--armor {
   color: var(--hq-color-defense);
+}
+
+.equip-item-check--passive {
+  color: var(--color-blue);
+}
+
+.equip-item--passive.equip-item--selected {
+  border-color: var(--color-blue);
+  background-color: color-mix(in srgb, var(--color-blue) 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item-bonus--passive {
+  color: var(--color-blue);
 }
 
 .equip-item-used-badge {
