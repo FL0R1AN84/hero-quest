@@ -2,12 +2,21 @@
 import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
-import { weaponOptions, armorOptions, specialItemOptions } from '@/data/skillSheetData'
+import { weaponOptions, armorOptions, specialItemOptions, defaultStats } from '@/data/skillSheetData'
 import type { WeaponOption, SpecialItemOption } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
-const { character, equippedWeapon, equippedArmor, equippedSpecialItems, usedSpecialItems } =
-  storeToRefs(store)
+const {
+  character,
+  equippedWeapon,
+  equippedArmor,
+  equippedSpecialItems,
+  usedSpecialItems,
+  itemChargesUsed,
+  attackDice,
+  defenseDice,
+  bodyStrength,
+} = storeToRefs(store)
 
 // ── Restriction helpers ───────────────────────────────────
 function canEquipWeapon(w: WeaponOption): boolean {
@@ -28,6 +37,19 @@ const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
 const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
 const visibleSpecialItems = computed(() => specialItemOptions.filter(canEquipSpecialItem))
 
+// ── Item usage helpers ────────────────────────────────────
+function isFullyUsed(item: SpecialItemOption): boolean {
+  if (item.maxUses) {
+    return (itemChargesUsed.value[item.id] ?? 0) >= item.maxUses
+  }
+  return usedSpecialItems.value.includes(item.id)
+}
+
+function getChargesLeft(item: SpecialItemOption): number {
+  if (!item.maxUses) return 0
+  return item.maxUses - (itemChargesUsed.value[item.id] ?? 0)
+}
+
 // ── Toggle helpers ────────────────────────────────────────
 function toggleWeapon(id: string) {
   const w = weaponOptions.find((w) => w.id === id)
@@ -46,15 +68,21 @@ function toggleArmor(id: string) {
 }
 
 function toggleSpecialItem(id: string) {
-  if (usedSpecialItems.value.includes(id)) return
   const item = specialItemOptions.find((i) => i.id === id)
   if (!item || !canEquipSpecialItem(item)) return
+  if (isFullyUsed(item)) return
   const idx = equippedSpecialItems.value.indexOf(id)
-  if (idx >= 0) equippedSpecialItems.value.splice(idx, 1)
-  else equippedSpecialItems.value.push(id)
+  if (idx >= 0) {
+    equippedSpecialItems.value.splice(idx, 1)
+    if (healDialogItemId.value === id) healDialogItemId.value = null
+  } else {
+    equippedSpecialItems.value.push(id)
+  }
 }
 
+// ── Animating state ───────────────────────────────────────
 const animatingItems = ref<string[]>([])
+const animatingFireItems = ref<string[]>([])
 
 function markItemUsed(id: string) {
   if (!usedSpecialItems.value.includes(id)) {
@@ -70,6 +98,71 @@ function markItemUsed(id: string) {
 function resetItemUsed(id: string) {
   const idx = usedSpecialItems.value.indexOf(id)
   if (idx >= 0) usedSpecialItems.value.splice(idx, 1)
+  // Clear multi-charge usage
+  const updated = { ...itemChargesUsed.value }
+  delete updated[id]
+  itemChargesUsed.value = updated
+  if (healDialogItemId.value === id) healDialogItemId.value = null
+}
+
+// ── Fire-shield ───────────────────────────────────────────
+function useFireCharge(id: string) {
+  const item = specialItemOptions.find((i) => i.id === id)
+  if (!item?.maxUses) return
+  const current = itemChargesUsed.value[id] ?? 0
+  const next = current + 1
+  itemChargesUsed.value = { ...itemChargesUsed.value, [id]: next }
+
+  animatingFireItems.value.push(id)
+  setTimeout(() => {
+    const idx = animatingFireItems.value.indexOf(id)
+    if (idx >= 0) animatingFireItems.value.splice(idx, 1)
+  }, 900)
+
+  if (next >= item.maxUses && !usedSpecialItems.value.includes(id)) {
+    usedSpecialItems.value.push(id)
+  }
+}
+
+// ── Attack / Defense potions ──────────────────────────────
+function useAttackPotion(id: string) {
+  if (attackDice.value === null) return
+  attackDice.value = Math.min(6 - store.weaponBonus, attackDice.value + 1)
+  markItemUsed(id)
+}
+
+function useDefensePotion(id: string) {
+  if (defenseDice.value === null) return
+  defenseDice.value = Math.min(6 - store.armorBonus, defenseDice.value + 1)
+  markItemUsed(id)
+}
+
+// ── Heal potion ───────────────────────────────────────────
+const healDialogItemId = ref<string | null>(null)
+const healRolled = ref(1)
+
+// +4 fixer Heiltrank – kein Dialog, direkt anwenden
+function useFixedHeal(id: string) {
+  if (bodyStrength.value === null || !character.value) return
+  const startBs = defaultStats[character.value]?.bodyStrength ?? bodyStrength.value
+  bodyStrength.value = Math.min(startBs, bodyStrength.value + 4)
+  markItemUsed(id)
+}
+
+// Würfel-Heiltrank – Dialog öffnen
+function openHealDialog(id: string) {
+  healRolled.value = 1
+  healDialogItemId.value = id
+}
+
+// Würfel-Heiltrank – Ergebnis anwenden (1–6, nie über Startwert)
+function applyHeal(id: string) {
+  if (bodyStrength.value === null || !character.value) return
+  const startBs = defaultStats[character.value]?.bodyStrength ?? bodyStrength.value
+  const heal = Math.min(healRolled.value, startBs - bodyStrength.value)
+  bodyStrength.value = bodyStrength.value + Math.max(0, heal)
+  healDialogItemId.value = null
+  markItemUsed(id)
 }
 </script>
 
@@ -164,7 +257,8 @@ function resetItemUsed(id: string) {
     </div>
     <div class="equip-list">
       <template v-for="item in visibleSpecialItems" :key="item.id">
-        <!-- Passive item (e.g. Amulett der Weisheit) -->
+
+        <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
         <div
           v-if="item.passive"
           :class="{
@@ -189,7 +283,199 @@ function resetItemUsed(id: string) {
           </button>
         </div>
 
-        <!-- Active item (needs to be used) -->
+        <!-- ② FIRE SHIELD (Ring des Feuers – 2 Ladungen, roter Effekt) -->
+        <div
+          v-else-if="item.kind === 'fire-shield'"
+          :class="{
+            'equip-item--fire-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+            'equip-item--used': isFullyUsed(item),
+            'equip-item--fire-flash': animatingFireItems.includes(item.id),
+          }"
+          class="equip-item equip-item--special-wrap"
+        >
+          <button
+            :disabled="isFullyUsed(item)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <!-- Charge indicators -->
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="fire-charges">
+              <span v-for="i in (item.maxUses ?? 0)" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
+            </span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
+            <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--fire">✓</span>
+          </button>
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            class="btn-use-item btn-use-item--fire"
+            type="button"
+            @click="useFireCharge(item.id)"
+          >
+            🔥 Feuerzauber abwehren
+          </button>
+          <button
+            v-if="isFullyUsed(item)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+
+        <!-- ③a HEAL FIXED (Heiltrank +4 – kein Würfelwurf) -->
+        <div
+          v-else-if="item.kind === 'heal-fixed'"
+          :class="{
+            'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+            'equip-item--used': isFullyUsed(item),
+          }"
+          class="equip-item equip-item--special-wrap"
+        >
+          <button
+            :disabled="isFullyUsed(item)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check equip-item-check--heal">✓</span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+          </button>
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            class="btn-use-item btn-use-item--heal"
+            type="button"
+            @click="useFixedHeal(item.id)"
+          >
+            ✚ +4 Körperkraft heilen
+          </button>
+          <button
+            v-if="isFullyUsed(item)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+
+        <!-- ③b HEAL POTION (Heiltrank Würfel – 1W6) -->
+        <div
+          v-else-if="item.kind === 'heal-potion'"
+          :class="{
+            'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+            'equip-item--used': isFullyUsed(item),
+          }"
+          class="equip-item equip-item--special-wrap"
+        >
+          <button
+            :disabled="isFullyUsed(item)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check equip-item-check--heal">✓</span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+          </button>
+          <!-- Inline dice dialog -->
+          <div
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId === item.id"
+            class="heal-dialog"
+          >
+            <p class="heal-dialog-label">Gewürfeltes Ergebnis (1W6):</p>
+            <div class="heal-controls">
+              <button class="heal-adj" :disabled="healRolled <= 1" @click="healRolled > 1 && healRolled--">−</button>
+              <span class="heal-value">{{ healRolled }}</span>
+              <button class="heal-adj" :disabled="healRolled >= 6" @click="healRolled < 6 && healRolled++">+</button>
+            </div>
+            <p class="heal-dialog-result">
+              → Heilt
+              <strong>{{ Math.min(healRolled, Math.max(0, (defaultStats[character]?.bodyStrength ?? 0) - (bodyStrength ?? 0))) }}</strong>
+              Punkt(e)
+            </p>
+            <div class="heal-actions">
+              <button class="btn-heal-confirm" @click="applyHeal(item.id)">✚ Heilen</button>
+              <button class="btn-heal-cancel" @click="healDialogItemId = null">✕ Abbrechen</button>
+            </div>
+          </div>
+          <button
+            v-else-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            class="btn-use-item btn-use-item--heal"
+            type="button"
+            @click="openHealDialog(item.id)"
+          >
+            🎲 Würfeln &amp; Heilen
+          </button>
+          <button
+            v-if="isFullyUsed(item)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+
+        <!-- ④ ATTACK / DEFENSE POTION -->
+        <div
+          v-else-if="item.kind === 'attack-potion' || item.kind === 'defense-potion'"
+          :class="{
+            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
+            'equip-item--armor equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
+            'equip-item--used': isFullyUsed(item),
+            'equip-item--magic-flash': animatingItems.includes(item.id),
+          }"
+          class="equip-item equip-item--special-wrap"
+        >
+          <button
+            :disabled="isFullyUsed(item)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+          </button>
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            class="btn-use-item"
+            type="button"
+            @click="item.kind === 'attack-potion' ? useAttackPotion(item.id) : useDefensePotion(item.id)"
+          >
+            ✦ Trinken
+          </button>
+          <button
+            v-if="isFullyUsed(item)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+
+        <!-- ⑤ DEFAULT ACTIVE (Stab der Magie, Ring der Magie …) -->
         <div
           v-else
           :class="{
@@ -213,8 +499,7 @@ function resetItemUsed(id: string) {
             <span
               v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
               class="equip-item-check"
-              >✓</span
-            >
+            >✓</span>
             <span v-if="usedSpecialItems.includes(item.id)" class="equip-item-used-badge">✕ BENUTZT</span>
           </button>
           <button
@@ -234,6 +519,7 @@ function resetItemUsed(id: string) {
             ↺ Wiederherstellen
           </button>
         </div>
+
       </template>
     </div>
   </div>
@@ -595,6 +881,220 @@ button.equip-item {
   background-color: color-mix(in srgb, var(--color-blue) 12%, var(--hq-card-bg-dark)) !important;
   z-index: 1;
   position: relative;
+}
+
+/* ── Fire-shield styles ─────────────────────────────────── */
+.equip-item--fire-selected {
+  border-color: var(--color-red);
+  background-color: color-mix(in srgb, var(--color-red) 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item-check--fire {
+  font-size: 0.85rem;
+  color: var(--color-red);
+  flex-shrink: 0;
+  align-self: center;
+  font-weight: bold;
+}
+
+.fire-charges {
+  display: flex;
+  gap: 0.1rem;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.btn-use-item--fire {
+  background-color: color-mix(in srgb, var(--color-red) 18%, var(--hq-card-bg-dark));
+  color: var(--color-red);
+  border-top: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
+}
+
+.btn-use-item--fire:hover {
+  background-color: color-mix(in srgb, var(--color-red) 28%, var(--hq-card-bg-dark));
+}
+
+@keyframes fire-flash {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+    border-color: var(--color-red);
+  }
+  15% {
+    opacity: 1;
+    transform: scale(1.04);
+    box-shadow:
+      0 0 12px 4px color-mix(in srgb, var(--color-red) 60%, transparent),
+      0 0 32px 8px color-mix(in srgb, var(--color-red) 30%, transparent);
+    border-color: var(--color-red);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.02);
+    box-shadow:
+      0 0 20px 6px color-mix(in srgb, var(--color-red) 50%, transparent),
+      0 0 48px 12px color-mix(in srgb, var(--color-red) 20%, transparent);
+  }
+  70% {
+    opacity: 0.7;
+    transform: scale(1.01);
+    box-shadow: 0 0 8px 2px color-mix(in srgb, var(--color-red) 25%, transparent);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+    box-shadow: none;
+  }
+}
+
+.equip-item--fire-flash {
+  animation: fire-flash 0.9s ease-out forwards;
+  border-color: var(--color-red) !important;
+  background-color: color-mix(in srgb, var(--color-red) 12%, var(--hq-card-bg-dark)) !important;
+  z-index: 1;
+  position: relative;
+}
+
+/* ── Heal-potion styles ─────────────────────────────────── */
+.equip-item--heal-selected {
+  border-color: #4caf50;
+  background-color: color-mix(in srgb, #4caf50 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item-check--heal {
+  font-size: 0.85rem;
+  color: #4caf50;
+  flex-shrink: 0;
+  align-self: center;
+  font-weight: bold;
+}
+
+.btn-use-item--heal {
+  background-color: color-mix(in srgb, #4caf50 18%, var(--hq-card-bg-dark));
+  color: #88dd8a;
+  border-top: 1px solid color-mix(in srgb, #4caf50 30%, transparent);
+}
+
+.btn-use-item--heal:hover {
+  background-color: color-mix(in srgb, #4caf50 28%, var(--hq-card-bg-dark));
+}
+
+.heal-dialog {
+  border-top: 1px solid color-mix(in srgb, #4caf50 25%, transparent);
+  background-color: color-mix(in srgb, #4caf50 6%, var(--hq-card-bg-dark));
+  padding: 0.75rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.heal-dialog-label {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #88dd8a;
+  text-align: center;
+}
+
+.heal-dialog-result {
+  font-family: var(--font-body), serif;
+  font-size: 0.75rem;
+  color: #88dd8a;
+  text-align: center;
+}
+
+.heal-dialog-result strong {
+  font-size: 1rem;
+  font-family: var(--font-fantasy), serif;
+}
+
+.heal-cap-hint {
+  display: none;
+}
+
+.heal-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.heal-adj {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 50%;
+  border: 1.5px solid #4caf50;
+  background: transparent;
+  color: #88dd8a;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.heal-adj:hover:not(:disabled) {
+  background-color: color-mix(in srgb, #4caf50 20%, transparent);
+}
+
+.heal-adj:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.heal-value {
+  font-family: var(--font-fantasy), serif;
+  font-size: 1.75rem;
+  color: #88dd8a;
+  min-width: 1.5rem;
+  text-align: center;
+}
+
+.heal-actions {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.btn-heal-confirm {
+  flex: 1;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background-color: color-mix(in srgb, #4caf50 22%, var(--hq-card-bg-dark));
+  color: #88dd8a;
+  border: 1px solid color-mix(in srgb, #4caf50 40%, transparent);
+  border-radius: 2px;
+  padding: 0.4rem 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-heal-confirm:hover {
+  background-color: color-mix(in srgb, #4caf50 35%, var(--hq-card-bg-dark));
+}
+
+.btn-heal-cancel {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  background-color: transparent;
+  color: var(--hq-hint);
+  border: 1px solid var(--hq-divider);
+  border-radius: 2px;
+  padding: 0.4rem 0.65rem;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.btn-heal-cancel:hover {
+  background-color: color-mix(in srgb, var(--hq-hint) 15%, transparent);
+  color: var(--hq-input-text);
 }
 </style>
 
