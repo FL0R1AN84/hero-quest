@@ -21,6 +21,10 @@ export interface SpecialItemOption {
   allowedCharacters: string[] | null
   passive?: boolean
   intelligenceBonus?: number
+  /** 'heal-potion' | 'attack-potion' | 'defense-potion' | 'fire-shield' */
+  kind?: string
+  /** max uses before fully consumed (e.g. 2 for Ring des Feuers) */
+  maxUses?: number
 }
 
 export const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
@@ -88,8 +92,10 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'ring-der-magie',
     label: 'Ring der Magie',
     symbol: '💍',
-    ability: 'Klont einen Zauber und speichert ihn im Ring',
+    ability: '1. Verwendung: Zauber speichern · 2. Verwendung: Zauber abfeuern',
     allowedCharacters: ['Druide', 'Zauberer'],
+    kind: 'magic-ring',
+    maxUses: 2,
   },
   {
     id: 'amulett-der-weisheit',
@@ -99,5 +105,47 @@ export const specialItemOptions: SpecialItemOption[] = [
     allowedCharacters: ['Barbar'],
     passive: true,
     intelligenceBonus: 1,
+  },
+  // ── Universelle Gegenstände (alle Helden) ────────────
+  {
+    id: 'heiltrank',
+    label: 'Heiltrank',
+    symbol: '🧪',
+    ability: 'Stellt immer genau +4 Körperkraft wieder her (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'heal-fixed',
+  },
+  {
+    id: 'heiltrank-gewuerfelt',
+    label: 'Heiltrank (Würfel)',
+    symbol: '🎲',
+    ability: 'Würfle 1W6 – heilt genau das gewürfelte Ergebnis (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'heal-potion',
+  },
+  {
+    id: 'staerketrank',
+    label: 'Stärketrank',
+    symbol: '💪',
+    ability: '+1 Angriffswürfel (max. 6)',
+    allowedCharacters: null,
+    kind: 'attack-potion',
+  },
+  {
+    id: 'verteidigungstrank',
+    label: 'Verteidigungstrank',
+    symbol: '🛡️',
+    ability: '+1 Verteidigungswürfel (max. 6)',
+    allowedCharacters: null,
+    kind: 'defense-potion',
+  },
+  {
+    id: 'ring-des-feuers',
+    label: 'Ring des Feuers',
+    symbol: '🔥',
+    ability: 'Wehrt 2 Feuerzauber ab',
+    allowedCharacters: null,
+    kind: 'fire-shield',
+    maxUses: 2,
   },
 ]
