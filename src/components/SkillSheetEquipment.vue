@@ -270,7 +270,7 @@ function applyHeal(id: string) {
   </div>
 
   <!-- Gegenstände -->
-  <div v-if="visibleSpecialItems.length > 0" class="equip-block">
+  <div v-if="character && visibleSpecialItems.length > 0" class="equip-block">
     <div class="equip-block-header">
       <span class="equip-block-label">Gegenstände</span>
       <span
