@@ -297,6 +297,10 @@ function revive() {
   align-items: center;
   gap: 1rem;
   animation: rise 0.6s ease-out both;
+  width: 100%;
+  max-width: 28rem;
+  padding-inline: 1.5rem;
+  box-sizing: border-box;
 }
 
 .death-skull {
@@ -312,6 +316,8 @@ function revive() {
   text-shadow: 0 0 16px #ff0000aa, 0 2px 4px #000;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  text-align: center;
+  width: 100%;
 }
 
 /* ── Revive box ───────────────────────────────────────── */
@@ -326,6 +332,8 @@ function revive() {
   border-radius: 0.75rem;
   padding: 1rem 1.5rem;
   backdrop-filter: blur(2px);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .revive-label {
