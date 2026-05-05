@@ -30,13 +30,11 @@ const effectiveIntelligence = computed({
 const isDead = computed(() => character.value !== '' && (bodyStrength.value ?? 0) === 0)
 
 function changeAttack(delta: number) {
-  const next = Math.min(6, Math.max(1, effectiveAttackDice.value + delta))
-  effectiveAttackDice.value = next
+  effectiveAttackDice.value = Math.min(6, Math.max(1, effectiveAttackDice.value + delta))
 }
 
 function changeDefense(delta: number) {
-  const next = Math.min(6, Math.max(1, effectiveDefenseDice.value + delta))
-  effectiveDefenseDice.value = next
+  effectiveDefenseDice.value = Math.min(6, Math.max(1, effectiveDefenseDice.value + delta))
 }
 
 function changeBodyStrength(delta: number) {
@@ -46,8 +44,7 @@ function changeBodyStrength(delta: number) {
 
 function changeIntelligence(delta: number) {
   if (!character.value) return
-  const next = Math.max(0, effectiveIntelligence.value + delta)
-  effectiveIntelligence.value = next
+  effectiveIntelligence.value = Math.max(0, effectiveIntelligence.value + delta)
 }
 
 // Revive
@@ -62,34 +59,38 @@ function revive() {
 
 <template>
   <!-- Death overlay -->
-  <Transition name="death">
-    <div v-if="isDead" class="death-overlay" @click.stop>
-      <div class="death-content">
-        <div class="death-skull">💀</div>
-        <div class="death-text">Der Held ist gefallen!</div>
-        <div class="revive-box">
-          <p class="revive-label">Wiederbelebung – Körperkraftpunkte wiederherstellen:</p>
-          <div class="revive-controls">
-            <button class="revive-adj" :disabled="revivePoints <= 1" @click="revivePoints > 1 && revivePoints--">−</button>
-            <span class="revive-value">{{ revivePoints }}</span>
-            <button class="revive-adj" @click="revivePoints++">+</button>
-          </div>
-          <button class="revive-btn" @click="revive">⚗️ Wiederbeleben</button>
+  <div v-if="isDead" class="death-overlay" @click.stop>
+    <div class="death-content">
+      <div class="death-skull">💀</div>
+      <div class="death-text">Der Held ist gefallen!</div>
+      <div class="revive-box">
+        <p class="revive-label">Wiederbelebung – Körperkraftpunkte wiederherstellen:</p>
+        <div class="revive-controls">
+          <button :disabled="revivePoints <= 1" class="revive-adj" @click="revivePoints > 1 && revivePoints--">
+            −
+          </button>
+          <span class="revive-value">{{ revivePoints }}</span>
+          <button class="revive-adj" @click="revivePoints++">+</button>
         </div>
+        <button class="revive-btn" @click="revive">⚗️ Wiederbeleben</button>
       </div>
     </div>
-  </Transition>
+  </div>
 
-  <div class="stats-grid" :class="{ 'is-dead': isDead }">
+  <div :class="{ 'is-dead': isDead }" class="stats-grid">
     <!-- Angriffswürfel: green -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
-        <button class="adj-btn adj-minus" :disabled="!character || effectiveAttackDice <= 1" @click="changeAttack(-1)">−</button>
+        <button :disabled="!character || effectiveAttackDice <= 1" class="adj-btn adj-minus" @click="changeAttack(-1)">
+          −
+        </button>
         <div class="diamond" style="border-color: var(--color-green)">
           <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
           <span v-else class="diamond-input">{{ effectiveAttackDice }}</span>
         </div>
-        <button class="adj-btn adj-plus" :disabled="!character || effectiveAttackDice >= 6" @click="changeAttack(+1)">+</button>
+        <button :disabled="!character || effectiveAttackDice >= 6" class="adj-btn adj-plus" @click="changeAttack(+1)">
+          +
+        </button>
       </div>
       <label class="stat-label">Angriffs-<br />würfel</label>
     </div>
@@ -97,12 +98,20 @@ function revive() {
     <!-- Verteidigungswürfel: yellow -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
-        <button class="adj-btn adj-minus" :disabled="!character || effectiveDefenseDice <= 1" @click="changeDefense(-1)">−</button>
+        <button
+          :disabled="!character || effectiveDefenseDice <= 1"
+          class="adj-btn adj-minus"
+          @click="changeDefense(-1)"
+        >
+          −
+        </button>
         <div class="diamond" style="border-color: var(--color-yellow)">
           <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
           <span v-else class="diamond-input">{{ effectiveDefenseDice }}</span>
         </div>
-        <button class="adj-btn adj-plus" :disabled="!character || effectiveDefenseDice >= 6" @click="changeDefense(+1)">+</button>
+        <button :disabled="!character || effectiveDefenseDice >= 6" class="adj-btn adj-plus" @click="changeDefense(+1)">
+          +
+        </button>
       </div>
       <label class="stat-label">Verteidi-<br />gungs-<br />würfel</label>
     </div>
@@ -110,12 +119,18 @@ function revive() {
     <!-- Körperkraft: red -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
-        <button class="adj-btn adj-minus" :disabled="bodyStrength === null || bodyStrength <= 0" @click="changeBodyStrength(-1)">−</button>
-        <div class="diamond" :class="{ 'diamond-dead': isDead }" style="border-color: var(--color-red)">
+        <button
+          :disabled="bodyStrength === null || bodyStrength <= 0"
+          class="adj-btn adj-minus"
+          @click="changeBodyStrength(-1)"
+        >
+          −
+        </button>
+        <div :class="{ 'diamond-dead': isDead }" class="diamond" style="border-color: var(--color-red)">
           <span v-if="bodyStrength === null" class="diamond-input diamond-placeholder">–</span>
-          <span v-else class="diamond-input" :class="{ 'text-dead': isDead }">{{ bodyStrength }}</span>
+          <span v-else :class="{ 'text-dead': isDead }" class="diamond-input">{{ bodyStrength }}</span>
         </div>
-        <button class="adj-btn adj-plus" :disabled="bodyStrength === null" @click="changeBodyStrength(+1)">+</button>
+        <button :disabled="bodyStrength === null" class="adj-btn adj-plus" @click="changeBodyStrength(+1)">+</button>
       </div>
       <label class="stat-label">Körper-<br />kraft</label>
     </div>
@@ -123,12 +138,18 @@ function revive() {
     <!-- Intelligenz: blue -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
-        <button class="adj-btn adj-minus" :disabled="!character || effectiveIntelligence <= 0" @click="changeIntelligence(-1)">−</button>
+        <button
+          :disabled="!character || effectiveIntelligence <= 0"
+          class="adj-btn adj-minus"
+          @click="changeIntelligence(-1)"
+        >
+          −
+        </button>
         <div class="diamond" style="border-color: var(--color-blue)">
           <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
           <span v-else class="diamond-input">{{ effectiveIntelligence }}</span>
         </div>
-        <button class="adj-btn adj-plus" :disabled="!character" @click="changeIntelligence(+1)">+</button>
+        <button :disabled="!character" class="adj-btn adj-plus" @click="changeIntelligence(+1)">+</button>
       </div>
       <label class="stat-label">Intelli-<br />genz</label>
     </div>
@@ -180,7 +201,7 @@ function revive() {
   width: 1.5rem;
   height: 1.5rem;
   border-radius: 50%;
-  border: 1.5px solid var(--hq-label);
+  border: 2px solid var(--hq-label);
   background: var(--hq-card-bg-dark, #1a1a1a);
   color: var(--hq-label);
   font-size: 0.95rem;
@@ -189,18 +210,21 @@ function revive() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    opacity 0.2s;
   z-index: 1;
 }
 
 .adj-minus {
-  bottom: -0.55rem;
-  left: -0.55rem;
+  bottom: -0.5rem;
+  left: -0.5rem;
 }
 
 .adj-plus {
-  top: -0.55rem;
-  right: -0.55rem;
+  top: -0.5rem;
+  right: -0.5rem;
 }
 
 .adj-btn:hover:not(:disabled) {
@@ -224,7 +248,9 @@ function revive() {
   justify-content: center;
   transform: rotate(45deg);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.4s, border-color 0.4s;
+  transition:
+    background-color 0.4s,
+    border-color 0.4s;
   flex-shrink: 0;
 }
 
@@ -289,6 +315,16 @@ function revive() {
   justify-content: center;
   background: rgba(0, 0, 0, 0.78);
   backdrop-filter: blur(4px);
+  animation: overlay-in 0.4s ease both;
+}
+
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .death-content {
@@ -313,7 +349,9 @@ function revive() {
   font-family: var(--font-fantasy), serif;
   font-size: 2rem;
   color: #cc2222;
-  text-shadow: 0 0 16px #ff0000aa, 0 2px 4px #000;
+  text-shadow:
+    0 0 16px #ff0000aa,
+    0 2px 4px #000;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
@@ -355,7 +393,7 @@ function revive() {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid rgba(255, 255, 255, 0.5);
   background: transparent;
   color: #fff;
   font-size: 1.2rem;
@@ -394,7 +432,10 @@ function revive() {
   font-size: 1rem;
   letter-spacing: 0.05em;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
 }
 
 .revive-btn:hover {
@@ -403,34 +444,47 @@ function revive() {
   box-shadow: 0 0 16px #4caf5088;
 }
 
-/* Transitions */
-.death-enter-active {
-  transition: opacity 0.4s ease;
-}
-.death-leave-active {
-  transition: opacity 0.3s ease;
-}
-.death-enter-from,
-.death-leave-to {
-  opacity: 0;
-}
+/* Transitions – handled via overlay-in keyframe, no Transition component needed */
 
 @keyframes rise {
-  from { transform: translateY(40px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes shake {
-  0%,100% { transform: rotate(0deg); }
-  20%     { transform: rotate(-8deg); }
-  40%     { transform: rotate(8deg); }
-  60%     { transform: rotate(-5deg); }
-  80%     { transform: rotate(5deg); }
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  20% {
+    transform: rotate(-8deg);
+  }
+  40% {
+    transform: rotate(8deg);
+  }
+  60% {
+    transform: rotate(-5deg);
+  }
+  80% {
+    transform: rotate(5deg);
+  }
 }
 
 @keyframes pulse-dead {
-  0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
-  50%      { box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px 2px #b00; }
+  0%,
+  100% {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow:
+      inset 0 2px 4px rgba(0, 0, 0, 0.2),
+      0 0 10px 2px #b00;
+  }
 }
 </style>
-

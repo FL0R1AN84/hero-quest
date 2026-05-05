@@ -273,14 +273,12 @@ function applyHeal(id: string) {
   <div v-if="character && visibleSpecialItems.length > 0" class="equip-block">
     <div class="equip-block-header">
       <span class="equip-block-label">Gegenstände</span>
-      <span
-        v-if="store.intelligenceBonus > 0"
-        class="equip-badge equip-badge--intel-active"
-      >+{{ store.intelligenceBonus }} 🧠</span>
+      <span v-if="store.intelligenceBonus > 0" class="equip-badge equip-badge--intel-active"
+        >+{{ store.intelligenceBonus }} 🧠</span
+      >
     </div>
     <div class="equip-list">
       <template v-for="item in visibleSpecialItems" :key="item.id">
-
         <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
         <div
           v-if="item.passive"
@@ -289,11 +287,7 @@ function applyHeal(id: string) {
           }"
           class="equip-item equip-item--special-wrap"
         >
-          <button
-            class="equip-item-toggle"
-            type="button"
-            @click.stop="toggleSpecialItem(item.id)"
-          >
+          <button class="equip-item-toggle" type="button" @click.stop="toggleSpecialItem(item.id)">
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
               <span class="equip-item-name">{{ item.label }}</span>
@@ -302,7 +296,9 @@ function applyHeal(id: string) {
             <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
               +{{ item.intelligenceBonus }} 🧠
             </span>
-            <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive">✓</span>
+            <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
+              >✓</span
+            >
           </button>
         </div>
 
@@ -329,10 +325,10 @@ function applyHeal(id: string) {
             </span>
             <!-- Charge indicators -->
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="fire-charges">
-              <span v-for="i in (item.maxUses ?? 0)" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
+              <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
             </span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
-            <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--fire">✓</span>
+            <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check">✓</span>
           </button>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
@@ -342,12 +338,7 @@ function applyHeal(id: string) {
           >
             🔥 Feuerzauber abwehren
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
@@ -372,7 +363,11 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check equip-item-check--heal">✓</span>
+            <span
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="equip-item-check equip-item-check--heal"
+              >✓</span
+            >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
           </button>
           <button
@@ -383,12 +378,7 @@ function applyHeal(id: string) {
           >
             ✚ +4 Körperkraft heilen
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
@@ -413,7 +403,11 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check equip-item-check--heal">✓</span>
+            <span
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="equip-item-check equip-item-check--heal"
+              >✓</span
+            >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
           </button>
           <!-- Inline dice dialog -->
@@ -423,13 +417,15 @@ function applyHeal(id: string) {
           >
             <p class="heal-dialog-label">Gewürfeltes Ergebnis (1W6):</p>
             <div class="heal-controls">
-              <button class="heal-adj" :disabled="healRolled <= 1" @click="healRolled > 1 && healRolled--">−</button>
+              <button :disabled="healRolled <= 1" class="heal-adj" @click="healRolled > 1 && healRolled--">−</button>
               <span class="heal-value">{{ healRolled }}</span>
-              <button class="heal-adj" :disabled="healRolled >= 6" @click="healRolled < 6 && healRolled++">+</button>
+              <button :disabled="healRolled >= 6" class="heal-adj" @click="healRolled < 6 && healRolled++">+</button>
             </div>
             <p class="heal-dialog-result">
               → Heilt
-              <strong>{{ Math.min(healRolled, Math.max(0, (defaultStats[character]?.bodyStrength ?? 0) - (bodyStrength ?? 0))) }}</strong>
+              <strong>{{
+                Math.min(healRolled, Math.max(0, (defaultStats[character]?.bodyStrength ?? 0) - (bodyStrength ?? 0)))
+              }}</strong>
               Punkt(e)
             </p>
             <div class="heal-actions">
@@ -445,12 +441,7 @@ function applyHeal(id: string) {
           >
             🎲 Würfeln &amp; Heilen
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
@@ -459,8 +450,10 @@ function applyHeal(id: string) {
         <div
           v-else-if="item.kind === 'attack-potion' || item.kind === 'defense-potion'"
           :class="{
-            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
-            'equip-item--armor equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
+            'equip-item--selected':
+              equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
+            'equip-item--armor equip-item--selected':
+              equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
             'equip-item--used': isFullyUsed(item),
             'equip-item--magic-flash': animatingItems.includes(item.id),
           }"
@@ -488,12 +481,7 @@ function applyHeal(id: string) {
           >
             ✦ Trinken
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
@@ -528,27 +516,23 @@ function applyHeal(id: string) {
           </button>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item"
             :class="{ 'btn-use-item--fire-spell': getChargesUsed(item) >= 1 }"
+            class="btn-use-item"
             type="button"
             @click="useMagicCharge(item.id)"
           >
             <template v-if="getChargesUsed(item) === 0">💍 Zauber im Ring speichern</template>
             <template v-else>✦ Gespeicherten Zauber abfeuern</template>
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
 
         <!-- ⑤b DEFAULT ACTIVE (Stab der Magie …) -->
         <div
-          v-else          :class="{
+          v-else
+          :class="{
             'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
             'equip-item--used': isFullyUsed(item),
             'equip-item--magic-flash': animatingItems.includes(item.id),
@@ -567,13 +551,13 @@ function applyHeal(id: string) {
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
             <!-- Blue charge dots for multi-use items -->
-            <span v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
-              <span v-for="i in (item.maxUses ?? 0)" :key="i">{{ i <= getChargesLeft(item) ? '🔵' : '⚫' }}</span>
-            </span>
             <span
-              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-              class="equip-item-check"
-            >✓</span>
+              v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="magic-charges"
+            >
+              <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔵' : '⚫' }}</span>
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ BENUTZT</span>
           </button>
           <button
@@ -584,16 +568,10 @@ function applyHeal(id: string) {
           >
             ✦ Benutzen
           </button>
-          <button
-            v-if="isFullyUsed(item)"
-            class="btn-restore-item"
-            type="button"
-            @click="resetItemUsed(item.id)"
-          >
+          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
             ↺ Wiederherstellen
           </button>
         </div>
-
       </template>
     </div>
   </div>
@@ -963,14 +941,6 @@ button.equip-item {
   background-color: color-mix(in srgb, var(--color-red) 8%, var(--hq-card-bg-dark));
 }
 
-.equip-item-check--fire {
-  font-size: 0.85rem;
-  color: var(--color-red);
-  flex-shrink: 0;
-  align-self: center;
-  font-weight: bold;
-}
-
 .fire-charges {
   display: flex;
   gap: 0.1rem;
@@ -1105,10 +1075,6 @@ button.equip-item {
   font-family: var(--font-fantasy), serif;
 }
 
-.heal-cap-hint {
-  display: none;
-}
-
 .heal-controls {
   display: flex;
   align-items: center;
@@ -1182,7 +1148,9 @@ button.equip-item {
   border-radius: 2px;
   padding: 0.4rem 0.65rem;
   cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 
 .btn-heal-cancel:hover {
@@ -1190,4 +1158,3 @@ button.equip-item {
   color: var(--hq-input-text);
 }
 </style>
-
