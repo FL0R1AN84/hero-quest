@@ -50,6 +50,10 @@ function getChargesLeft(item: SpecialItemOption): number {
   return item.maxUses - (itemChargesUsed.value[item.id] ?? 0)
 }
 
+function getChargesUsed(item: SpecialItemOption): number {
+  return itemChargesUsed.value[item.id] ?? 0
+}
+
 // ── Toggle helpers ────────────────────────────────────────
 function toggleWeapon(id: string) {
   const w = weaponOptions.find((w) => w.id === id)
@@ -92,6 +96,25 @@ function markItemUsed(id: string) {
       const idx = animatingItems.value.indexOf(id)
       if (idx >= 0) animatingItems.value.splice(idx, 1)
     }, 900)
+  }
+}
+
+// Multi-charge magic item (blue flash, e.g. Ring der Magie)
+function useMagicCharge(id: string) {
+  const item = specialItemOptions.find((i) => i.id === id)
+  if (!item?.maxUses) return
+  const current = itemChargesUsed.value[id] ?? 0
+  const next = current + 1
+  itemChargesUsed.value = { ...itemChargesUsed.value, [id]: next }
+
+  animatingItems.value.push(id)
+  setTimeout(() => {
+    const idx = animatingItems.value.indexOf(id)
+    if (idx >= 0) animatingItems.value.splice(idx, 1)
+  }, 900)
+
+  if (next >= item.maxUses && !usedSpecialItems.value.includes(id)) {
+    usedSpecialItems.value.push(id)
   }
 }
 
@@ -475,18 +498,18 @@ function applyHeal(id: string) {
           </button>
         </div>
 
-        <!-- ⑤ DEFAULT ACTIVE (Stab der Magie, Ring der Magie …) -->
+        <!-- ⑤a MAGIC RING (Ring der Magie: ⚫→🔵 speichern, dann abfeuern) -->
         <div
-          v-else
+          v-else-if="item.kind === 'magic-ring'"
           :class="{
-            'equip-item--selected': equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id),
-            'equip-item--used': usedSpecialItems.includes(item.id),
+            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+            'equip-item--used': isFullyUsed(item),
             'equip-item--magic-flash': animatingItems.includes(item.id),
           }"
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="usedSpecialItems.includes(item.id)"
+            :disabled="isFullyUsed(item)"
             class="equip-item-toggle"
             type="button"
             @click.stop="toggleSpecialItem(item.id)"
@@ -496,22 +519,73 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <span
-              v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
-              class="equip-item-check"
-            >✓</span>
-            <span v-if="usedSpecialItems.includes(item.id)" class="equip-item-used-badge">✕ BENUTZT</span>
+            <!-- Circle: ⚫ = leer, 🔵 = Zauber gespeichert -->
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
+              <span>{{ getChargesUsed(item) >= 1 ? '🔵' : '⚫' }}</span>
+            </span>
+            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
           </button>
           <button
-            v-if="equippedSpecialItems.includes(item.id) && !usedSpecialItems.includes(item.id)"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            class="btn-use-item"
+            :class="{ 'btn-use-item--fire-spell': getChargesUsed(item) >= 1 }"
+            type="button"
+            @click="useMagicCharge(item.id)"
+          >
+            <template v-if="getChargesUsed(item) === 0">💍 Zauber im Ring speichern</template>
+            <template v-else>✦ Gespeicherten Zauber abfeuern</template>
+          </button>
+          <button
+            v-if="isFullyUsed(item)"
+            class="btn-restore-item"
+            type="button"
+            @click="resetItemUsed(item.id)"
+          >
+            ↺ Wiederherstellen
+          </button>
+        </div>
+
+        <!-- ⑤b DEFAULT ACTIVE (Stab der Magie …) -->
+        <div
+          v-else          :class="{
+            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+            'equip-item--used': isFullyUsed(item),
+            'equip-item--magic-flash': animatingItems.includes(item.id),
+          }"
+          class="equip-item equip-item--special-wrap"
+        >
+          <button
+            :disabled="isFullyUsed(item)"
+            class="equip-item-toggle"
+            type="button"
+            @click.stop="toggleSpecialItem(item.id)"
+          >
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+            <!-- Blue charge dots for multi-use items -->
+            <span v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
+              <span v-for="i in (item.maxUses ?? 0)" :key="i">{{ i <= getChargesLeft(item) ? '🔵' : '⚫' }}</span>
+            </span>
+            <span
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="equip-item-check"
+            >✓</span>
+            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ BENUTZT</span>
+          </button>
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             class="btn-use-item"
             type="button"
-            @click="markItemUsed(item.id)"
+            @click="item.maxUses ? useMagicCharge(item.id) : markItemUsed(item.id)"
           >
             ✦ Benutzen
           </button>
           <button
-            v-if="usedSpecialItems.includes(item.id)"
+            v-if="isFullyUsed(item)"
             class="btn-restore-item"
             type="button"
             @click="resetItemUsed(item.id)"
@@ -903,6 +977,25 @@ button.equip-item {
   font-size: 0.75rem;
   flex-shrink: 0;
   align-self: center;
+}
+
+.magic-charges {
+  display: flex;
+  gap: 0.1rem;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+/* "Abfeuern"-Button: wärmerer Ton wenn Zauber gespeichert ist */
+.btn-use-item--fire-spell {
+  background-color: color-mix(in srgb, var(--color-yellow) 18%, var(--hq-card-bg-dark));
+  color: var(--color-yellow);
+  border-top: 1px solid color-mix(in srgb, var(--color-yellow) 30%, transparent);
+}
+
+.btn-use-item--fire-spell:hover {
+  background-color: color-mix(in srgb, var(--color-yellow) 28%, var(--hq-card-bg-dark));
 }
 
 .btn-use-item--fire {

@@ -92,8 +92,10 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'ring-der-magie',
     label: 'Ring der Magie',
     symbol: '💍',
-    ability: 'Klont einen Zauber und speichert ihn im Ring',
+    ability: '1. Verwendung: Zauber speichern · 2. Verwendung: Zauber abfeuern',
     allowedCharacters: ['Druide', 'Zauberer'],
+    kind: 'magic-ring',
+    maxUses: 2,
   },
   {
     id: 'amulett-der-weisheit',
