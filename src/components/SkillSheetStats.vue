@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 
@@ -26,25 +26,70 @@ const effectiveIntelligence = computed({
     intelligence.value = v - store.intelligenceBonus
   },
 })
+
+const isDead = computed(() => character.value !== '' && (bodyStrength.value ?? 0) === 0)
+
+function changeAttack(delta: number) {
+  const next = Math.min(6, Math.max(1, effectiveAttackDice.value + delta))
+  effectiveAttackDice.value = next
+}
+
+function changeDefense(delta: number) {
+  const next = Math.min(6, Math.max(1, effectiveDefenseDice.value + delta))
+  effectiveDefenseDice.value = next
+}
+
+function changeBodyStrength(delta: number) {
+  if (bodyStrength.value === null) return
+  bodyStrength.value = Math.max(0, bodyStrength.value + delta)
+}
+
+function changeIntelligence(delta: number) {
+  if (!character.value) return
+  const next = Math.max(0, effectiveIntelligence.value + delta)
+  effectiveIntelligence.value = next
+}
+
+// Revive
+const revivePoints = ref(1)
+
+function revive() {
+  if (bodyStrength.value === null) return
+  bodyStrength.value = Math.max(1, revivePoints.value)
+  revivePoints.value = 1
+}
 </script>
 
 <template>
-  <div class="stats-grid">
+  <!-- Death overlay -->
+  <Transition name="death">
+    <div v-if="isDead" class="death-overlay" @click.stop>
+      <div class="death-content">
+        <div class="death-skull">💀</div>
+        <div class="death-text">Der Held ist gefallen!</div>
+        <div class="revive-box">
+          <p class="revive-label">Wiederbelebung – Körperkraftpunkte wiederherstellen:</p>
+          <div class="revive-controls">
+            <button class="revive-adj" :disabled="revivePoints <= 1" @click="revivePoints > 1 && revivePoints--">−</button>
+            <span class="revive-value">{{ revivePoints }}</span>
+            <button class="revive-adj" @click="revivePoints++">+</button>
+          </div>
+          <button class="revive-btn" @click="revive">⚗️ Wiederbeleben</button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
+  <div class="stats-grid" :class="{ 'is-dead': isDead }">
     <!-- Angriffswürfel: green -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
+        <button class="adj-btn adj-minus" :disabled="!character || effectiveAttackDice <= 1" @click="changeAttack(-1)">−</button>
         <div class="diamond" style="border-color: var(--color-green)">
           <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
-          <input
-            v-else
-            v-model.number="effectiveAttackDice"
-            class="diamond-input"
-            max="99"
-            min="0"
-            placeholder="–"
-            type="number"
-          />
+          <span v-else class="diamond-input">{{ effectiveAttackDice }}</span>
         </div>
+        <button class="adj-btn adj-plus" :disabled="!character || effectiveAttackDice >= 6" @click="changeAttack(+1)">+</button>
       </div>
       <label class="stat-label">Angriffs-<br />würfel</label>
     </div>
@@ -52,43 +97,38 @@ const effectiveIntelligence = computed({
     <!-- Verteidigungswürfel: yellow -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
+        <button class="adj-btn adj-minus" :disabled="!character || effectiveDefenseDice <= 1" @click="changeDefense(-1)">−</button>
         <div class="diamond" style="border-color: var(--color-yellow)">
           <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
-          <input
-            v-else
-            v-model.number="effectiveDefenseDice"
-            class="diamond-input"
-            max="99"
-            min="0"
-            placeholder="–"
-            type="number"
-          />
+          <span v-else class="diamond-input">{{ effectiveDefenseDice }}</span>
         </div>
+        <button class="adj-btn adj-plus" :disabled="!character || effectiveDefenseDice >= 6" @click="changeDefense(+1)">+</button>
       </div>
       <label class="stat-label">Verteidi-<br />gungs-<br />würfel</label>
     </div>
 
     <!-- Körperkraft: red -->
     <div class="stat-cell">
-      <div class="diamond" style="border-color: var(--color-red)">
-        <input v-model.number="bodyStrength" class="diamond-input" max="99" min="0" placeholder="–" type="number" />
+      <div class="stat-diamond-wrap">
+        <button class="adj-btn adj-minus" :disabled="bodyStrength === null || bodyStrength <= 0" @click="changeBodyStrength(-1)">−</button>
+        <div class="diamond" :class="{ 'diamond-dead': isDead }" style="border-color: var(--color-red)">
+          <span v-if="bodyStrength === null" class="diamond-input diamond-placeholder">–</span>
+          <span v-else class="diamond-input" :class="{ 'text-dead': isDead }">{{ bodyStrength }}</span>
+        </div>
+        <button class="adj-btn adj-plus" :disabled="bodyStrength === null" @click="changeBodyStrength(+1)">+</button>
       </div>
       <label class="stat-label">Körper-<br />kraft</label>
     </div>
 
     <!-- Intelligenz: blue -->
     <div class="stat-cell">
-      <div class="diamond" style="border-color: var(--color-blue)">
-        <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
-        <input
-          v-else
-          v-model.number="effectiveIntelligence"
-          class="diamond-input"
-          max="99"
-          min="0"
-          placeholder="–"
-          type="number"
-        />
+      <div class="stat-diamond-wrap">
+        <button class="adj-btn adj-minus" :disabled="!character || effectiveIntelligence <= 0" @click="changeIntelligence(-1)">−</button>
+        <div class="diamond" style="border-color: var(--color-blue)">
+          <span v-if="!character" class="diamond-input diamond-placeholder">–</span>
+          <span v-else class="diamond-input">{{ effectiveIntelligence }}</span>
+        </div>
+        <button class="adj-btn adj-plus" :disabled="!character" @click="changeIntelligence(+1)">+</button>
       </div>
       <label class="stat-label">Intelli-<br />genz</label>
     </div>
@@ -103,6 +143,12 @@ const effectiveIntelligence = computed({
   gap: 1rem 1rem;
   padding-block-start: 2rem;
   padding-block-end: 1rem;
+  position: relative;
+  transition: filter 0.5s;
+}
+
+.stats-grid.is-dead {
+  filter: grayscale(0.6) opacity(0.5);
 }
 
 @media (min-width: 480px) {
@@ -121,9 +167,50 @@ const effectiveIntelligence = computed({
 
 .stat-diamond-wrap {
   position: relative;
+  width: 4.5rem;
+  height: 4.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* +/- buttons – positioned at the corners so they don't affect layout width */
+.adj-btn {
+  position: absolute;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--hq-label);
+  background: var(--hq-card-bg-dark, #1a1a1a);
+  color: var(--hq-label);
+  font-size: 0.95rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s, color 0.2s, opacity 0.2s;
+  z-index: 1;
+}
+
+.adj-minus {
+  bottom: -0.55rem;
+  left: -0.55rem;
+}
+
+.adj-plus {
+  top: -0.55rem;
+  right: -0.55rem;
+}
+
+.adj-btn:hover:not(:disabled) {
+  background-color: var(--hq-label);
+  color: var(--hq-card-bg-dark);
+}
+
+.adj-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
 }
 
 .diamond {
@@ -137,7 +224,14 @@ const effectiveIntelligence = computed({
   justify-content: center;
   transform: rotate(45deg);
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.4s;
+  transition: background-color 0.4s, border-color 0.4s;
+  flex-shrink: 0;
+}
+
+.diamond-dead {
+  border-color: #666 !important;
+  background-color: #1a1a1a;
+  animation: pulse-dead 1.5s ease-in-out infinite;
 }
 
 .diamond-input {
@@ -152,6 +246,13 @@ const effectiveIntelligence = computed({
   border: none;
   transition: color 0.4s;
   padding: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-dead {
+  color: #555 !important;
 }
 
 .diamond-input::placeholder {
@@ -178,16 +279,150 @@ const effectiveIntelligence = computed({
   transition: color 0.4s;
 }
 
-
-/* Hide number spinners */
-input[type='number']::-webkit-inner-spin-button,
-input[type='number']::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+/* ── Death overlay ────────────────────────────────────── */
+.death-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.78);
+  backdrop-filter: blur(4px);
 }
 
-input[type='number'] {
-  -moz-appearance: textfield;
+.death-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  animation: rise 0.6s ease-out both;
+}
+
+.death-skull {
+  font-size: 6rem;
+  filter: drop-shadow(0 0 24px #b00);
+  animation: shake 0.5s ease-in-out 0.6s both;
+}
+
+.death-text {
+  font-family: var(--font-fantasy), serif;
+  font-size: 2rem;
+  color: #cc2222;
+  text-shadow: 0 0 16px #ff0000aa, 0 2px 4px #000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Revive box ───────────────────────────────────────── */
+.revive-box {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  backdrop-filter: blur(2px);
+}
+
+.revive-label {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.revive-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.revive-adj {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.revive-adj:hover:not(:disabled) {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.revive-adj:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.revive-value {
+  font-family: var(--font-fantasy), serif;
+  font-size: 2rem;
+  color: #fff;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.revive-btn {
+  margin-top: 0.25rem;
+  padding: 0.55rem 1.4rem;
+  border-radius: 2rem;
+  border: 2px solid #4caf50;
+  background: rgba(76, 175, 80, 0.15);
+  color: #88dd8a;
+  font-family: var(--font-fantasy), serif;
+  font-size: 1rem;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.revive-btn:hover {
+  background-color: #4caf50;
+  color: #000;
+  box-shadow: 0 0 16px #4caf5088;
+}
+
+/* Transitions */
+.death-enter-active {
+  transition: opacity 0.4s ease;
+}
+.death-leave-active {
+  transition: opacity 0.3s ease;
+}
+.death-enter-from,
+.death-leave-to {
+  opacity: 0;
+}
+
+@keyframes rise {
+  from { transform: translateY(40px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes shake {
+  0%,100% { transform: rotate(0deg); }
+  20%     { transform: rotate(-8deg); }
+  40%     { transform: rotate(8deg); }
+  60%     { transform: rotate(-5deg); }
+  80%     { transform: rotate(5deg); }
+}
+
+@keyframes pulse-dead {
+  0%, 100% { box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
+  50%      { box-shadow: inset 0 2px 4px rgba(0,0,0,0.2), 0 0 10px 2px #b00; }
 }
 </style>
 
