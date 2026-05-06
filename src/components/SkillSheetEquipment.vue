@@ -832,9 +832,9 @@ const headerHealPotions = computed(() =>
 }
 
 .equip-badge--yellow-active {
-  color: var(--color-yellow);
-  border-color: var(--color-yellow);
-  background-color: color-mix(in srgb, var(--color-yellow) 12%, transparent);
+  color: var(--hq-color-yellow);
+  border-color: var(--hq-color-yellow);
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 12%, transparent);
 }
 
 .equip-badge--intel-active {
@@ -973,13 +973,13 @@ button.equip-item {
 
 /* Defense-potion selected (yellow) */
 .equip-item--defense-potion-selected {
-  border-color: var(--color-yellow);
-  background-color: color-mix(in srgb, var(--color-yellow) 8%, var(--hq-card-bg-dark));
+  border-color: var(--hq-color-yellow);
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 8%, var(--hq-card-bg-dark));
 }
 
 .equip-item--defense-potion-selected .equip-item-bonus,
 .equip-item--defense-potion-selected .equip-item-check {
-  color: var(--color-yellow);
+  color: var(--hq-color-yellow);
 }
 
 /* Heal-selected bonus color */
