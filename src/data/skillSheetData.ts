@@ -21,10 +21,12 @@ export interface SpecialItemOption {
   allowedCharacters: string[] | null
   passive?: boolean
   intelligenceBonus?: number
-  /** 'heal-potion' | 'attack-potion' | 'defense-potion' | 'fire-shield' */
+  /** 'heal-potion' | 'attack-potion' | 'defense-potion' | 'fire-shield' | 'magic-ring' */
   kind?: string
   /** max uses before fully consumed (e.g. 2 for Ring des Feuers) */
   maxUses?: number
+  /** optional static bonus label shown in the item box */
+  bonusLabel?: string
 }
 
 export const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
@@ -87,6 +89,7 @@ export const specialItemOptions: SpecialItemOption[] = [
     symbol: '🪄',
     ability: '2× hintereinander zaubern',
     allowedCharacters: ['Druide', 'Zauberer'],
+    bonusLabel: '2× 🪄',
   },
   {
     id: 'ring-der-magie',

@@ -17,6 +17,7 @@ export const useSkillSheetStore = defineStore(
     const equippedSpecialItems = ref<string[]>([])
     const usedSpecialItems = ref<string[]>([])
     const itemChargesUsed = ref<Record<string, number>>({})
+    const itemQuantities = ref<Record<string, number>>({})
 
     const weaponBonus = computed(() =>
       equippedWeapon.value.reduce((sum, id) => {
@@ -51,6 +52,7 @@ export const useSkillSheetStore = defineStore(
       equippedSpecialItems.value = []
       usedSpecialItems.value = []
       itemChargesUsed.value = {}
+      itemQuantities.value = {}
     }
 
     return {
@@ -65,6 +67,7 @@ export const useSkillSheetStore = defineStore(
       equippedSpecialItems,
       usedSpecialItems,
       itemChargesUsed,
+      itemQuantities,
       weaponBonus,
       armorBonus,
       intelligenceBonus,

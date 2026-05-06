@@ -13,6 +13,7 @@ const {
   equippedSpecialItems,
   usedSpecialItems,
   itemChargesUsed,
+  itemQuantities,
   attackDice,
   defenseDice,
   bodyStrength,
@@ -35,7 +36,15 @@ function canEquipSpecialItem(item: SpecialItemOption): boolean {
 // ── Filtered lists ────────────────────────────────────────
 const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
 const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
-const visibleSpecialItems = computed(() => specialItemOptions.filter(canEquipSpecialItem))
+
+const potionKinds = new Set(['heal-fixed', 'heal-potion', 'attack-potion', 'defense-potion'])
+
+const visibleSpecialItems = computed(() => {
+  const items = specialItemOptions.filter(canEquipSpecialItem)
+  const potions = items.filter((i) => i.kind && potionKinds.has(i.kind))
+  const others = items.filter((i) => !i.kind || !potionKinds.has(i.kind))
+  return [...potions, ...others]
+})
 
 // ── Item usage helpers ────────────────────────────────────
 function isFullyUsed(item: SpecialItemOption): boolean {
@@ -79,8 +88,18 @@ function toggleSpecialItem(id: string) {
   if (idx >= 0) {
     equippedSpecialItems.value.splice(idx, 1)
     if (healDialogItemId.value === id) healDialogItemId.value = null
+    // Clear potion qty when removed from inventory
+    if (item.kind && potionKinds.has(item.kind)) {
+      const updated = { ...itemQuantities.value }
+      delete updated[id]
+      itemQuantities.value = updated
+    }
   } else {
     equippedSpecialItems.value.push(id)
+    // Init qty = 1 for potions when first added
+    if (item.kind && potionKinds.has(item.kind) && !itemQuantities.value[id]) {
+      itemQuantities.value = { ...itemQuantities.value, [id]: 1 }
+    }
   }
 }
 
@@ -126,6 +145,58 @@ function resetItemUsed(id: string) {
   delete updated[id]
   itemChargesUsed.value = updated
   if (healDialogItemId.value === id) healDialogItemId.value = null
+  // Restore potion: set qty back to 1 and re-equip
+  const item = specialItemOptions.find((i) => i.id === id)
+  if (item?.kind && potionKinds.has(item.kind)) {
+    itemQuantities.value = { ...itemQuantities.value, [id]: 1 }
+    if (!equippedSpecialItems.value.includes(id)) {
+      equippedSpecialItems.value.push(id)
+    }
+  }
+}
+
+// ── Potion quantity helpers ───────────────────────────────
+function getPotionQuantity(id: string): number {
+  return itemQuantities.value[id] ?? 1
+}
+
+function adjustPotionQuantity(id: string, delta: number) {
+  const current = itemQuantities.value[id] ?? 1
+  const next = current + delta
+  if (next <= 0) {
+    // Remove from inventory
+    const updated = { ...itemQuantities.value }
+    delete updated[id]
+    itemQuantities.value = updated
+    const idx = equippedSpecialItems.value.indexOf(id)
+    if (idx >= 0) equippedSpecialItems.value.splice(idx, 1)
+    if (healDialogItemId.value === id) healDialogItemId.value = null
+  } else {
+    itemQuantities.value = { ...itemQuantities.value, [id]: next }
+    if (!equippedSpecialItems.value.includes(id)) {
+      equippedSpecialItems.value.push(id)
+    }
+  }
+}
+
+// Use one charge from a potion; only mark "fully used" when qty hits 0
+function usePotionCharge(id: string) {
+  const current = itemQuantities.value[id] ?? 1
+  const next = current - 1
+  if (next <= 0) {
+    markItemUsed(id)
+    const updated = { ...itemQuantities.value }
+    delete updated[id]
+    itemQuantities.value = updated
+  } else {
+    itemQuantities.value = { ...itemQuantities.value, [id]: next }
+    // flash animation without marking fully used
+    animatingItems.value.push(id)
+    setTimeout(() => {
+      const idx = animatingItems.value.indexOf(id)
+      if (idx >= 0) animatingItems.value.splice(idx, 1)
+    }, 900)
+  }
 }
 
 // ── Fire-shield ───────────────────────────────────────────
@@ -151,13 +222,13 @@ function useFireCharge(id: string) {
 function useAttackPotion(id: string) {
   if (attackDice.value === null) return
   attackDice.value = Math.min(6 - store.weaponBonus, attackDice.value + 1)
-  markItemUsed(id)
+  usePotionCharge(id)
 }
 
 function useDefensePotion(id: string) {
   if (defenseDice.value === null) return
   defenseDice.value = Math.min(6 - store.armorBonus, defenseDice.value + 1)
-  markItemUsed(id)
+  usePotionCharge(id)
 }
 
 // ── Heal potion ───────────────────────────────────────────
@@ -169,7 +240,7 @@ function useFixedHeal(id: string) {
   if (bodyStrength.value === null || !character.value) return
   const startBs = defaultStats[character.value]?.bodyStrength ?? bodyStrength.value
   bodyStrength.value = Math.min(startBs, bodyStrength.value + 4)
-  markItemUsed(id)
+  usePotionCharge(id)
 }
 
 // Würfel-Heiltrank – Dialog öffnen
@@ -185,8 +256,56 @@ function applyHeal(id: string) {
   const heal = Math.min(healRolled.value, startBs - bodyStrength.value)
   bodyStrength.value = bodyStrength.value + Math.max(0, heal)
   healDialogItemId.value = null
-  markItemUsed(id)
+  usePotionCharge(id)
 }
+
+// ── Item bonus labels (für Box + Header) ─────────────────
+function getItemBonusLabel(item: SpecialItemOption): string | null {
+  switch (item.kind) {
+    case 'attack-potion':
+      return '+1 ⚔️'
+    case 'defense-potion':
+      return '+1 🛡'
+    case 'heal-fixed':
+      return '+4 ❤️'
+    case 'heal-potion':
+      return '1W6 ❤️'
+    case 'fire-shield':
+      return `${item.maxUses ?? 2}× 🔥`
+    case 'magic-ring':
+      return '+1 💍 +1 🪄'
+    default:
+      return item.bonusLabel ?? null
+  }
+}
+
+// Aggregierte Badges für "Gegenstände"-Header
+const headerAttackPotions = computed(() =>
+  equippedSpecialItems.value
+    .filter((id) => {
+      const it = specialItemOptions.find((i) => i.id === id)
+      return it?.kind === 'attack-potion' && !usedSpecialItems.value.includes(id)
+    })
+    .reduce((sum, id) => sum + getPotionQuantity(id), 0),
+)
+
+const headerDefensePotions = computed(() =>
+  equippedSpecialItems.value
+    .filter((id) => {
+      const it = specialItemOptions.find((i) => i.id === id)
+      return it?.kind === 'defense-potion' && !usedSpecialItems.value.includes(id)
+    })
+    .reduce((sum, id) => sum + getPotionQuantity(id), 0),
+)
+
+const headerHealPotions = computed(() =>
+  equippedSpecialItems.value
+    .filter((id) => {
+      const it = specialItemOptions.find((i) => i.id === id)
+      return (it?.kind === 'heal-fixed' || it?.kind === 'heal-potion') && !usedSpecialItems.value.includes(id)
+    })
+    .reduce((sum, id) => sum + getPotionQuantity(id), 0),
+)
 </script>
 
 <template>
@@ -273,9 +392,20 @@ function applyHeal(id: string) {
   <div v-if="character && visibleSpecialItems.length > 0" class="equip-block">
     <div class="equip-block-header">
       <span class="equip-block-label">Gegenstände</span>
-      <span v-if="store.intelligenceBonus > 0" class="equip-badge equip-badge--intel-active"
-        >+{{ store.intelligenceBonus }} 🧠</span
-      >
+      <div class="equip-badges-row">
+        <span v-if="headerAttackPotions > 0" class="equip-badge equip-badge--attack-active"
+          >+{{ headerAttackPotions }} ⚔️</span
+        >
+        <span v-if="headerDefensePotions > 0" class="equip-badge equip-badge--yellow-active"
+          >+{{ headerDefensePotions }} 🛡</span
+        >
+        <span v-if="headerHealPotions > 0" class="equip-badge equip-badge--heal-active"
+          >{{ headerHealPotions }}× ❤️</span
+        >
+        <span v-if="store.intelligenceBonus > 0" class="equip-badge equip-badge--intel-active"
+          >+{{ store.intelligenceBonus }} 🧠</span
+        >
+      </div>
     </div>
     <div class="equip-list">
       <template v-for="item in visibleSpecialItems" :key="item.id">
@@ -323,7 +453,8 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <!-- Charge indicators -->
+            <span class="equip-item-bonus equip-item-bonus--fire">{{ getItemBonusLabel(item) }}</span>
+            <!-- Verbrauchsanzeige: rote Kreise -->
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="fire-charges">
               <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
             </span>
@@ -363,6 +494,7 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
+            <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
             <span
               v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
               class="equip-item-check equip-item-check--heal"
@@ -370,6 +502,15 @@ function applyHeal(id: string) {
             >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
           </button>
+          <!-- Anzahl -->
+          <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
+            <span class="qty-label">Anzahl</span>
+            <div class="qty-controls">
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+            </div>
+          </div>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             class="btn-use-item btn-use-item--heal"
@@ -403,6 +544,7 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
+            <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
             <span
               v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
               class="equip-item-check equip-item-check--heal"
@@ -410,6 +552,18 @@ function applyHeal(id: string) {
             >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
           </button>
+          <!-- Anzahl -->
+          <div
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId !== item.id"
+            class="qty-row"
+          >
+            <span class="qty-label">Anzahl</span>
+            <div class="qty-controls">
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+            </div>
+          </div>
           <!-- Inline dice dialog -->
           <div
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId === item.id"
@@ -452,7 +606,7 @@ function applyHeal(id: string) {
           :class="{
             'equip-item--selected':
               equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
-            'equip-item--armor equip-item--selected':
+            'equip-item--defense-potion-selected':
               equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
             'equip-item--used': isFullyUsed(item),
             'equip-item--magic-flash': animatingItems.includes(item.id),
@@ -470,9 +624,19 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
+            <span class="equip-item-bonus">{{ getItemBonusLabel(item) }}</span>
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
           </button>
+          <!-- Anzahl -->
+          <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
+            <span class="qty-label">Anzahl</span>
+            <div class="qty-controls">
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+            </div>
+          </div>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             class="btn-use-item"
@@ -507,9 +671,11 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <!-- Circle: ⚫ = leer, 🔵 = Zauber gespeichert -->
+            <!-- Statisches Fähigkeits-Label -->
+            <span class="equip-item-bonus equip-item-bonus--magic">{{ getItemBonusLabel(item) }}</span>
+            <!-- Ladungsanzeige: ⚫ = leer, 🔵 = Zauber gespeichert -->
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
-              <span>{{ getChargesUsed(item) >= 1 ? '🔵' : '⚫' }}</span>
+              {{ getChargesUsed(item) >= 1 ? '🔵' : '⚫' }}
             </span>
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
@@ -550,7 +716,10 @@ function applyHeal(id: string) {
               <span class="equip-item-name">{{ item.label }}</span>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
-            <!-- Blue charge dots for multi-use items -->
+            <span v-if="getItemBonusLabel(item)" class="equip-item-bonus equip-item-bonus--magic">
+              {{ getItemBonusLabel(item) }}
+            </span>
+            <!-- Blue charge dots for multi-use items (kein Stab der Magie) -->
             <span
               v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
               class="magic-charges"
@@ -662,10 +831,29 @@ function applyHeal(id: string) {
   background-color: color-mix(in srgb, var(--hq-color-defense) 12%, transparent);
 }
 
+.equip-badge--yellow-active {
+  color: var(--color-yellow);
+  border-color: var(--color-yellow);
+  background-color: color-mix(in srgb, var(--color-yellow) 12%, transparent);
+}
+
 .equip-badge--intel-active {
   color: var(--color-blue);
   border-color: var(--color-blue);
   background-color: color-mix(in srgb, var(--color-blue) 12%, transparent);
+}
+
+.equip-badge--heal-active {
+  color: color-mix(in srgb, var(--color-red) 65%, white);
+  border-color: var(--color-red);
+  background-color: color-mix(in srgb, var(--color-red) 12%, transparent);
+}
+
+.equip-badges-row {
+  display: flex;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .equip-list {
@@ -781,6 +969,35 @@ button.equip-item {
 .equip-item--armor.equip-item--selected .equip-item-bonus,
 .equip-item-bonus--armor {
   color: var(--hq-color-defense);
+}
+
+/* Defense-potion selected (yellow) */
+.equip-item--defense-potion-selected {
+  border-color: var(--color-yellow);
+  background-color: color-mix(in srgb, var(--color-yellow) 8%, var(--hq-card-bg-dark));
+}
+
+.equip-item--defense-potion-selected .equip-item-bonus,
+.equip-item--defense-potion-selected .equip-item-check {
+  color: var(--color-yellow);
+}
+
+/* Heal-selected bonus color */
+.equip-item--heal-selected .equip-item-bonus,
+.equip-item-bonus--heal {
+  color: var(--color-red);
+}
+
+/* Fire-selected bonus color */
+.equip-item--fire-selected .equip-item-bonus,
+.equip-item-bonus--fire {
+  color: var(--color-red);
+}
+
+/* Magic (Stab/Ring der Magie) bonus color */
+.equip-item--selected .equip-item-bonus--magic,
+.equip-item-bonus--magic {
+  color: var(--color-blue);
 }
 
 .equip-item-check {
@@ -1022,31 +1239,31 @@ button.equip-item {
 
 /* ── Heal-potion styles ─────────────────────────────────── */
 .equip-item--heal-selected {
-  border-color: #4caf50;
-  background-color: color-mix(in srgb, #4caf50 8%, var(--hq-card-bg-dark));
+  border-color: var(--color-red);
+  background-color: color-mix(in srgb, var(--color-red) 8%, var(--hq-card-bg-dark));
 }
 
 .equip-item-check--heal {
   font-size: 0.85rem;
-  color: #4caf50;
+  color: var(--color-red);
   flex-shrink: 0;
   align-self: center;
   font-weight: bold;
 }
 
 .btn-use-item--heal {
-  background-color: color-mix(in srgb, #4caf50 18%, var(--hq-card-bg-dark));
-  color: #88dd8a;
-  border-top: 1px solid color-mix(in srgb, #4caf50 30%, transparent);
+  background-color: color-mix(in srgb, var(--color-red) 18%, var(--hq-card-bg-dark));
+  color: color-mix(in srgb, var(--color-red) 65%, white);
+  border-top: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
 }
 
 .btn-use-item--heal:hover {
-  background-color: color-mix(in srgb, #4caf50 28%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--color-red) 28%, var(--hq-card-bg-dark));
 }
 
 .heal-dialog {
-  border-top: 1px solid color-mix(in srgb, #4caf50 25%, transparent);
-  background-color: color-mix(in srgb, #4caf50 6%, var(--hq-card-bg-dark));
+  border-top: 1px solid color-mix(in srgb, var(--color-red) 25%, transparent);
+  background-color: color-mix(in srgb, var(--color-red) 6%, var(--hq-card-bg-dark));
   padding: 0.75rem 0.65rem;
   display: flex;
   flex-direction: column;
@@ -1059,14 +1276,14 @@ button.equip-item {
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: #88dd8a;
+  color: color-mix(in srgb, var(--color-red) 65%, white);
   text-align: center;
 }
 
 .heal-dialog-result {
   font-family: var(--font-body), serif;
   font-size: 0.75rem;
-  color: #88dd8a;
+  color: color-mix(in srgb, var(--color-red) 65%, white);
   text-align: center;
 }
 
@@ -1085,9 +1302,9 @@ button.equip-item {
   width: 1.8rem;
   height: 1.8rem;
   border-radius: 50%;
-  border: 1.5px solid #4caf50;
+  border: 1.5px solid var(--color-red);
   background: transparent;
-  color: #88dd8a;
+  color: color-mix(in srgb, var(--color-red) 65%, white);
   font-size: 1.1rem;
   cursor: pointer;
   display: flex;
@@ -1097,7 +1314,7 @@ button.equip-item {
 }
 
 .heal-adj:hover:not(:disabled) {
-  background-color: color-mix(in srgb, #4caf50 20%, transparent);
+  background-color: color-mix(in srgb, var(--color-red) 20%, transparent);
 }
 
 .heal-adj:disabled {
@@ -1108,7 +1325,7 @@ button.equip-item {
 .heal-value {
   font-family: var(--font-fantasy), serif;
   font-size: 1.75rem;
-  color: #88dd8a;
+  color: color-mix(in srgb, var(--color-red) 65%, white);
   min-width: 1.5rem;
   text-align: center;
 }
@@ -1125,9 +1342,9 @@ button.equip-item {
   font-size: 0.72rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background-color: color-mix(in srgb, #4caf50 22%, var(--hq-card-bg-dark));
-  color: #88dd8a;
-  border: 1px solid color-mix(in srgb, #4caf50 40%, transparent);
+  background-color: color-mix(in srgb, var(--color-red) 22%, var(--hq-card-bg-dark));
+  color: color-mix(in srgb, var(--color-red) 65%, white);
+  border: 1px solid color-mix(in srgb, var(--color-red) 40%, transparent);
   border-radius: 2px;
   padding: 0.4rem 0.5rem;
   cursor: pointer;
@@ -1135,7 +1352,7 @@ button.equip-item {
 }
 
 .btn-heal-confirm:hover {
-  background-color: color-mix(in srgb, #4caf50 35%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--color-red) 35%, var(--hq-card-bg-dark));
 }
 
 .btn-heal-cancel {
@@ -1156,5 +1373,64 @@ button.equip-item {
 .btn-heal-cancel:hover {
   background-color: color-mix(in srgb, var(--hq-hint) 15%, transparent);
   color: var(--hq-input-text);
+}
+
+/* ── Potion quantity controls ───────────────────────────── */
+.qty-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.65rem;
+  border-top: 1px solid color-mix(in srgb, var(--hq-hint) 15%, transparent);
+  background-color: color-mix(in srgb, var(--hq-hint) 5%, var(--hq-card-bg-dark));
+}
+
+.qty-label {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hq-hint);
+}
+
+.qty-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.qty-btn {
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 50%;
+  border: 1.5px solid var(--hq-input-border);
+  background: transparent;
+  color: var(--hq-input-text);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s;
+}
+
+.qty-btn:hover {
+  background-color: color-mix(in srgb, var(--hq-hint) 20%, transparent);
+  border-color: var(--hq-hint);
+}
+
+.qty-btn:active {
+  transform: scale(0.92);
+}
+
+.qty-num {
+  font-family: var(--font-fantasy), serif;
+  font-size: 1rem;
+  color: var(--hq-input-text);
+  min-width: 1.2rem;
+  text-align: center;
 }
 </style>
