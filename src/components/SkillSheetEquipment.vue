@@ -221,13 +221,13 @@ function useFireCharge(id: string) {
 // ── Attack / Defense potions ──────────────────────────────
 function useAttackPotion(id: string) {
   if (attackDice.value === null) return
-  attackDice.value = Math.min(6 - store.weaponBonus, attackDice.value + 1)
+  attackDice.value = Math.min(6 - store.weaponBonus, attackDice.value + 2)
   usePotionCharge(id)
 }
 
 function useDefensePotion(id: string) {
   if (defenseDice.value === null) return
-  defenseDice.value = Math.min(6 - store.armorBonus, defenseDice.value + 1)
+  defenseDice.value = Math.min(6 - store.armorBonus, defenseDice.value + 2)
   usePotionCharge(id)
 }
 
@@ -263,9 +263,9 @@ function applyHeal(id: string) {
 function getItemBonusLabel(item: SpecialItemOption): string | null {
   switch (item.kind) {
     case 'attack-potion':
-      return '+1 ⚔️'
+      return '+2 ⚔️'
     case 'defense-potion':
-      return '+1 🛡'
+      return '+2 🛡'
     case 'heal-fixed':
       return '+4 ❤️'
     case 'heal-potion':
@@ -323,7 +323,7 @@ const headerHealPotions = computed(() =>
     <div class="equip-block-header">
       <span class="equip-block-label">Waffen</span>
       <span :class="store.weaponBonus > 0 ? 'equip-badge--attack-active' : 'equip-badge--inactive'" class="equip-badge"
-        >+{{ store.weaponBonus }} ⚔</span
+        >+{{ store.weaponBonus }} ⚔️</span
       >
     </div>
     <div class="equip-list">
@@ -389,7 +389,7 @@ const headerHealPotions = computed(() =>
   </div>
 
   <!-- Gegenstände -->
-  <div v-if="character && visibleSpecialItems.length > 0" class="equip-block">
+  <div class="equip-block">
     <div class="equip-block-header">
       <span class="equip-block-label">Gegenstände</span>
       <div class="equip-badges-row">
@@ -408,7 +408,10 @@ const headerHealPotions = computed(() =>
       </div>
     </div>
     <div class="equip-list">
-      <template v-for="item in visibleSpecialItems" :key="item.id">
+      <div v-if="!character" class="equip-item equip-item--placeholder">
+        <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
+      </div>
+      <template v-for="item in visibleSpecialItems" v-else :key="item.id">
         <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
         <div
           v-if="item.passive"
