@@ -20,6 +20,8 @@ function saveToFile() {
     equippedArmor: [...store.equippedArmor],
     equippedSpecialItems: [...store.equippedSpecialItems],
     usedSpecialItems: [...store.usedSpecialItems],
+    itemChargesUsed: { ...store.itemChargesUsed },
+    itemQuantities: { ...store.itemQuantities },
   }
   const json = JSON.stringify(data, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
@@ -29,6 +31,13 @@ function saveToFile() {
   a.download = `${store.name || 'Held'}_${store.character}.json`
   a.click()
   URL.revokeObjectURL(url)
+}
+
+function endGame() {
+  if (!store.character) return
+  if (confirm('Spielende – alle Werte auf den Startwert zurücksetzen? Ausrüstung und Gegenstände bleiben erhalten.')) {
+    store.resetStats()
+  }
 }
 
 function loadFromFile() {
@@ -52,6 +61,8 @@ function loadFromFile() {
         equippedArmor: data.equippedArmor ?? [],
         equippedSpecialItems: data.equippedSpecialItems ?? [],
         usedSpecialItems: data.usedSpecialItems ?? [],
+        itemChargesUsed: data.itemChargesUsed ?? {},
+        itemQuantities: data.itemQuantities ?? {},
       })
     } catch {
       alert('Ungültige Datei – bitte eine gültige JSON-Skillsheet-Datei wählen.')
@@ -83,6 +94,12 @@ function loadFromFile() {
           <SkillSheetStats />
 
           <SkillSheetEquipment />
+
+          <div class="flex">
+            <button :disabled="!store.character" class="btn-end-game" type="button" @click="endGame">
+              🏁 Spielende – Werte zurücksetzen
+            </button>
+          </div>
 
           <div class="flex gap-3 pt-1">
             <button class="btn-load" type="button" @click="loadFromFile">Laden</button>
@@ -185,6 +202,39 @@ function loadFromFile() {
 
 .btn-save:active,
 .btn-load:active {
+  transform: scale(0.97);
+}
+
+.btn-end-game {
+  flex: 1;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 2px solid rgba(180, 60, 60, 0.5);
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  background-color: rgba(180, 60, 60, 0.08);
+  color: #c06060;
+  min-height: 3rem;
+  transition:
+    background-color 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.btn-end-game:hover:not(:disabled) {
+  background-color: rgba(180, 60, 60, 0.18);
+  color: #e07070;
+  border-color: rgba(180, 60, 60, 0.8);
+}
+
+.btn-end-game:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.btn-end-game:active {
   transform: scale(0.97);
 }
 

@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { weaponOptions, armorOptions, specialItemOptions } from '@/data/skillSheetData'
+import { weaponOptions, armorOptions, specialItemOptions, defaultStats } from '@/data/skillSheetData'
 
 export const useSkillSheetStore = defineStore(
   'skillSheet',
@@ -55,6 +55,15 @@ export const useSkillSheetStore = defineStore(
       itemQuantities.value = {}
     }
 
+    function resetStats() {
+      const stats = defaultStats[character.value]
+      if (!stats) return
+      attackDice.value = stats.attackDice
+      defenseDice.value = stats.defenseDice
+      bodyStrength.value = stats.bodyStrength
+      intelligence.value = stats.intelligence
+    }
+
     return {
       name,
       character,
@@ -72,6 +81,7 @@ export const useSkillSheetStore = defineStore(
       armorBonus,
       intelligenceBonus,
       reset,
+      resetStats,
     }
   },
   { persist: true },

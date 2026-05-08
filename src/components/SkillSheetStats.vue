@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
+import { defaultStats } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
 const { character, attackDice, defenseDice, bodyStrength, intelligence } = storeToRefs(store)
@@ -49,10 +50,11 @@ function changeIntelligence(delta: number) {
 
 // Revive
 const revivePoints = ref(1)
+const maxRevivePoints = computed(() => defaultStats[character.value]?.bodyStrength ?? 1)
 
 function revive() {
   if (bodyStrength.value === null) return
-  bodyStrength.value = Math.max(1, revivePoints.value)
+  bodyStrength.value = Math.min(maxRevivePoints.value, Math.max(1, revivePoints.value))
   revivePoints.value = 1
 }
 </script>
@@ -70,7 +72,7 @@ function revive() {
             −
           </button>
           <span class="revive-value">{{ revivePoints }}</span>
-          <button class="revive-adj" @click="revivePoints++">+</button>
+          <button :disabled="revivePoints >= maxRevivePoints" class="revive-adj" @click="revivePoints < maxRevivePoints && revivePoints++">+</button>
         </div>
         <button class="revive-btn" @click="revive">⚗️ Wiederbeleben</button>
       </div>
