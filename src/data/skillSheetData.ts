@@ -29,11 +29,12 @@ export interface SpecialItemOption {
   bonusLabel?: string
 }
 
-export const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
+export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 
 export const characterAvatars: Record<string, { symbol: string; color: string }> = {
   Barbar: { symbol: '⚔️', color: 'var(--color-red)' },
   Barde: { symbol: '📯', color: 'var(--color-blue)' },
+  Berserker: { symbol: '🪓', color: 'var(--color-red)' },
   Druide: { symbol: '🧙', color: 'var(--color-green)' },
   Elf: { symbol: '🧝‍♂️', color: 'var(--color-green)' },
   Ritter: { symbol: '🏰', color: 'var(--color-yellow)' },
@@ -47,6 +48,7 @@ export const defaultStats: Record<
 > = {
   Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barde: { attackDice: 2, defenseDice: 2, bodyStrength: 5, intelligence: 4 },
+  Berserker: { attackDice: 3, defenseDice: 2, bodyStrength: 7, intelligence: 2 },
   Druide: { attackDice: 1, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
   Elf: { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
   Ritter: { attackDice: 2, defenseDice: 3, bodyStrength: 7, intelligence: 2 },
@@ -55,7 +57,12 @@ export const defaultStats: Record<
 }
 
 export const weaponOptions: WeaponOption[] = [
-  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'armbrust', label: 'Armbrust', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 2, allowedCharacters: null },
+  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar', 'Berserker'] },
+  { id: 'dolch', label: 'Dolch', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 1, allowedCharacters: null },
+  { id: 'geisterschwert', label: 'Geisterschwert', note: 'Magisches Schwert mit geheimen Kräften', bonus: 2, allowedCharacters: null },
+  { id: 'handbeil', label: 'Handbeil', note: 'Eine vielseitige Waffe für jeden Fall', bonus: 2, allowedCharacters: null },
+  { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
   {
     id: 'langschwert',
     label: 'Langschwert',
@@ -63,8 +70,13 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 1,
     allowedCharacters: null,
   },
-  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
-  { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
+  {
+    id: 'langschwert-des-gluecks',
+    label: 'Langschwert des Glücks',
+    note: 'Verschafft zusätzliche Angriffsmöglichkeiten',
+    bonus: 2,
+    allowedCharacters: null,
+  },
   {
     id: 'ork-kurzschwert',
     label: 'Ork-Kurzschwert',
@@ -72,14 +84,36 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 1,
     allowedCharacters: null,
   },
+  { id: 'phantomklinge', label: 'Phantomklinge', note: 'Unsichtbare Waffe mit phänomenalem Angriff', bonus: 3, allowedCharacters: null },
+  { id: 'stab', label: 'Stab', note: 'Dank diesen langen und hölzernen Stabs erhältst du die Angriffskraft von 2. Dieser Stab kann diagonal angreifen, dank eines Stabes eingesetzt kannst du keinen Schild verwenden', bonus: 2, allowedCharacters: null },
+  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
+  {
+    id: 'stab-des-zauberers',
+    label: 'Stab des Zauberers',
+    note: 'Verstärkt Zauberkraft',
+    bonus: 2,
+    allowedCharacters: ['Druide', 'Zauberer'],
+  },
+  {
+    id: 'telekinese-stab',
+    label: 'Telekinese-Stab',
+    note: 'Ermöglicht Angriffe aus der Ferne',
+    bonus: 2,
+    allowedCharacters: ['Druide', 'Zauberer'],
+  },
+  { id: 'werkzeug', label: 'Werkzeug', note: 'Fällen entschärfen – Mit dem Werkzeug können Sie mechanische Fallen entschärfen', bonus: 1, allowedCharacters: null },
 ]
 
 export const armorOptions: ArmorOption[] = [
-  { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
-  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
-  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
-  { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
+  { id: 'armbrust', label: 'Armbrust', bonus: 1, allowedCharacters: null },
+  { id: 'armschutz', label: 'Armschutz', bonus: 1, allowedCharacters: null },
   { id: 'armpanzer', label: 'Armpanzer', bonus: 1, allowedCharacters: null },
+  { id: 'borins-ruestung', label: 'Borins Rüstung', bonus: 3, allowedCharacters: null },
+  { id: 'harnisch', label: 'Harnisch', bonus: 2, allowedCharacters: null },
+  { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
+  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
 ]
 
 export const specialItemOptions: SpecialItemOption[] = [
@@ -151,4 +185,106 @@ export const specialItemOptions: SpecialItemOption[] = [
     kind: 'fire-shield',
     maxUses: 2,
   },
+  // ── Neue Gegenstände (vom Benutzer angefragt) ───────────
+  {
+    id: 'kampfestrank',
+    label: 'Kampfestrank',
+    symbol: '🥊',
+    ability: 'Erlaubt ein 2. Mal die Kampfwürfel zu würfeln (gegen denselben Gegner)',
+    allowedCharacters: null,
+    kind: 'extra-attack-same',
+  },
+  {
+    id: 'geschicklichkeitstrank',
+    label: 'Geschicklichkeitstrank',
+    symbol: '🏃',
+    ability: '+5 Bewegungspunkte (temporär)',
+    allowedCharacters: null,
+    kind: 'movement-potion',
+    bonusLabel: '+5 ⇢',
+  },
+  {
+    id: 'wiederherstellungstrank',
+    label: 'Wiederherstellungstrank',
+    symbol: '🔄',
+    ability: 'Stellt +1 Körperkraft und +1 Intelligenz wieder her (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'restore-small',
+  },
+  {
+    id: 'gegengift',
+    label: 'Gegengift',
+    symbol: '🧪',
+    ability: 'Heilt +2 Körperkraft (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'heal-fixed-2',
+  },
+   {
+     id: 'staerkungstrank-dual',
+     label: 'Stärkungstrank',
+     symbol: '⚡',
+     ability: 'Erlaubt 2× Angriffswürfel zu werfen — kann gegen 2 Gegner eingesetzt werden',
+     allowedCharacters: null,
+     kind: 'extra-attack-multi',
+   },
+   // ── Neue Gegenstände von Board-Game Karten ───────────
+   {
+     id: 'borins-ruestung',
+     label: 'Borins Rüstung',
+     symbol: '🛡️',
+     ability: 'Legendäre Rüstung mit verstärktem Schutz',
+     allowedCharacters: null,
+     passive: true,
+   },
+   {
+     id: 'elixier-des-lebens',
+     label: 'Elixier des Lebens',
+     symbol: '🧴',
+     ability: 'Stellt alle verlorenen Körperkraft-Punkte wieder her',
+     allowedCharacters: null,
+     kind: 'heal-fixed',
+     bonusLabel: 'Vollständig ❤️',
+   },
+   {
+     id: 'fluch-der-orks',
+     label: 'Fluch der Orks',
+     symbol: '💀',
+     ability: 'Ruft die Macht der Orks an – bei Benutzung: 2× Angriffswürfel gegen einen Gegner',
+     allowedCharacters: null,
+     kind: 'extra-attack-same',
+   },
+   {
+     id: 'geweibes-wasser',
+     label: 'Geweibes Wasser',
+     symbol: '💧',
+     ability: 'Stellt Körperkraft wieder her und hilft gegen Zaubervergiftung',
+     allowedCharacters: null,
+     kind: 'heal-fixed',
+     bonusLabel: '+3 ❤️',
+   },
+   {
+     id: 'mantel-des-zauberers',
+     label: 'Mantel des Zauberers',
+     symbol: '🧥',
+     ability: 'Dauerhaft +1 Intelligenz',
+     allowedCharacters: ['Druide', 'Zauberer'],
+     passive: true,
+     intelligenceBonus: 1,
+   },
+   {
+     id: 'ring-der-rueckkehr',
+     label: 'Ring der Rückkehr',
+     symbol: '💫',
+     ability: 'Gestattet Rückkehr zum Startpunkt der Aufgabe',
+     allowedCharacters: null,
+   },
+   {
+     id: 'ring-der-staerke',
+     label: 'Ring der Stärke',
+     symbol: '💪',
+     ability: 'Dauerhaft +1 Angriffswürfel',
+     allowedCharacters: null,
+     passive: true,
+     bonusLabel: '+1 ⚔️',
+   },
 ]

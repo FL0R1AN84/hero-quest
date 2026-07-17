@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { weaponOptions, armorOptions, specialItemOptions, defaultStats } from '@/data/skillSheetData'
-import type { WeaponOption, SpecialItemOption } from '@/data/skillSheetData'
+import type { WeaponOption, SpecialItemOption, ArmorOption } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
 const {
@@ -37,14 +37,90 @@ function canEquipSpecialItem(item: SpecialItemOption): boolean {
 const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
 const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
 
-const potionKinds = new Set(['heal-fixed', 'heal-potion', 'attack-potion', 'defense-potion'])
+const potionKinds = new Set(['heal-fixed', 'heal-potion', 'attack-potion', 'defense-potion', 'extra-attack-same', 'movement-potion', 'restore-small', 'heal-fixed-2', 'extra-attack-multi'])
+const magicKinds = new Set(['fire-shield', 'magic-ring'])
 
-const visibleSpecialItems = computed(() => {
-  const items = specialItemOptions.filter(canEquipSpecialItem)
-  const potions = items.filter((i) => i.kind && potionKinds.has(i.kind))
-  const others = items.filter((i) => !i.kind || !potionKinds.has(i.kind))
-  return [...potions, ...others]
+const visibleSpecialItems = computed(() =>
+  specialItemOptions.filter(canEquipSpecialItem)
+)
+
+// Kategorisierung für thematische Gruppierung
+function getItemCategory(item: SpecialItemOption): number {
+  if (item.kind && potionKinds.has(item.kind)) return 0 // Tränke
+  if (item.passive || (item.kind && magicKinds.has(item.kind)) || item.id === 'stab-der-magie' || item.id === 'ring-der-magie' || item.id === 'ring-der-rueckkehr') return 1 // Magische Items & Ringe
+  return 2 // Sonstiges
+}
+
+// Für Dropdown: alphabetisch nach label
+function dropdownItemComparator(a: SpecialItemOption, b: SpecialItemOption) {
+  return a.label.localeCompare(b.label)
+}
+
+// Für App-Ansicht: thematisch gruppiert, innerhalb jeder Gruppe alphabetisch
+function appItemComparator(a: SpecialItemOption, b: SpecialItemOption) {
+  const catA = getItemCategory(a)
+  const catB = getItemCategory(b)
+  if (catA !== catB) return catA - catB
+  return a.label.localeCompare(b.label)
+}
+
+// ── Dropdown / "nur aktive anzeigen" helpers ─────────────
+import { ref as vueRef } from 'vue'
+
+const selectedWeaponToAdd = vueRef('')
+const selectedArmorToAdd = vueRef('')
+const selectedSpecialToAdd = vueRef('')
+
+const availableWeapons = computed(() =>
+  visibleWeapons.value
+    .filter((w) => !equippedWeapon.value.includes(w.id))
+    .sort((a, b) => a.label.localeCompare(b.label))
+)
+const availableArmor = computed(() =>
+  visibleArmor.value
+    .filter((a) => !equippedArmor.value.includes(a.id))
+    .sort((a, b) => a.label.localeCompare(b.label))
+)
+const availableSpecialItems = computed(() =>
+  visibleSpecialItems.value
+    .filter((i) => !equippedSpecialItems.value.includes(i.id) && !isFullyUsed(i))
+    .sort(dropdownItemComparator),
+)
+
+const equippedWeaponOptions = computed(() => {
+  const weapons = equippedWeapon.value.map((id) => weaponOptions.find((w) => w.id === id)).filter(Boolean) as WeaponOption[]
+  return weapons.sort((a, b) => a.label.localeCompare(b.label))
 })
+const equippedArmorOptions = computed(() => {
+  const armors = equippedArmor.value.map((id) => armorOptions.find((a) => a.id === id)).filter(Boolean) as ArmorOption[]
+  return armors.sort((a, b) => a.label.localeCompare(b.label))
+})
+
+const equippedSpecialOptions = computed(() =>
+  (equippedSpecialItems.value
+    .map((id) => specialItemOptions.find((i) => i.id === id))
+    .filter(Boolean) as SpecialItemOption[])
+    .sort(appItemComparator),
+)
+
+
+function addWeaponFromSelect() {
+  if (!selectedWeaponToAdd.value) return
+  toggleWeapon(selectedWeaponToAdd.value)
+  selectedWeaponToAdd.value = ''
+}
+
+function addArmorFromSelect() {
+  if (!selectedArmorToAdd.value) return
+  toggleArmor(selectedArmorToAdd.value)
+  selectedArmorToAdd.value = ''
+}
+
+function addSpecialFromSelect() {
+  if (!selectedSpecialToAdd.value) return
+  toggleSpecialItem(selectedSpecialToAdd.value)
+  selectedSpecialToAdd.value = ''
+}
 
 // ── Item usage helpers ────────────────────────────────────
 function isFullyUsed(item: SpecialItemOption): boolean {
@@ -331,25 +407,36 @@ const headerHealPotions = computed(() =>
         <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
       </div>
       <template v-else>
-        <button
-          v-for="w in visibleWeapons"
-          :key="w.id"
-          :class="{
-            'equip-item--selected': equippedWeapon.includes(w.id),
-            'equip-item--disabled': !equippedWeapon.includes(w.id) && equippedWeapon.length >= 2,
-          }"
-          class="equip-item"
-          type="button"
-          @click="toggleWeapon(w.id)"
-        >
-          <span class="equip-item-icon">⚔</span>
-          <span class="equip-item-content">
-            <span class="equip-item-name">{{ w.label }}</span>
-            <span v-if="w.note" class="equip-item-note">{{ w.note }}</span>
-          </span>
-          <span class="equip-item-bonus">+{{ w.bonus }}</span>
-          <span v-if="equippedWeapon.includes(w.id)" class="equip-item-check">✓</span>
-        </button>
+        <!-- Zeige nur aktive Waffen -->
+        <div v-if="equippedWeapon.length === 0" class="equip-item equip-item--placeholder">
+          <span class="equip-item-placeholder">Keine aktiven Waffen</span>
+        </div>
+        <template v-else>
+          <button
+            v-for="w in equippedWeaponOptions"
+            :key="w.id"
+            class="equip-item"
+            type="button"
+            @click="toggleWeapon(w.id)"
+          >
+            <span class="equip-item-icon">⚔</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ w.label }}</span>
+              <span v-if="w.note" class="equip-item-note">{{ w.note }}</span>
+            </span>
+            <span class="equip-item-bonus">+{{ w.bonus }}</span>
+            <span class="equip-item-check">✓</span>
+          </button>
+        </template>
+
+        <!-- Dropdown to add a new weapon -->
+        <div class="equip-add-row" v-if="availableWeapons.length > 0">
+          <select v-model="selectedWeaponToAdd">
+            <option value="">Waffe hinzufügen…</option>
+            <option v-for="w in availableWeapons" :key="w.id" :value="w.id">{{ w.label }}</option>
+          </select>
+          <button class="btn-add" type="button" @click="addWeaponFromSelect">Hinzufügen</button>
+        </div>
       </template>
     </div>
   </div>
@@ -367,23 +454,36 @@ const headerHealPotions = computed(() =>
         <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
       </div>
       <template v-else>
-        <button
-          v-for="a in visibleArmor"
-          :key="a.id"
-          :class="{ 'equip-item--selected equip-item--armor': equippedArmor.includes(a.id) }"
-          class="equip-item"
-          type="button"
-          @click="toggleArmor(a.id)"
-        >
-          <span class="equip-item-icon">🛡</span>
-          <span class="equip-item-content">
-            <span class="equip-item-name">{{ a.label }}</span>
-          </span>
-          <span :class="{ 'equip-item-bonus--armor': equippedArmor.includes(a.id) }" class="equip-item-bonus"
-            >+{{ a.bonus }}</span
+        <!-- Zeige nur aktive Rüstungsteile -->
+        <div v-if="equippedArmor.length === 0" class="equip-item equip-item--placeholder">
+          <span class="equip-item-placeholder">Keine aktive Rüstung</span>
+        </div>
+        <template v-else>
+          <button
+            v-for="a in equippedArmorOptions"
+            :key="a.id"
+            :class="{ 'equip-item--selected equip-item--armor': true }"
+            class="equip-item"
+            type="button"
+            @click="toggleArmor(a.id)"
           >
-          <span v-if="equippedArmor.includes(a.id)" class="equip-item-check equip-item-check--armor">✓</span>
-        </button>
+            <span class="equip-item-icon">🛡</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ a.label }}</span>
+            </span>
+            <span class="equip-item-bonus equip-item-bonus--armor">+{{ a.bonus }}</span>
+            <span class="equip-item-check equip-item-check--armor">✓</span>
+          </button>
+        </template>
+
+        <!-- Dropdown to add a new armor piece -->
+        <div class="equip-add-row" v-if="availableArmor.length > 0">
+          <select v-model="selectedArmorToAdd">
+            <option value="">Rüstung hinzufügen…</option>
+            <option v-for="a in availableArmor" :key="a.id" :value="a.id">{{ a.label }}</option>
+          </select>
+          <button class="btn-add" type="button" @click="addArmorFromSelect">Hinzufügen</button>
+        </div>
       </template>
     </div>
   </div>
@@ -411,7 +511,17 @@ const headerHealPotions = computed(() =>
       <div v-if="!character" class="equip-item equip-item--placeholder">
         <span class="equip-item-placeholder">Wähle einen Charakter, um die Ausrüstung anzuzeigen</span>
       </div>
-      <template v-for="item in visibleSpecialItems" v-else :key="item.id">
+      <template v-else>
+        <div v-if="equippedSpecialItems.length === 0" class="equip-item equip-item--placeholder">
+          <span class="equip-item-placeholder">Keine aktiven Gegenstände</span>
+        </div>
+        <template v-else v-for="(item, idx) in equippedSpecialOptions" :key="item.id">
+        <!-- Kategorie-Label bei Kategoriewechsel -->
+        <div v-if="idx === 0 || (idx > 0 && getItemCategory(equippedSpecialOptions[idx - 1]!) !== getItemCategory(item))" class="equip-group-label">
+          <span v-if="getItemCategory(item) === 0">🧪 Tränke</span>
+          <span v-else-if="getItemCategory(item) === 1">✨ Magische Gegenstände</span>
+          <span v-else>📦 Sonstiges</span>
+        </div>
         <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
         <div
           v-if="item.passive"
@@ -744,6 +854,16 @@ const headerHealPotions = computed(() =>
             ↺ Wiederherstellen
           </button>
         </div>
+        </template>
+
+        <!-- Dropdown to add a new special item -->
+        <div class="equip-add-row">
+          <select v-model="selectedSpecialToAdd">
+            <option value="">Gegenstand hinzufügen…</option>
+            <option v-for="i in availableSpecialItems" :key="i.id" :value="i.id">{{ i.label }}</option>
+          </select>
+          <button class="btn-add" type="button" @click="addSpecialFromSelect">Hinzufügen</button>
+        </div>
       </template>
     </div>
   </div>
@@ -863,6 +983,18 @@ const headerHealPotions = computed(() =>
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+
+.equip-group-label {
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hq-hint);
+  padding: 0.5rem 0.65rem;
+  margin-top: 0.25rem;
+  border-bottom: 1px solid var(--hq-divider);
+  transition: color 0.4s, border-color 0.4s;
 }
 
 .equip-item {
@@ -1435,5 +1567,29 @@ button.equip-item {
   color: var(--hq-input-text);
   min-width: 1.2rem;
   text-align: center;
+}
+
+/* Dropdown add-row */
+.equip-add-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  padding-top: 0.35rem;
+}
+.equip-add-row select {
+  flex: 1;
+  padding: 0.35rem 0.5rem;
+  border-radius: 2px;
+  border: 1px solid var(--hq-input-border);
+  background: var(--hq-card-bg-dark);
+  color: var(--hq-input-text);
+}
+.btn-add {
+  padding: 0.35rem 0.6rem;
+  border-radius: 2px;
+  border: none;
+  background: color-mix(in srgb, var(--color-blue) 18%, var(--hq-card-bg-dark));
+  color: var(--color-blue);
+  cursor: pointer;
 }
 </style>

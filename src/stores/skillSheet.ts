@@ -18,6 +18,7 @@ export const useSkillSheetStore = defineStore(
     const usedSpecialItems = ref<string[]>([])
     const itemChargesUsed = ref<Record<string, number>>({})
     const itemQuantities = ref<Record<string, number>>({})
+    const druideShapeShifted = ref(false)
 
     const weaponBonus = computed(() =>
       equippedWeapon.value.reduce((sum, id) => {
@@ -40,6 +41,8 @@ export const useSkillSheetStore = defineStore(
       }, 0),
     )
 
+    const druideShapeBonus = computed(() => (character.value === 'Druide' && druideShapeShifted.value ? 1 : 0))
+
     function reset() {
       name.value = ''
       character.value = ''
@@ -53,6 +56,7 @@ export const useSkillSheetStore = defineStore(
       usedSpecialItems.value = []
       itemChargesUsed.value = {}
       itemQuantities.value = {}
+      druideShapeShifted.value = false
     }
 
     function resetStats() {
@@ -62,6 +66,18 @@ export const useSkillSheetStore = defineStore(
       defenseDice.value = stats.defenseDice
       bodyStrength.value = stats.bodyStrength
       intelligence.value = stats.intelligence
+      druideShapeShifted.value = false
+    }
+
+    function toggleDruideShape() {
+      const maxBodyStrength = defaultStats['Druide']?.bodyStrength ?? 6
+      if (character.value === 'Druide' && (bodyStrength.value ?? 0) >= maxBodyStrength) {
+        druideShapeShifted.value = !druideShapeShifted.value
+      }
+    }
+
+    function deactivateDruideShape() {
+      druideShapeShifted.value = false
     }
 
     return {
@@ -77,11 +93,15 @@ export const useSkillSheetStore = defineStore(
       usedSpecialItems,
       itemChargesUsed,
       itemQuantities,
+      druideShapeShifted,
       weaponBonus,
       armorBonus,
       intelligenceBonus,
+      druideShapeBonus,
       reset,
       resetStats,
+      toggleDruideShape,
+      deactivateDruideShape,
     }
   },
   { persist: true },
