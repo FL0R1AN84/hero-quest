@@ -63,7 +63,7 @@ covers all the essential information a hero needs during a quest:
 | Barde     |   📯   |      2      |      2       |       5       |      4       |
 | Berserker |   🪓   |      3      |      2       |       7       |      2       |
 | Druide    |   🧙   |      1      |      2       |       6       |      4       |
-| Elf       | 🧝‍♂️  |      2      |      2       |       6       |      4       |
+| Elf       |   🧝‍♂️   |      2      |      2       |       6       |      4       |
 | Ritter    |   🏰   |      2      |      3       |       7       |      2       |
 | Zwerg     |   ⚒️   |      2      |      2       |       7       |      3       |
 | Zauberer  |   🪄   |      1      |      2       |       4       |      6       |
@@ -76,69 +76,69 @@ covers all the essential information a hero needs during a quest:
 
 ### Waffen (Weapons)
 
-| Weapon                  | Bonus | Restriction              | Note                                         |
-|-------------------------|:-----:|--------------------------|----------------------------------------------|
-| Armbrust                |  +2   | —                        | Ranged weapon                                |
-| Breitschwert            |  +2   | Barbar, Berserker        |                                              |
-| Dolch                   |  +1   | —                        | Sharp dagger for deadly strikes               |
-| Geisterschwert          |  +2   | —                        | Magical sword with secret powers             |
-| Handbeil                |  +2   | —                        | Versatile weapon for any situation           |
-| Kurzschwert             |  +1   | —                        |                                              |
-| Langschwert             |  +1   | —                        | Can also attack diagonally                   |
-| Langschwert des Glücks  |  +2   | —                        | Grants additional attack opportunities        |
-| Ork-Kurzschwert         |  +1   | —                        | Orcs can be attacked twice in a row          |
-| Phantomklinge           |  +3   | —                        | Invisible weapon with phenomenal attack     |
-| Stab                    |  +2   | —                        | Long wooden staff; cannot equip shield       |
-| Stab des Zauberers      |  +2   | Druide, Zauberer         | Enhances spellcasting power                  |
-| Streitaxt               |  +2   | —                        |                                              |
-| Telekinese-Stab         |  +2   | Druide, Zauberer         | Enables ranged attacks                       |
-| Werkzeug                |  +1   | —                        | Disarm mechanical traps                      |
+| Weapon                 | Bonus | Restriction       | Note                                    |
+|------------------------|:-----:|-------------------|-----------------------------------------|
+| Armbrust               |  +2   | —                 | Ranged weapon                           |
+| Breitschwert           |  +2   | Barbar, Berserker |                                         |
+| Dolch                  |  +1   | —                 | Sharp dagger for deadly strikes         |
+| Geisterschwert         |  +2   | —                 | Magical sword with secret powers        |
+| Handbeil               |  +2   | —                 | Versatile weapon for any situation      |
+| Kurzschwert            |  +1   | —                 |                                         |
+| Langschwert            |  +1   | —                 | Can also attack diagonally              |
+| Langschwert des Glücks |  +2   | —                 | Grants additional attack opportunities  |
+| Ork-Kurzschwert        |  +1   | —                 | Orcs can be attacked twice in a row     |
+| Phantomklinge          |  +3   | —                 | Invisible weapon with phenomenal attack |
+| Stab                   |  +2   | —                 | Long wooden staff; cannot equip shield  |
+| Stab des Zauberers     |  +2   | Druide, Zauberer  | Enhances spellcasting power             |
+| Streitaxt              |  +2   | —                 |                                         |
+| Telekinese-Stab        |  +2   | Druide, Zauberer  | Enables ranged attacks                  |
+| Werkzeug               |  +1   | —                 | Disarm mechanical traps                 |
 
 ### Rüstung (Armor)
 
-| Armor              | Bonus | Restriction              |
-|--------------------|:-----:|--------------------------|
-| Armbrust           |  +1   | —                        |
-| Armschutz          |  +1   | —                        |
-| Armpanzer          |  +1   | —                        |
-| Borins Rüstung     |  +3   | —                        |
-| Harnisch           |  +2   | —                        |
-| Helm               |  +1   | —                        |
-| Kettenhemd         |  +1   | —                        |
-| Plattenrüstung     |  +2   | Barbar only              |
-| Schild             |  +1   | —                        |
+| Armor          | Bonus | Restriction |
+|----------------|:-----:|-------------|
+| Armbrust       |  +1   | —           |
+| Armschutz      |  +1   | —           |
+| Armpanzer      |  +1   | —           |
+| Borins Rüstung |  +3   | —           |
+| Harnisch       |  +2   | —           |
+| Helm           |  +1   | —           |
+| Kettenhemd     |  +1   | —           |
+| Plattenrüstung |  +2   | Barbar only |
+| Schild         |  +1   | —           |
 
 ### Gegenstände (Special Items)
 
 #### 🧪 Tränke (Potions & Consumables)
 
-| Item                        | Symbol | Effect                                          | Notes                              |
-|-----------------------------|:------:|-----------------------------------------------|-------------------------------------|
-| Gegengift                   |   🧪   | +2 *Körperkraft* (never above starting value)   | 1 use                              |
-| Geschicklichkeitstrank      |   🏃   | +5 Movement points (temporary)                  | 1 use                              |
-| Heiltrank                   |   🧪   | +4 *Körperkraft* (never above starting value)   | Stackable                          |
-| Heiltrank (Würfel)          |   🎲   | Roll 1d6 → heal that amount (never above start) | Stackable, requires dice roll      |
-| Immuntrank                  |  🛡️   | +2 *Verteidigungswürfel* (max. 6)               | Stackable                          |
-| Kampfestrank                |   🥊   | Allows a 2nd roll of combat dice (same enemy)   | 1 use                              |
-| Stärketrank                 |   💪   | +2 *Angriffswürfel* (max. 6)                    | Stackable                          |
-| Stärkungstrank              |   ⚡   | Roll 2 attack dice × 2 (vs. 2 enemies)         | 1 use                              |
-| Wiederherstellungstrank     |   🔄   | +1 *Körperkraft* & +1 Intelligence (never above) | 1 use                              |
+| Item                    | Symbol | Effect                                           | Notes                         |
+|-------------------------|:------:|--------------------------------------------------|-------------------------------|
+| Gegengift               |   🧪   | +2 *Körperkraft* (never above starting value)    | 1 use                         |
+| Geschicklichkeitstrank  |   🏃   | +5 Movement points (temporary)                   | 1 use                         |
+| Heiltrank               |   🧪   | +4 *Körperkraft* (never above starting value)    | Stackable                     |
+| Heiltrank (Würfel)      |   🎲   | Roll 1d6 → heal that amount (never above start)  | Stackable, requires dice roll |
+| Immuntrank              |   🛡️   | +2 *Verteidigungswürfel* (max. 6)                | Stackable                     |
+| Kampfestrank            |   🥊   | Allows a 2nd roll of combat dice (same enemy)    | 1 use                         |
+| Stärketrank             |   💪   | +2 *Angriffswürfel* (max. 6)                     | Stackable                     |
+| Stärkungstrank          |   ⚡   | Roll 2 attack dice × 2 (vs. 2 enemies)           | 1 use                         |
+| Wiederherstellungstrank |   🔄   | +1 *Körperkraft* & +1 Intelligence (never above) | 1 use                         |
 
 #### ✨ Magische Gegenstände (Magic Items & Rings)
 
-| Item                        | Symbol | Effect                                          | Notes                              |
-|-----------------------------|:------:|-----------------------------------------------|-------------------------------------|
-| Amulett der Weisheit        |   📿   | Permanently +1 Intelligence                     | Passive, Barbar only               |
-| Borins Rüstung              |  🛡️   | Legendary armor with enhanced protection        | Passive                            |
-| Elixier des Lebens          |   🧴   | Restores all lost *Körperkraft*                 | 1 use                              |
-| Fluch der Orks              |   💀   | Summons ork power: 2× attack dice (1 enemy)     | 1 use                              |
-| Geweibes Wasser             |   💧   | Restores *Körperkraft* & cures spell poison     | 1 use; +3 ❤️                       |
-| Mantel des Zauberers        |  🧥   | Permanently +1 Intelligence                     | Passive, Druide & Zauberer only    |
-| Ring der Magie              |   💍   | Store spell (1st use) → fire spell (2nd use)    | 2 charges, Druide & Zauberer only  |
-| Ring der Rückkehr           |   💫   | Permits return to quest starting point          | 1 use, simple activation           |
-| Ring der Stärke             |   💪   | Permanently +1 *Angriffswürfel*                 | Passive                            |
-| Ring des Feuers             |   🔥   | Deflects 2 fire spells                          | 2 charges, tracked individually    |
-| Stab der Magie              |   🪄   | Cast twice in a row                             | Passive, Druide & Zauberer only    |
+| Item                 | Symbol | Effect                                       | Notes                             |
+|----------------------|:------:|----------------------------------------------|-----------------------------------|
+| Amulett der Weisheit |   📿   | Permanently +1 Intelligence                  | Passive, Barbar only              |
+| Borins Rüstung       |   🛡️   | Legendary armor with enhanced protection     | Passive                           |
+| Elixier des Lebens   |   🧴   | Restores all lost *Körperkraft*              | 1 use                             |
+| Fluch der Orks       |   💀   | Summons ork power: 2× attack dice (1 enemy)  | 1 use                             |
+| Geweihtes Wasser     |   💧   | Restores *Körperkraft* & cures spell poison  | 1 use; +3 ❤️                      |
+| Mantel des Zauberers |   🧥   | Permanently +1 Intelligence                  | Passive, Druide & Zauberer only   |
+| Ring der Magie       |   💍   | Store spell (1st use) → fire spell (2nd use) | 2 charges, Druide & Zauberer only |
+| Ring der Rückkehr    |   💫   | Permits return to quest starting point       | 1 use, simple activation          |
+| Ring der Stärke      |   💪   | Permanently +1 *Angriffswürfel*              | Passive                           |
+| Ring des Feuers      |   🔥   | Deflects 2 fire spells                       | 2 charges, tracked individually   |
+| Stab der Magie       |   🪄   | Cast twice in a row                          | Passive, Druide & Zauberer only   |
 
 ---
 
@@ -148,17 +148,17 @@ covers all the essential information a hero needs during a quest:
 
 - **Dropdown sorting:** All special items are alphabetically sorted when selecting new items
 - **App display grouping:** Items are organized into three themed categories:
-  - 🧪 **Tränke** — All consumable potions and potions
-  - ✨ **Magische Gegenstände** — Passive bonuses, magic rings, and staffs
-  - 📦 **Sonstiges** — Miscellaneous items and effects
+    - 🧪 **Tränke** — All consumable potions and potions
+    - ✨ **Magische Gegenstände** — Passive bonuses, magic rings, and staffs
+    - 📦 **Sonstiges** — Miscellaneous items and effects
 - **Within categories:** Items are alphabetically sorted for quick navigation
 
 ### Item Mechanics
 
 - **Stackable items:** Potions and consumables have a quantity counter (−/+) so you can carry multiple doses
 - **Charged items:** Multi-use items (Ring des Feuers, Ring der Magie) track remaining charges:
-  - 🔴 **Red circles** — indicate remaining charges for the Ring des Feuers
-  - 🔵 **Blue circles** — indicate stored spells or charges for magic rings
+    - 🔴 **Red circles** — indicate remaining charges for the Ring des Feuers
+    - 🔵 **Blue circles** — indicate stored spells or charges for magic rings
 - **Single-use items:** Items like Ring der Rückkehr have a simple "Use" button and mark themselves as used
 - **Death overlay healing:** When *Körperkraft* reaches 0, you can choose to use a healing potion before reviving
 
@@ -197,9 +197,10 @@ covers all the essential information a hero needs during a quest:
 #### Adding a New Item
 
 1. Determine item category:
-   - **Potion:** Set `kind` to one of: `'heal-fixed'`, `'heal-potion'`, `'attack-potion'`, `'defense-potion'`, `'extra-attack-same'`, `'movement-potion'`, `'restore-small'`, `'heal-fixed-2'`, `'extra-attack-multi'`
-   - **Magic ring/item:** Set `kind` to `'fire-shield'` or `'magic-ring'`, or leave `kind` undefined
-   - **Passive item:** Set `passive: true`
+    - **Potion:** Set `kind` to one of: `'heal-fixed'`, `'heal-potion'`, `'attack-potion'`, `'defense-potion'`,
+      `'extra-attack-same'`, `'movement-potion'`, `'restore-small'`, `'heal-fixed-2'`, `'extra-attack-multi'`
+    - **Magic ring/item:** Set `kind` to `'fire-shield'` or `'magic-ring'`, or leave `kind` undefined
+    - **Passive item:** Set `passive: true`
 2. Add to appropriate array in `src/data/skillSheetData.ts` (weapons, armor, or specialItems)
 3. Items will be automatically sorted alphabetically in dropdowns and thematically in the app display
 4. Update this README with the new item details
@@ -212,7 +213,8 @@ covers all the essential information a hero needs during a quest:
 
 ### AI Agent Documentation
 
-This project includes an `AGENTS.md` file at the project root that documents the codebase structure, conventions, and patterns for AI agents working on the project. Key sections:
+This project includes an `AGENTS.md` file at the project root that documents the codebase structure, conventions, and
+patterns for AI agents working on the project. Key sections:
 
 - Architecture overview and data flow
 - Component patterns and state management
@@ -234,13 +236,15 @@ This app is fully installable as a PWA on iOS, Android, and desktop browsers.
 
 ### Automatic Updates
 
-The app includes a **Service Worker** that automatically checks for updates every 60 seconds. When a new version is available:
+The app includes a **Service Worker** that automatically checks for updates every 60 seconds. When a new version is
+available:
 
 1. A **notification banner** appears in the app (🔄 Neue Version verfügbar)
 2. Tap **✓ Aktualisieren** to reload with the latest version
 3. Your character data is preserved across updates (stored in localStorage)
 
 **Manual Update:** If you don't see the update banner:
+
 - **iOS:** Close and reopen the app
 - **Android:** Swipe down to refresh, or close and reopen the app
 - **Browser:** Hard refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)
@@ -253,8 +257,6 @@ The app includes a **Service Worker** that automatically checks for updates ever
 - ✅ Full data persistence — character sheets saved locally
 
 ---
-
-
 
 | Layer      | Technology                                                           |
 |------------|----------------------------------------------------------------------|
