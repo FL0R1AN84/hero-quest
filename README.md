@@ -30,24 +30,19 @@ Built with Vue 3, Vite, TypeScript, Pinia, and Tailwind CSS.
 This web app lets HeroQuest players manage their hero's character sheet directly in the browser — no paper required. It
 covers all the essential information a hero needs during a quest:
 
-- **Hero name & character class** — choose from Barbar, Barde, Druide, Elf, Ritter, Zwerg, or Zauberer
+- **Hero name & character class** — choose from Barbar, Barde, Berserker, Druide, Elf, Ritter, Zwerg, or Zauberer
 - **Core stats** — Attack Dice (*Angriffswürfel*), Defense Dice (*Verteidigungswürfel*), Body Strength (*Körperkraft*),
   and Intelligence (*Intelligenz*) are pre-filled with class defaults and can be adjusted with the ＋/− buttons
 - **Equipment** — equip weapons and armor; bonuses are calculated automatically and reflected in the displayed stats
 - **Gegenstände (items)** — equip consumables and magic items; each item shows its ability and bonus label at a glance:
-    - 🧪 **Heiltrank** — always restores exactly +4 *Körperkraft* (never above the starting value)
-    - 🎲 **Heiltrank (Würfel)** — roll 1d6 and heal exactly that amount (never above the starting value)
-    - 💪 **Stärketrank** — +2 *Angriffswürfel* (max. 6)
-    - 🛡️ **Immuntrank** — +2 *Verteidigungswürfel* (max. 6)
-    - 🔥 **Ring des Feuers** — deflects 2 fire spells; charges are tracked individually
-    - 🪄 **Stab der Magie** *(Druide / Zauberer)* — cast twice in a row
-    - 💍 **Ring der Magie** *(Druide / Zauberer)* — store a spell on the 1st use, fire it on the 2nd
-    - 📿 **Amulett der Weisheit** *(Barbar)* — passive +1 Intelligence
+    - 🧪 **Tränke** — Healing potions, strength potions, defense potions, and special consumables
+    - ✨ **Magische Gegenstände** — Passive bonuses, magic rings (with charge tracking), and magical staffs
+    - 📦 **Sonstiges** — Miscellaneous items and special abilities
 - **Item quantities** — stackable consumables (potions) have an adjustable quantity counter so you can carry multiple
   doses
 - **Item charges** — multi-use items (Ring des Feuers, Ring der Magie) track remaining charges with a per-use button
 - **Death overlay** — when *Körperkraft* reaches 0 a full-screen overlay appears with a configurable revival point
-  selector (capped at the hero's starting *Körperkraft*)
+  selector (capped at the hero's starting *Körperkraft*), with the option to use a healing potion before reviving
 - **End-of-game reset** — the *🏁 Spielende – Werte zurücksetzen* button restores all core stats to their class defaults
   while retaining all equipment and items
 - **Persistent state** — all data is automatically saved in the browser via `localStorage`; nothing is lost on a page
@@ -55,6 +50,8 @@ covers all the essential information a hero needs during a quest:
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
   other players)
 - **Light & Dark mode** — the UI adapts to the system colour scheme
+- **Alphabetical sorting** — weapons, armor, and items are sorted alphabetically in dropdowns for easy navigation
+- **Thematic grouping** — special items are grouped by category (Potions, Magic Items, Miscellaneous) in the app display
 
 ---
 
@@ -225,7 +222,7 @@ This project includes an `AGENTS.md` file at the project root that documents the
 
 ---
 
-
+## Tech Stack
 
 | Layer      | Technology                                                           |
 |------------|----------------------------------------------------------------------|
