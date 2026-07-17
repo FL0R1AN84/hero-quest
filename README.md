@@ -222,7 +222,39 @@ This project includes an `AGENTS.md` file at the project root that documents the
 
 ---
 
-## Tech Stack
+## Progressive Web App (PWA)
+
+This app is fully installable as a PWA on iOS, Android, and desktop browsers.
+
+### Installation
+
+- **iOS:** Open in Safari → Share → Add to Home Screen
+- **Android:** Open in Chrome → Menu → Install app
+- **Desktop:** Most modern browsers support PWA installation
+
+### Automatic Updates
+
+The app includes a **Service Worker** that automatically checks for updates every 60 seconds. When a new version is available:
+
+1. A **notification banner** appears in the app (🔄 Neue Version verfügbar)
+2. Tap **✓ Aktualisieren** to reload with the latest version
+3. Your character data is preserved across updates (stored in localStorage)
+
+**Manual Update:** If you don't see the update banner:
+- **iOS:** Close and reopen the app
+- **Android:** Swipe down to refresh, or close and reopen the app
+- **Browser:** Hard refresh (Cmd+Shift+R on Mac, Ctrl+Shift+R on Windows)
+
+### Features
+
+- ✅ Offline support — the app works without an internet connection
+- ✅ Install to home screen — runs like a native app
+- ✅ Automatic updates — new versions are served seamlessly
+- ✅ Full data persistence — character sheets saved locally
+
+---
+
+
 
 | Layer      | Technology                                                           |
 |------------|----------------------------------------------------------------------|
