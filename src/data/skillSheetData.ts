@@ -55,8 +55,11 @@ export const defaultStats: Record<
 }
 
 export const weaponOptions: WeaponOption[] = [
+  { id: 'armbrust', label: 'Armbrust', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 2, allowedCharacters: null },
   { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'dolch', label: 'Dolch', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 1, allowedCharacters: null },
   { id: 'geisterschwert', label: 'Geisterschwert', note: 'Magisches Schwert mit geheimen Kräften', bonus: 2, allowedCharacters: null },
+  { id: 'handbeil', label: 'Handbeil', note: 'Eine vielseitige Waffe für jeden Fall', bonus: 2, allowedCharacters: null },
   { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
   {
     id: 'langschwert',
@@ -80,6 +83,7 @@ export const weaponOptions: WeaponOption[] = [
     allowedCharacters: null,
   },
   { id: 'phantomklinge', label: 'Phantomklinge', note: 'Unsichtbare Waffe mit phänomenalem Angriff', bonus: 3, allowedCharacters: null },
+  { id: 'stab', label: 'Stab', note: 'Dank diesen langen und hölzernen Stabs erhältst du die Angriffskraft von 2. Dieser Stab kann diagonal angreifen, dank eines Stabes eingesetzt kannst du keinen Schild verwenden', bonus: 2, allowedCharacters: null },
   { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
   {
     id: 'stab-des-zauberers',
@@ -95,11 +99,15 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 2,
     allowedCharacters: ['Druide', 'Zauberer'],
   },
+  { id: 'werkzeug', label: 'Werkzeug', note: 'Fällen entschärfen – Mit dem Werkzeug können Sie mechanische Fallen entschärfen', bonus: 1, allowedCharacters: null },
 ]
 
 export const armorOptions: ArmorOption[] = [
+  { id: 'armbrust', label: 'Armbrust', bonus: 1, allowedCharacters: null },
+  { id: 'armschutz', label: 'Armschutz', bonus: 1, allowedCharacters: null },
   { id: 'armpanzer', label: 'Armpanzer', bonus: 1, allowedCharacters: null },
   { id: 'borins-ruestung', label: 'Borins Rüstung', bonus: 3, allowedCharacters: null },
+  { id: 'harnisch', label: 'Harnisch', bonus: 2, allowedCharacters: null },
   { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
   { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
   { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
@@ -242,6 +250,15 @@ export const specialItemOptions: SpecialItemOption[] = [
      ability: 'Ruft die Macht der Orks an – bei Benutzung: 2× Angriffswürfel gegen einen Gegner',
      allowedCharacters: null,
      kind: 'extra-attack-same',
+   },
+   {
+     id: 'geweibes-wasser',
+     label: 'Geweibes Wasser',
+     symbol: '💧',
+     ability: 'Stellt Körperkraft wieder her und hilft gegen Zaubervergiftung',
+     allowedCharacters: null,
+     kind: 'heal-fixed',
+     bonusLabel: '+3 ❤️',
    },
    {
      id: 'mantel-des-zauberers',
