@@ -47,7 +47,7 @@ const visibleSpecialItems = computed(() =>
 // Kategorisierung für thematische Gruppierung
 function getItemCategory(item: SpecialItemOption): number {
   if (item.kind && potionKinds.has(item.kind)) return 0 // Tränke
-  if (item.passive || item.kind && magicKinds.has(item.kind) || item.id === 'stab-der-magie' || item.id === 'ring-der-magie') return 1 // Magische Items & Ringe
+  if (item.passive || (item.kind && magicKinds.has(item.kind)) || item.id === 'stab-der-magie' || item.id === 'ring-der-magie' || item.id === 'ring-der-rueckkehr') return 1 // Magische Items & Ringe
   return 2 // Sonstiges
 }
 
