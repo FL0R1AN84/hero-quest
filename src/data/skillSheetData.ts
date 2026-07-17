@@ -29,11 +29,12 @@ export interface SpecialItemOption {
   bonusLabel?: string
 }
 
-export const characterOptions = ['Barbar', 'Barde', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
+export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 
 export const characterAvatars: Record<string, { symbol: string; color: string }> = {
   Barbar: { symbol: '⚔️', color: 'var(--color-red)' },
   Barde: { symbol: '📯', color: 'var(--color-blue)' },
+  Berserker: { symbol: '🪓', color: 'var(--color-red)' },
   Druide: { symbol: '🧙', color: 'var(--color-green)' },
   Elf: { symbol: '🧝‍♂️', color: 'var(--color-green)' },
   Ritter: { symbol: '🏰', color: 'var(--color-yellow)' },
@@ -47,6 +48,7 @@ export const defaultStats: Record<
 > = {
   Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barde: { attackDice: 2, defenseDice: 2, bodyStrength: 5, intelligence: 4 },
+  Berserker: { attackDice: 3, defenseDice: 2, bodyStrength: 7, intelligence: 2 },
   Druide: { attackDice: 1, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
   Elf: { attackDice: 2, defenseDice: 2, bodyStrength: 6, intelligence: 4 },
   Ritter: { attackDice: 2, defenseDice: 3, bodyStrength: 7, intelligence: 2 },
@@ -56,7 +58,7 @@ export const defaultStats: Record<
 
 export const weaponOptions: WeaponOption[] = [
   { id: 'armbrust', label: 'Armbrust', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 2, allowedCharacters: null },
-  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar', 'Berserker'] },
   { id: 'dolch', label: 'Dolch', note: 'Mit diesem scharfen Messer können Sie tödlich treffen', bonus: 1, allowedCharacters: null },
   { id: 'geisterschwert', label: 'Geisterschwert', note: 'Magisches Schwert mit geheimen Kräften', bonus: 2, allowedCharacters: null },
   { id: 'handbeil', label: 'Handbeil', note: 'Eine vielseitige Waffe für jeden Fall', bonus: 2, allowedCharacters: null },
