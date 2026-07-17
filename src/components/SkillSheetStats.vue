@@ -5,19 +5,19 @@ import { useSkillSheetStore } from '@/stores/skillSheet'
 import { defaultStats } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
-const { character, attackDice, defenseDice, bodyStrength, intelligence } = storeToRefs(store)
+const { character, attackDice, defenseDice, bodyStrength, intelligence, druideShapeShifted } = storeToRefs(store)
 
 const effectiveAttackDice = computed({
-  get: () => (attackDice.value ?? 0) + store.weaponBonus,
+  get: () => (attackDice.value ?? 0) + store.weaponBonus + store.druideShapeBonus,
   set: (v: number) => {
-    attackDice.value = v - store.weaponBonus
+    attackDice.value = v - store.weaponBonus - store.druideShapeBonus
   },
 })
 
 const effectiveDefenseDice = computed({
-  get: () => (defenseDice.value ?? 0) + store.armorBonus,
+  get: () => (defenseDice.value ?? 0) + store.armorBonus + store.druideShapeBonus,
   set: (v: number) => {
-    defenseDice.value = v - store.armorBonus
+    defenseDice.value = v - store.armorBonus - store.druideShapeBonus
   },
 })
 
@@ -30,6 +30,12 @@ const effectiveIntelligence = computed({
 
 const isDead = computed(() => character.value !== '' && (bodyStrength.value ?? 0) === 0)
 
+// Druide kann Gestalt wechseln nur bei maximaler Körperkraft (6) oder höher
+const maxDruideBodyStrength = computed(() => defaultStats['Druide']?.bodyStrength ?? 6)
+const canToggleDruideShape = computed(
+  () => character.value === 'Druide' && (bodyStrength.value ?? 0) >= maxDruideBodyStrength.value,
+)
+
 function changeAttack(delta: number) {
   effectiveAttackDice.value = Math.min(6, Math.max(1, effectiveAttackDice.value + delta))
 }
@@ -40,7 +46,14 @@ function changeDefense(delta: number) {
 
 function changeBodyStrength(delta: number) {
   if (bodyStrength.value === null) return
-  bodyStrength.value = Math.max(0, bodyStrength.value + delta)
+  const newValue = Math.max(0, bodyStrength.value + delta)
+
+  // Wenn Körperkraft sinkt und Gestalt aktiv ist, deaktiviere die Gestalt
+  if (delta < 0 && druideShapeShifted.value) {
+    store.deactivateDruideShape()
+  }
+
+  bodyStrength.value = newValue
 }
 
 function changeIntelligence(delta: number) {
@@ -56,6 +69,7 @@ function revive() {
   if (bodyStrength.value === null) return
   bodyStrength.value = Math.min(maxRevivePoints.value, Math.max(1, revivePoints.value))
   revivePoints.value = 1
+  druideShapeShifted.value = false
 }
 </script>
 
@@ -72,7 +86,13 @@ function revive() {
             −
           </button>
           <span class="revive-value">{{ revivePoints }}</span>
-          <button :disabled="revivePoints >= maxRevivePoints" class="revive-adj" @click="revivePoints < maxRevivePoints && revivePoints++">+</button>
+          <button
+            :disabled="revivePoints >= maxRevivePoints"
+            class="revive-adj"
+            @click="revivePoints < maxRevivePoints && revivePoints++"
+          >
+            +
+          </button>
         </div>
         <button class="revive-btn" @click="revive">⚗️ Wiederbeleben</button>
       </div>
@@ -156,6 +176,19 @@ function revive() {
       <label class="stat-label">Intelli-<br />genz</label>
     </div>
   </div>
+
+   <!-- Druide Gestalt-Wechsel Button -->
+   <div v-if="character === 'Druide'" class="druide-shape-section">
+     <button
+       :disabled="!canToggleDruideShape"
+       :class="{ 'shape-active': druideShapeShifted }"
+       class="druide-shape-btn"
+       @click="store.toggleDruideShape"
+     >
+       <span class="shape-icon">🐺</span>
+       <span class="shape-text">{{ druideShapeShifted ? 'Gestalt: Aktiviert' : 'Gestalt wechseln' }}</span>
+      </button>
+    </div>
 </template>
 
 <style scoped>
@@ -488,5 +521,76 @@ function revive() {
       inset 0 2px 4px rgba(0, 0, 0, 0.2),
       0 0 10px 2px #b00;
   }
+}
+
+/* ── Druide Gestalt-Wechsel ────────────────────────────────── */
+.druide-shape-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(34, 139, 34, 0.08);
+  border: 1px solid rgba(34, 139, 34, 0.3);
+  border-radius: 4px;
+  transition: all 0.3s;
+}
+
+.druide-shape-section:has(.shape-active) {
+  background-color: rgba(34, 139, 34, 0.15);
+  border-color: rgba(34, 139, 34, 0.6);
+  box-shadow: 0 0 12px rgba(34, 139, 34, 0.2);
+}
+
+.druide-shape-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background-color: rgba(34, 139, 34, 0.1);
+  border: 2px solid rgba(34, 139, 34, 0.4);
+  border-radius: 4px;
+  color: #228b22;
+  font-family: var(--font-fantasy), serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.2s,
+    border-color 0.2s,
+    color 0.2s,
+    box-shadow 0.2s;
+}
+
+.druide-shape-btn:hover {
+  background-color: rgba(34, 139, 34, 0.2);
+  border-color: rgba(34, 139, 34, 0.7);
+  box-shadow: 0 0 8px rgba(34, 139, 34, 0.3);
+}
+
+.druide-shape-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  color: #888;
+  border-color: rgba(34, 139, 34, 0.2);
+  background-color: rgba(34, 139, 34, 0.04);
+}
+
+.druide-shape-btn.shape-active {
+  background-color: rgba(34, 139, 34, 0.25);
+  border-color: #228b22;
+  color: #1a6b1a;
+  box-shadow: 0 0 10px rgba(34, 139, 34, 0.4);
+}
+
+.shape-icon {
+  font-size: 1.25rem;
+  display: inline-block;
+}
+
+.shape-text {
+  flex: 1;
 }
 </style>
