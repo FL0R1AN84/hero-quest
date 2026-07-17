@@ -56,6 +56,7 @@ export const defaultStats: Record<
 
 export const weaponOptions: WeaponOption[] = [
   { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
   {
     id: 'langschwert',
     label: 'Langschwert',
@@ -63,8 +64,6 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 1,
     allowedCharacters: null,
   },
-  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
-  { id: 'kurzschwert', label: 'Kurzschwert', note: null, bonus: 1, allowedCharacters: null },
   {
     id: 'ork-kurzschwert',
     label: 'Ork-Kurzschwert',
@@ -72,14 +71,15 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 1,
     allowedCharacters: null,
   },
+  { id: 'streitaxt', label: 'Streitaxt', note: null, bonus: 2, allowedCharacters: null },
 ]
 
 export const armorOptions: ArmorOption[] = [
-  { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
-  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
-  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
-  { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
   { id: 'armpanzer', label: 'Armpanzer', bonus: 1, allowedCharacters: null },
+  { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
+  { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
 ]
 
 export const specialItemOptions: SpecialItemOption[] = [
@@ -150,5 +150,47 @@ export const specialItemOptions: SpecialItemOption[] = [
     allowedCharacters: null,
     kind: 'fire-shield',
     maxUses: 2,
+  },
+  // ── Neue Gegenstände (vom Benutzer angefragt) ───────────
+  {
+    id: 'kampfestrank',
+    label: 'Kampfestrank',
+    symbol: '🥊',
+    ability: 'Erlaubt ein 2. Mal die Kampfwürfel zu würfeln (gegen denselben Gegner)',
+    allowedCharacters: null,
+    kind: 'extra-attack-same',
+  },
+  {
+    id: 'geschicklichkeitstrank',
+    label: 'Geschicklichkeitstrank',
+    symbol: '🏃',
+    ability: '+5 Bewegungspunkte (temporär)',
+    allowedCharacters: null,
+    kind: 'movement-potion',
+    bonusLabel: '+5 ⇢',
+  },
+  {
+    id: 'wiederherstellungstrank',
+    label: 'Wiederherstellungstrank',
+    symbol: '🔄',
+    ability: 'Stellt +1 Körperkraft und +1 Intelligenz wieder her (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'restore-small',
+  },
+  {
+    id: 'gegengift',
+    label: 'Gegengift',
+    symbol: '🧪',
+    ability: 'Heilt +2 Körperkraft (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'heal-fixed-2',
+  },
+  {
+    id: 'staerkungstrank-dual',
+    label: 'Stärkungstrank',
+    symbol: '⚡',
+    ability: 'Erlaubt 2× Angriffswürfel zu werfen — kann gegen 2 Gegner eingesetzt werden',
+    allowedCharacters: null,
+    kind: 'extra-attack-multi',
   },
 ]
