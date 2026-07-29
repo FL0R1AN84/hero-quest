@@ -26,10 +26,12 @@ Template Rendering + localStorage persistence
 
 | File | Purpose |
 |------|---------|
-| `src/data/skillSheetData.ts` | **Single source of truth** for all game data: 7 character classes, weapons, armor, special items with bonuses, restrictions, and item types. Never duplicate these definitions. |
-| `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges). Auto-persisted via `pinia-plugin-persistedstate`. |
+| `src/data/skillSheetData.ts` | **Single source of truth** for all game data: 8 character classes, weapons, armor, special items with bonuses, restrictions, and item types. Also exports `characterAvatars` (symbol + color per class). Never duplicate these definitions. |
+| `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift). Auto-persisted via `pinia-plugin-persistedstate`. |
 | `src/views/SkillSheet.vue` | **Main page** orchestrating save/load/end-game flows. Contains file I/O logic (`saveToFile()`, `loadFromFile()`). |
 | `src/components/*.vue` | **Presentational components** (Header, Stats, Equipment, etc.) using Composition API `<script setup>`. |
+| `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. |
+| `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
 
 ### State Management Patterns
 
@@ -42,22 +44,24 @@ Example pattern from `SkillSheetStats.vue`:
 ```typescript
 const { attackDice } = storeToRefs(store)
 const effectiveAttackDice = computed({
-  get: () => (attackDice.value ?? 0) + store.weaponBonus,
-  set: (v: number) => { attackDice.value = v - store.weaponBonus }
+  get: () => (attackDice.value ?? 0) + store.weaponBonus + store.druideShapeBonus,
+  set: (v: number) => { attackDice.value = v - store.weaponBonus - store.druideShapeBonus }
 })
 ```
 
 ## Game Rules & Domain Knowledge
 
 ### Character Classes & Starting Stats
-7 characters (Barbar, Barde, Druide, Elf, Ritter, Zwerg, Zauberer) with unique base stats for Attack Dice, Defense Dice, Body Strength, Intelligence. **Stored in `defaultStats` lookup table** — always fetch from there, never hardcode values.
+8 characters (Barbar, Barde, Berserker, Druide, Elf, Ritter, Zwerg, Zauberer) with unique base stats for Attack Dice, Defense Dice, Body Strength, Intelligence. **Stored in `defaultStats` lookup table** — always fetch from there, never hardcode values. Each class also has an emoji avatar and theme color defined in `characterAvatars`.
 
 ### Equipment Restrictions
-- **Breitschwert (Broadsword):** Barbar only
+- **Breitschwert (Broadsword):** Barbar and Berserker only
 - **Plattenrüstung (Plate Armor):** Barbar only
 - **Stab der Magie + Ring der Magie:** Druide/Zauberer only
+- **Stab des Zauberers / Telekinese-Stab:** Druide/Zauberer only (caster weapons)
 - **Amulett der Weisheit:** Barbar only
-- **Zauberer cannot equip weapons** — this is enforced in `canEquipWeapon()` helper
+- **Mantel des Zauberers:** Druide/Zauberer only (passive +1 Intelligence)
+- **Zauberer cannot equip any weapons** — enforced by `canEquipWeapon()` returning `false` for Zauberer; Druide CAN equip weapons
 
 ### Bonus System
 - **Weapon bonuses** applied to Attack Dice (cumulative, max 6)
@@ -66,16 +70,30 @@ const effectiveAttackDice = computed({
 - **Consumables** (potions) used up: either quantity-tracked or charge-tracked (1-use vs 2-use items)
 
 ### Item Types & Behaviors
-- **heal-fixed / heal-potion:** Restore body strength (never above starting value)
+- **heal-fixed:** Restore body strength +4 (never above starting value)
+- **heal-fixed-2:** Restore body strength +2 (e.g. Gegengift)
+- **heal-potion:** Roll 1d6 → heal that amount (never above starting value); opens inline dice dialog
 - **attack-potion / defense-potion:** Boost dice temporarily (bounded 1–6)
+- **extra-attack-same:** Roll combat dice a 2nd time against the same enemy (e.g. Kampfestrank, Fluch der Orks)
+- **extra-attack-multi:** Roll 2× attack dice, usable against 2 enemies (e.g. Stärkungstrank)
+- **movement-potion:** Temporary +5 movement points (e.g. Geschicklichkeitstrank; display-only, no store field)
+- **restore-small:** Restore +1 Körperkraft and +1 Intelligence (never above starting value)
 - **fire-shield (Ring des Feuers):** 2-charge item, tracks uses in `itemChargesUsed` lookup
 - **magic-ring (Ring der Magie):** 2-charge item for Druide/Zauberer
-- **passive items:** Permanently active (no tracking), applied via store computed properties
+- **passive items:** Permanently active (no tracking), applied via store computed properties (`intelligenceBonus`); `bonusLabel` is display-only for other passive bonuses (e.g. Ring der Stärke +1 ⚔️ — label only, no computed store field)
 
 ### Death & Revival
 - When **Body Strength = 0** → fullscreen death overlay appears
+- Player may optionally use a healing potion (from inventory) before selecting revival points
 - Player selects revival Body Strength (1 to class default), overlay closes
 - **End-of-game reset** restores all stats to class defaults but **keeps all equipment & items**
+
+### Druide Shape-Shifting
+- Store ref `druideShapeShifted` (boolean) tracks active shift state
+- `druideShapeBonus` computed: adds +1 to both attack and defense dice when `character === 'Druide'` and shifted
+- `toggleDruideShape()`: only togglable when Körperkraft is at the Druide's starting max (6); auto-exposed in store
+- `deactivateDruideShape()`: called automatically in `changeBodyStrength()` whenever body strength decreases
+- `effectiveAttackDice` and `effectiveDefenseDice` both include `druideShapeBonus` in their getter/setter
 
 ## Component Patterns
 
@@ -106,6 +124,13 @@ All components use `<style scoped>`. **Never use global selectors in component s
 - Dark/Light mode: system prefers-color-scheme handled via CSS variable swaps
 - Mobile-first: breakpoints at `480px` and above
 
+### Equipment UI Pattern
+`SkillSheetEquipment.vue` uses a **dropdown-add pattern**: only equipped items are shown in the list; unequipped available items appear in a `<select>` dropdown with an "Hinzufügen" button. Clicking an equipped item removes it. Key computed helpers:
+- `availableWeapons` / `availableArmor` / `availableSpecialItems` — filtered & sorted lists for the dropdowns
+- `equippedWeaponOptions` / `equippedArmorOptions` / `equippedSpecialOptions` — resolve IDs to option objects for rendering
+- `getItemCategory(item)` — returns 0 (Tränke), 1 (Magische Gegenstände), or 2 (Sonstiges) for thematic grouping
+- `potionKinds` / `magicKinds` — `Set` constants that drive categorization and rendering branches
+
 ## Build & Development Workflow
 
 ```bash
@@ -122,6 +147,7 @@ npm run format       # Prettier (src/ only)
 - **TypeScript strict mode:** Full type checking, no implicit `any`
 - **Tailwind CSS v4:** via `@tailwindcss/vite` plugin
 - **Vue DevTools:** Vite plugin included (dev only)
+- **PWA:** Service worker at `public/service-worker.js` polls for updates every 60 s; fires `sw-update-available` custom event consumed by `AppUpdatePrompt.vue`
 
 ## File Format (Save/Load)
 
@@ -139,7 +165,8 @@ When users export a character, it's a `.json` file with this structure:
   "equippedSpecialItems": ["ring-des-feuers"],
   "usedSpecialItems": [],
   "itemQuantities": {"heiltrank": 2},
-  "itemChargesUsed": {"ring-des-feuers": 1}
+  "itemChargesUsed": {"ring-des-feuers": 1},
+  "druideShapeShifted": false
 }
 ```
 
@@ -180,9 +207,15 @@ When users export a character, it's a `.json` file with this structure:
 
 ### Adding a New Item Type
 1. Add entry to `specialItemOptions` array in `skillSheetData.ts` with correct `kind`, `allowedCharacters`, and `maxUses`
-2. Add UI rendering logic in `SkillSheetEquipment.vue` template if new layout needed
+2. Add UI rendering logic in `SkillSheetEquipment.vue` template if new layout needed — items are categorized by `getItemCategory()`: potion kinds → category 0 (Tränke), passive/magic-ring/fire-shield → category 1 (Magische Gegenstände), others → category 2 (Sonstiges)
 3. If item has charges, hook into `itemChargesUsed` ref
-4. If passive bonus, add `passive: true` and `intelligenceBonus` to definition
+4. If passive bonus, add `passive: true` and `intelligenceBonus` to definition; other passive bonus types (e.g. attack) use `bonusLabel` for display only
+
+### Adding a New Character
+1. Add character name to `characterOptions` array in `skillSheetData.ts`
+2. Define avatar emoji and theme color in `characterAvatars`
+3. Add base stats entry in `defaultStats` (attackDice, defenseDice, bodyStrength, intelligence)
+4. If the character has weapon restrictions, add them to `allowedCharacters` on the relevant weapon (e.g. Berserker gets Breitschwert alongside Barbar)
 
 ### Modifying Equipment Bonuses
 1. Update `weaponOptions` or `armorOptions` in `skillSheetData.ts`
@@ -216,5 +249,5 @@ When users export a character, it's a `.json` file with this structure:
 
 ---
 
-**Last Updated:** July 2026 | **Framework:** Vue 3 (Composition API) + Pinia + Tailwind CSS v4 | **Target:** German HeroQuest players
+**Last Updated:** July 29, 2026 | **Framework:** Vue 3 (Composition API) + Pinia + Tailwind CSS v4 | **Target:** German HeroQuest players
 
