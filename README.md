@@ -42,9 +42,15 @@ covers all the essential information a hero needs during a quest:
   doses
 - **Item charges** — multi-use items (Ring des Feuers, Ring der Magie) track remaining charges with a per-use button
 - **Death overlay** — when *Körperkraft* reaches 0 a full-screen overlay appears with a configurable revival point
-  selector (capped at the hero's starting *Körperkraft*), with the option to use a healing potion before reviving
+   selector (capped at the hero's starting *Körperkraft*), with the option to use a healing potion before reviving
+- **Kill List** — 💀 button in the top-right corner tracks every monster defeated with animated celebration effects:
+   - Single-click "+ Kill hinzufügen" button records kills with automatic timestamps
+   - Kills grouped by match day (gaming session); last 5 days displayed
+   - Shows total cumulative kills + per-day kill counts
+   - Smooth animations: button pulse, badge bounce, stats glow, and kill item slide-ins
+   - Persisted to `localStorage` and included in JSON export/import
 - **End-of-game reset** — the *🏁 Spielende – Werte zurücksetzen* button restores all core stats to their class defaults
-  while retaining all equipment and items
+   while retaining all equipment and items
 - **Persistent state** — all data is automatically saved in the browser via `localStorage`; nothing is lost on a page
   refresh
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
@@ -369,7 +375,12 @@ The exported `.json` file contains the complete character state and can be re-im
   },
   "itemChargesUsed": {
     "ring-des-feuers": 1
-  }
+  },
+  "druideShapeShifted": false,
+  "kills": [
+    {"id": "1722716400000-abc123", "matchDay": "2026-08-04", "timestamp": 1722716400000},
+    {"id": "1722716420000-xyz789", "matchDay": "2026-08-04", "timestamp": 1722716420000}
+  ]
 }
 ```
 
@@ -387,3 +398,5 @@ The exported `.json` file contains the complete character state and can be re-im
 | `usedSpecialItems`     | IDs of items that have been fully consumed / used       |
 | `itemQuantities`       | Number of doses/copies owned per item ID                |
 | `itemChargesUsed`      | Number of charges spent per multi-use item ID           |
+| `druideShapeShifted`   | Whether Druide is currently shape-shifted               |
+| `kills`                | Array of kill records with `id`, `matchDay` (YYYY-MM-DD), and `timestamp` |

@@ -1,6 +1,6 @@
 {
   "name": "hero-quest",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "private": true,
   "type": "module",
   "scripts": {
@@ -25,31 +25,31 @@
     "vue-router": "5.0.6"
   },
   "devDependencies": {
-    "@playwright/test": "1.62.0",
+    "@playwright/test": "1.62.1",
     "@tsconfig/node24": "24.0.4",
     "@types/jsdom": "28.0.3",
     "@types/node": "24.13.3",
     "@vitejs/plugin-vue": "6.0.8",
     "@vitejs/plugin-vue-jsx": "5.1.6",
-    "@vitest/eslint-plugin": "1.6.24",
+    "@vitest/eslint-plugin": "1.6.26",
     "@vue/eslint-config-typescript": "14.9.0",
     "@vue/test-utils": "2.4.11",
     "@vue/tsconfig": "0.9.1",
     "eslint": "10.8.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-oxlint": "1.76.0",
+    "eslint-plugin-oxlint": "1.77.0",
     "eslint-plugin-playwright": "2.11.0",
     "eslint-plugin-vue": "10.10.0",
     "jiti": "2.7.0",
     "jsdom": "30.0.1",
     "npm-run-all2": "9.0.3",
-    "oxlint": "1.76.0",
+    "oxlint": "1.77.0",
     "prettier": "3.9.6",
     "typescript": "6.0.3",
-    "vite": "8.1.5",
+    "vite": "8.2.0",
     "vite-plugin-vue-devtools": "8.2.1",
     "vitest": "4.1.10",
-    "vue-tsc": "3.3.8"
+    "vue-tsc": "3.3.9"
   },
   "engines": {
     "node": "^20.19.0 || >=22.12.0"

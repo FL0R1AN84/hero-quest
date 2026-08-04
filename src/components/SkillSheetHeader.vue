@@ -1,17 +1,39 @@
+<script lang="ts" setup>
+import KillListModal from './KillListModal.vue'
+</script>
+
 <template>
-  <div class="text-center mb-8">
-    <h1 class="title">HeroQuest</h1>
-    <div class="flex items-center gap-3 mt-2">
-      <div class="divider-line"></div>
-      <span class="sword-ornament">⚔</span>
-      <p class="subtitle">Persönlichkeits-Pass</p>
-      <span class="sword-ornament">⚔</span>
-      <div class="divider-line"></div>
+  <div class="header-wrapper">
+    <div class="kill-list-container">
+      <KillListModal />
+    </div>
+
+    <div class="text-center mb-8">
+      <h1 class="title">HeroQuest</h1>
+      <div class="flex items-center gap-3 mt-2">
+        <div class="divider-line"></div>
+        <span class="sword-ornament">⚔</span>
+        <p class="subtitle">Persönlichkeits-Pass</p>
+        <span class="sword-ornament">⚔</span>
+        <div class="divider-line"></div>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.header-wrapper {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.kill-list-container {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+}
+
 .title {
   font-family: var(--font-fantasy), serif;
   font-size: 1.5rem;
