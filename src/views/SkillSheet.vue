@@ -23,6 +23,7 @@ function saveToFile() {
     itemChargesUsed: { ...store.itemChargesUsed },
     itemQuantities: { ...store.itemQuantities },
     druideShapeShifted: store.druideShapeShifted,
+    kills: [...store.kills],
   }
   const json = JSON.stringify(data, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
@@ -65,6 +66,7 @@ function loadFromFile() {
         itemChargesUsed: data.itemChargesUsed ?? {},
         itemQuantities: data.itemQuantities ?? {},
         druideShapeShifted: data.druideShapeShifted ?? false,
+        kills: data.kills ?? [],
       })
     } catch {
       alert('Ungültige Datei – bitte eine gültige JSON-Skillsheet-Datei wählen.')

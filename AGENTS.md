@@ -30,6 +30,7 @@ Template Rendering + localStorage persistence
 | `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift). Auto-persisted via `pinia-plugin-persistedstate`. |
 | `src/views/SkillSheet.vue` | **Main page** orchestrating save/load/end-game flows. Contains file I/O logic (`saveToFile()`, `loadFromFile()`). |
 | `src/components/*.vue` | **Presentational components** (Header, Stats, Equipment, etc.) using Composition API `<script setup>`. |
+| `src/components/KillListModal.vue` | **Kill list tracker** — modal dialog for recording monster kills by match day, with animations and persistent storage. |
 | `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. |
 | `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
 
@@ -94,6 +95,40 @@ const effectiveAttackDice = computed({
 - `toggleDruideShape()`: only togglable when Körperkraft is at the Druide's starting max (6); auto-exposed in store
 - `deactivateDruideShape()`: called automatically in `changeBodyStrength()` whenever body strength decreases
 - `effectiveAttackDice` and `effectiveDefenseDice` both include `druideShapeBonus` in their getter/setter
+
+### Kill List Feature
+- **Purpose:** Track every monster defeat during a campaign with animations and statistics
+- **UI Location:** 💀 button in top-right corner of character sheet
+- **Recording:** Single click on "+ Kill hinzufügen" button instantly records a kill with timestamp
+- **Grouping:** Kills automatically grouped by match day (gaming session date)
+- **Display:** Shows last 5 match days with per-day kill counts; total cumulative kills at top
+- **Storage:** Organized by `matchDay` (ISO date YYYY-MM-DD) with individual `timestamp` for time-of-day display
+- **Persistence:** Saved to `localStorage` via Pinia, included in JSON export/import, survives app restart
+
+**Kill Data Structure** (in store and JSON):
+```typescript
+interface Kill {
+  id: string          // Unique identifier
+  matchDay: string    // ISO date (YYYY-MM-DD) for grouping
+  timestamp: number   // JavaScript timestamp for time display
+}
+```
+
+**Animations on Kill Record:**
+1. **Button Pulse** (600ms) — "+ Kill hinzufügen" button scales 1x→1.05x with expanding red glow
+2. **Badge Bounce** (600ms) — Kill counter badge scales 1x→1.2x→1x
+3. **Stats Glow** (600ms) — "Gesamt Kills" number scales and brightens (#f67449→#ff8566)
+4. **Slide-In** (500ms) — New kill item slides in from left with highlight
+5. **Highlight** (1000ms) — New kill has gold background + orange border, auto-fades
+
+**Store Methods & Computed:**
+- `store.addKill()` — Record new kill for today
+- `store.removeKill(killId)` — Delete specific kill
+- `store.clearKills()` — Clear all kills
+- `store.killsByMatchDay` — Kills grouped by date
+- `store.last5MatchDays` — Last 5 gaming days
+- `store.totalKills` — Total across all games
+- `store.todayKills` — Today's kills only
 
 ## Component Patterns
 
@@ -166,11 +201,16 @@ When users export a character, it's a `.json` file with this structure:
   "usedSpecialItems": [],
   "itemQuantities": {"heiltrank": 2},
   "itemChargesUsed": {"ring-des-feuers": 1},
-  "druideShapeShifted": false
+  "druideShapeShifted": false,
+  "kills": [
+    {"id": "1722716400000-abc123", "matchDay": "2026-08-04", "timestamp": 1722716400000},
+    {"id": "1722716420000-xyz789", "matchDay": "2026-08-04", "timestamp": 1722716420000},
+    {"id": "1722802800000-def456", "matchDay": "2026-08-03", "timestamp": 1722802800000}
+  ]
 }
 ```
 
-**When loading:** `store.$patch({...data})` applies entire snapshot. **Validate IDs exist** in current game data before patching to prevent orphaned references.
+**When loading:** `store.$patch({...data})` applies entire snapshot. **Validate IDs exist** in current game data before patching to prevent orphaned references. Kills are preserved as-is with their match days intact.
 
 ## Testing Practices
 
