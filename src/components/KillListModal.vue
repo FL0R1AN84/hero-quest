@@ -11,9 +11,14 @@ const addButtonRef = ref<HTMLButtonElement>()
 const isAnimatingButton = ref(false)
 const recentKillIds = ref<Set<string>>(new Set())
 const badgeAnimationKey = ref(0)
+const expandedDays = ref<Set<string>>(new Set())
 
 function toggleModal() {
   isOpen.value = !isOpen.value
+  // Initialize today as expanded when opening modal
+  if (isOpen.value && todayDate.value && !expandedDays.value.has(todayDate.value)) {
+    expandedDays.value.add(todayDate.value)
+  }
 }
 
 function closeModal() {
@@ -48,6 +53,15 @@ function addKill() {
 function isRecentKill(killId: string): boolean {
   return recentKillIds.value.has(killId)
 }
+
+function toggleDayExpansion(day: string) {
+  if (expandedDays.value.has(day)) {
+    expandedDays.value.delete(day)
+  } else {
+    expandedDays.value.add(day)
+  }
+}
+
 
 function deleteKill(killId: string) {
   store.removeKill(killId)
@@ -143,12 +157,18 @@ const killsForDisplay = computed(() => {
 
             <div v-else class="match-days-container">
               <div v-for="item in killsForDisplay" :key="item.day" class="match-day-group">
-                <div class="match-day-header">
+                <div
+                  class="match-day-header"
+                  @click="toggleDayExpansion(item.day)"
+                  :class="{ expanded: expandedDays.has(item.day) }"
+                >
                   <h3 class="match-day-title">{{ formatMatchDay(item.day) }}</h3>
                   <span class="match-day-count">{{ item.kills.length }}</span>
+                  <span class="expand-icon">{{ expandedDays.has(item.day) ? '▼' : '▶' }}</span>
                 </div>
 
-                <ul class="kill-list">
+                <transition name="expand">
+                  <ul v-if="expandedDays.has(item.day)" class="kill-list">
                   <li
                     v-for="(kill, index) in item.kills"
                     :key="kill.id"
@@ -162,6 +182,7 @@ const killsForDisplay = computed(() => {
                     <button class="btn-delete-kill" @click="deleteKill(kill.id)" title="Kill löschen">✕</button>
                   </li>
                 </ul>
+                </transition>
               </div>
             </div>
           </div>
@@ -439,6 +460,13 @@ const killsForDisplay = computed(() => {
   padding: 0.75rem 1rem;
   background-color: rgba(201, 168, 76, 0.15);
   border-bottom: 2px solid var(--hq-divider);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s;
+}
+
+.match-day-header:hover {
+  background-color: rgba(201, 168, 76, 0.25);
 }
 
 .match-day-title {
@@ -460,6 +488,14 @@ const killsForDisplay = computed(() => {
   font-weight: bold;
 }
 
+.expand-icon {
+  font-size: 0.75rem;
+  color: var(--hq-label);
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
 /* Kill List */
 .kill-list {
   list-style: none;
@@ -468,6 +504,8 @@ const killsForDisplay = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+  max-height: 250px;
+  overflow-y: auto;
 }
 
 .kill-item {
@@ -596,6 +634,20 @@ const killsForDisplay = computed(() => {
 .modal-slide-leave-to {
   opacity: 0;
   transform: translate(-50%, -40%);
+}
+
+/* Expand/Collapse transition for kill lists */
+.expand-enter-active,
+.expand-leave-active {
+  transition:
+    max-height 0.3s ease,
+    opacity 0.3s ease;
+}
+
+.expand-enter-from,
+.expand-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 
 /* Mobile adjustments */
