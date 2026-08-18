@@ -11,18 +11,19 @@ const addButtonRef = ref<HTMLButtonElement>()
 const isAnimatingButton = ref(false)
 const recentKillIds = ref<Set<string>>(new Set())
 const badgeAnimationKey = ref(0)
-const expandedDays = ref<Set<string>>(new Set())
+const expandedDay = ref<string | null>(null)
 
 function toggleModal() {
   isOpen.value = !isOpen.value
-  // Initialize today as expanded when opening modal
-  if (isOpen.value && todayDate.value && !expandedDays.value.has(todayDate.value)) {
-    expandedDays.value.add(todayDate.value)
+  if (isOpen.value) {
+    // Keep accordion behavior deterministic: open the most recent day when modal opens.
+    expandedDay.value = last5MatchDays.value[0] ?? todayDate.value ?? null
   }
 }
 
 function closeModal() {
   isOpen.value = false
+  expandedDay.value = null
 }
 
 function addKill() {
@@ -55,13 +56,8 @@ function isRecentKill(killId: string): boolean {
 }
 
 function toggleDayExpansion(day: string) {
-  if (expandedDays.value.has(day)) {
-    expandedDays.value.delete(day)
-  } else {
-    expandedDays.value.add(day)
-  }
+  expandedDay.value = expandedDay.value === day ? null : day
 }
-
 
 function deleteKill(killId: string) {
   store.removeKill(killId)
@@ -109,7 +105,7 @@ const killsForDisplay = computed(() => {
 <template>
   <div class="kill-list-container">
     <!-- Toggle Button -->
-    <button class="kill-list-btn" :class="{ active: isOpen }" @click="toggleModal" title="Todesliste">
+    <button :class="{ active: isOpen }" class="kill-list-btn" title="Todesliste" @click="toggleModal">
       <span class="skull-icon">💀</span>
       <span v-if="totalKills > 0" :key="badgeAnimationKey" class="kill-badge">{{ totalKills }}</span>
     </button>
@@ -130,12 +126,7 @@ const killsForDisplay = computed(() => {
         <div class="modal-content">
           <!-- Add Button -->
           <div class="add-kill-section">
-            <button
-              ref="addButtonRef"
-              class="btn-add-kill"
-              :class="{ animating: isAnimatingButton }"
-              @click="addKill"
-            >
+            <button ref="addButtonRef" :class="{ animating: isAnimatingButton }" class="btn-add-kill" @click="addKill">
               + Kill hinzufügen
             </button>
           </div>
@@ -144,7 +135,7 @@ const killsForDisplay = computed(() => {
           <div class="kill-stats">
             <p class="stat-line">
               <strong>Gesamt Kills:</strong>
-              <span class="stat-value" :class="{ pulse: totalKills > 0 }">{{ totalKills }}</span>
+              <span :class="{ pulse: totalKills > 0 }" class="stat-value">{{ totalKills }}</span>
             </p>
           </div>
 
@@ -158,30 +149,30 @@ const killsForDisplay = computed(() => {
             <div v-else class="match-days-container">
               <div v-for="item in killsForDisplay" :key="item.day" class="match-day-group">
                 <div
+                  :class="{ expanded: expandedDay === item.day }"
                   class="match-day-header"
                   @click="toggleDayExpansion(item.day)"
-                  :class="{ expanded: expandedDays.has(item.day) }"
                 >
                   <h3 class="match-day-title">{{ formatMatchDay(item.day) }}</h3>
                   <span class="match-day-count">{{ item.kills.length }}</span>
-                  <span class="expand-icon">{{ expandedDays.has(item.day) ? '▼' : '▶' }}</span>
+                  <span class="expand-icon">{{ expandedDay === item.day ? '▼' : '▶' }}</span>
                 </div>
 
                 <transition name="expand">
-                  <ul v-if="expandedDays.has(item.day)" class="kill-list">
-                  <li
-                    v-for="(kill, index) in item.kills"
-                    :key="kill.id"
-                    class="kill-item"
-                    :class="{ 'kill-new': isRecentKill(kill.id) }"
-                  >
-                    <div class="kill-content">
-                      <span class="kill-number">{{ index + 1 }}</span>
-                      <span class="kill-time">{{ formatTime(kill.timestamp) }}</span>
-                    </div>
-                    <button class="btn-delete-kill" @click="deleteKill(kill.id)" title="Kill löschen">✕</button>
-                  </li>
-                </ul>
+                  <ul v-if="expandedDay === item.day" class="kill-list">
+                    <li
+                      v-for="(kill, index) in item.kills"
+                      :key="kill.id"
+                      :class="{ 'kill-new': isRecentKill(kill.id) }"
+                      class="kill-item"
+                    >
+                      <div class="kill-content">
+                        <span class="kill-number">{{ index + 1 }}</span>
+                        <span class="kill-time">{{ formatTime(kill.timestamp) }}</span>
+                      </div>
+                      <button class="btn-delete-kill" title="Kill löschen" @click="deleteKill(kill.id)">✕</button>
+                    </li>
+                  </ul>
                 </transition>
               </div>
             </div>
@@ -286,6 +277,7 @@ const killsForDisplay = computed(() => {
   flex-direction: column;
   z-index: 1000;
   animation: slideIn 0.3s ease-out;
+  overscroll-behavior: contain;
 }
 
 @keyframes slideIn {
@@ -344,7 +336,7 @@ const killsForDisplay = computed(() => {
   min-height: 0;
   padding: 1rem;
   gap: 1rem;
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 /* Add Kill Section */
@@ -416,6 +408,8 @@ const killsForDisplay = computed(() => {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .empty-state {
@@ -443,7 +437,7 @@ const killsForDisplay = computed(() => {
   flex-direction: column;
   gap: 1rem;
   flex: 1;
-  overflow-y: auto;
+  overflow: visible;
 }
 
 .match-day-group {
@@ -454,9 +448,10 @@ const killsForDisplay = computed(() => {
 }
 
 .match-day-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr 2.25rem 1.25rem;
   align-items: center;
+  column-gap: 0.5rem;
   padding: 0.75rem 1rem;
   background-color: rgba(201, 168, 76, 0.15);
   border-bottom: 2px solid var(--hq-divider);
@@ -476,24 +471,32 @@ const killsForDisplay = computed(() => {
   color: var(--hq-title);
   margin: 0;
   font-weight: 600;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .match-day-count {
   font-family: var(--font-fantasy), serif;
   background-color: #f67449;
   color: white;
-  padding: 0.25rem 0.6rem;
+  width: 2.25rem;
+  padding: 0.25rem 0;
   border-radius: 2px;
   font-size: 0.8rem;
   font-weight: bold;
+  text-align: center;
+  justify-self: center;
 }
 
 .expand-icon {
   font-size: 0.75rem;
   color: var(--hq-label);
-  margin-left: 0.5rem;
+  margin-left: 0;
   transition: transform 0.3s ease;
   flex-shrink: 0;
+  justify-self: end;
 }
 
 /* Kill List */
@@ -501,11 +504,8 @@ const killsForDisplay = computed(() => {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  max-height: 250px;
-  overflow-y: auto;
+  display: block;
+  max-height: 50rem;
 }
 
 .kill-item {
@@ -729,4 +729,3 @@ const killsForDisplay = computed(() => {
   }
 }
 </style>
-
