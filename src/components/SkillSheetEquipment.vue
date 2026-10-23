@@ -38,7 +38,9 @@ const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
 const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
 
 const potionKinds = new Set(['heal-fixed', 'heal-potion', 'attack-potion', 'defense-potion', 'extra-attack-same', 'movement-potion', 'restore-small', 'heal-fixed-2', 'extra-attack-multi'])
-const magicKinds = new Set(['fire-shield', 'magic-ring'])
+// Items with an adjustable quantity (potions + tools)
+const stackableKinds = new Set([...potionKinds, 'consumable'])
+const magicKinds = new Set(['fire-shield', 'magic-ring', 'scroll'])
 
 const visibleSpecialItems = computed(() =>
   specialItemOptions.filter(canEquipSpecialItem)
@@ -85,6 +87,16 @@ const availableSpecialItems = computed(() =>
   visibleSpecialItems.value
     .filter((i) => !equippedSpecialItems.value.includes(i.id) && !isFullyUsed(i))
     .sort(dropdownItemComparator),
+)
+
+const availableSpecialGroups = computed(() =>
+  [
+    { label: '🧪 Tränke', category: 0 },
+    { label: '✨ Magische Gegenstände', category: 1 },
+    { label: '📦 Sonstiges', category: 2 },
+  ]
+    .map((g) => ({ label: g.label, items: availableSpecialItems.value.filter((i) => getItemCategory(i) === g.category) }))
+    .filter((g) => g.items.length > 0),
 )
 
 const equippedWeaponOptions = computed(() => {
@@ -165,7 +177,7 @@ function toggleSpecialItem(id: string) {
     equippedSpecialItems.value.splice(idx, 1)
     if (healDialogItemId.value === id) healDialogItemId.value = null
     // Clear potion qty when removed from inventory
-    if (item.kind && potionKinds.has(item.kind)) {
+    if (item.kind && stackableKinds.has(item.kind)) {
       const updated = { ...itemQuantities.value }
       delete updated[id]
       itemQuantities.value = updated
@@ -173,7 +185,7 @@ function toggleSpecialItem(id: string) {
   } else {
     equippedSpecialItems.value.push(id)
     // Init qty = 1 for potions when first added
-    if (item.kind && potionKinds.has(item.kind) && !itemQuantities.value[id]) {
+    if (item.kind && stackableKinds.has(item.kind) && !itemQuantities.value[id]) {
       itemQuantities.value = { ...itemQuantities.value, [id]: 1 }
     }
   }
@@ -182,7 +194,7 @@ function toggleSpecialItem(id: string) {
 // Stackable potions: ask before removing while at least one is left
 function removeSpecialItem(id: string) {
   const item = specialItemOptions.find((i) => i.id === id)
-  if (item?.kind && potionKinds.has(item.kind) && getPotionQuantity(id) >= 1) {
+  if (item?.kind && stackableKinds.has(item.kind) && getPotionQuantity(id) >= 1) {
     const qty = getPotionQuantity(id)
     if (!confirm(`${item.label} (${qty}×) wirklich entfernen?`)) return
   }
@@ -233,7 +245,7 @@ function resetItemUsed(id: string) {
   if (healDialogItemId.value === id) healDialogItemId.value = null
   // Restore potion: set qty back to 1 and re-equip
   const item = specialItemOptions.find((i) => i.id === id)
-  if (item?.kind && potionKinds.has(item.kind)) {
+  if (item?.kind && stackableKinds.has(item.kind)) {
     itemQuantities.value = { ...itemQuantities.value, [id]: 1 }
     if (!equippedSpecialItems.value.includes(id)) {
       equippedSpecialItems.value.push(id)
@@ -283,6 +295,20 @@ function usePotionCharge(id: string) {
       if (idx >= 0) animatingItems.value.splice(idx, 1)
     }, 900)
   }
+}
+
+// Stackable consumable (Werkzeug, Wurfdolch): each use consumes one; the last one disappears from the inventory
+function useTool(id: string) {
+  const current = itemQuantities.value[id] ?? 1
+  if (current > 1) {
+    itemQuantities.value = { ...itemQuantities.value, [id]: current - 1 }
+    return
+  }
+  const updated = { ...itemQuantities.value }
+  delete updated[id]
+  itemQuantities.value = updated
+  const idx = equippedSpecialItems.value.indexOf(id)
+  if (idx >= 0) equippedSpecialItems.value.splice(idx, 1)
 }
 
 // ── Fire-shield ───────────────────────────────────────────
@@ -865,6 +891,34 @@ const headerHealPotions = computed(() =>
           </button>
         </div>
 
+        <!-- ⑥ TOOL (Werkzeug, Wurfdolch – mehrfach vorhanden, verschwindet wenn verbraucht) -->
+        <div v-else-if="item.kind === 'consumable'" class="equip-item equip-item--special-wrap equip-item--selected">
+          <button
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
+            type="button"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div class="equip-item-toggle">
+            <span class="equip-item-icon">{{ item.symbol }}</span>
+            <span class="equip-item-content">
+              <span class="equip-item-name">{{ item.label }}</span>
+              <span class="equip-item-note">{{ item.ability }}</span>
+            </span>
+          </div>
+          <div class="qty-row">
+            <span class="qty-label">Anzahl</span>
+            <div class="qty-controls">
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+            </div>
+          </div>
+          <button class="btn-use-item" type="button" @click="useTool(item.id)">{{ item.useLabel ?? '✦ Benutzen' }}</button>
+        </div>
+
         <!-- ⑤b DEFAULT ACTIVE (Stab der Magie …) -->
         <div
           v-else
@@ -920,10 +974,12 @@ const headerHealPotions = computed(() =>
         </template>
 
         <!-- Dropdown to add a new special item -->
-        <div class="equip-add-row">
+        <div class="equip-add-row special-item-add-row">
           <select v-model="selectedSpecialToAdd">
             <option value="">Gegenstand hinzufügen…</option>
-            <option v-for="i in availableSpecialItems" :key="i.id" :value="i.id">{{ i.label }}</option>
+            <optgroup v-for="g in availableSpecialGroups" :key="g.label" :label="g.label">
+              <option v-for="i in g.items" :key="i.id" :value="i.id">{{ i.label }}</option>
+            </optgroup>
           </select>
           <button class="btn-add" type="button" @click="addSpecialFromSelect">Hinzufügen</button>
         </div>
