@@ -1311,13 +1311,13 @@ button.equip-item {
 
 /* "Abfeuern"-Button: wärmerer Ton wenn Zauber gespeichert ist */
 .btn-use-item--fire-spell {
-  background-color: color-mix(in srgb, var(--color-yellow) 18%, var(--hq-card-bg-dark));
-  color: var(--color-yellow);
-  border-top: 1px solid color-mix(in srgb, var(--color-yellow) 30%, transparent);
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 18%, var(--hq-card-bg-dark));
+  color: var(--hq-color-yellow);
+  border-top: 1px solid color-mix(in srgb, var(--hq-color-yellow) 30%, transparent);
 }
 
 .btn-use-item--fire-spell:hover {
-  background-color: color-mix(in srgb, var(--color-yellow) 28%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 28%, var(--hq-card-bg-dark));
 }
 
 .btn-use-item--fire {
@@ -1387,13 +1387,13 @@ button.equip-item {
 }
 
 .btn-use-item--heal {
-  background-color: color-mix(in srgb, var(--color-red) 18%, var(--hq-card-bg-dark));
-  color: color-mix(in srgb, var(--color-red) 65%, white);
-  border-top: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
+  background-color: color-mix(in srgb, var(--hq-color-red) 18%, var(--hq-card-bg-dark));
+  color: var(--hq-color-red);
+  border-top: 1px solid color-mix(in srgb, var(--hq-color-red) 30%, transparent);
 }
 
 .btn-use-item--heal:hover {
-  background-color: color-mix(in srgb, var(--color-red) 28%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--hq-color-red) 28%, var(--hq-card-bg-dark));
 }
 
 .heal-dialog {

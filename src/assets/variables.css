@@ -45,6 +45,7 @@
   --hq-color-defense: var(--hq-color-yellow);
   /* Yellow readable on light parchment */
   --hq-color-yellow: #8c6a00;
+  --hq-color-red: #8c2e14;
 }
 
 /* ── Dark mode ──────────────────────────────────────────── */
@@ -80,5 +81,6 @@
     /* Armor/defense highlight – full yellow works on dark backgrounds */
     --hq-color-defense: var(--color-yellow);
     --hq-color-yellow: var(--color-yellow);
+    --hq-color-red: var(--color-red);
   }
 }
