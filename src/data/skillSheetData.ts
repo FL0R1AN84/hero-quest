@@ -68,7 +68,7 @@ export const characterSkills: Partial<Record<string, CharacterSkill[]>> = {
   Berserker: [
     {
       id: 'berserker-wut',
-      name: 'Wut',
+      name: 'Erzürnung',
       symbol: '😡',
       description:
         'Als Aktion darfst du bis zu 2 Körperpunkte opfern und sofort angreifen. Du erhältst so viele zusätzliche Angriffswürfel, wie du Körperpunkte verloren hast.',
