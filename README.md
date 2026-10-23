@@ -38,6 +38,10 @@ covers all the essential information a hero needs during a quest:
     - 🧪 **Tränke** — Healing potions, strength potions, defense potions, and special consumables
     - ✨ **Magische Gegenstände** — Passive bonuses, magic rings (with charge tracking), and magical staffs
     - 📦 **Sonstiges** — Miscellaneous items and special abilities
+- **Berserker skills** — *Wut*, *Vergeltung* and *Raserei* appear above the equipment (Berserker only); each can be used
+  once and is then disabled until *Spielende – Werte zurücksetzen* is pressed
+- **Removing equipment** — weapons, armor and items are removed only via their ✕ button (never by tapping the card);
+  stackable potions ask for confirmation first
 - **Item quantities** — stackable consumables (potions) have an adjustable quantity counter so you can carry multiple
   doses
 - **Item charges** — multi-use items (Ring des Feuers, Ring der Magie) track remaining charges with a per-use button
@@ -50,7 +54,7 @@ covers all the essential information a hero needs during a quest:
    - Smooth animations: button pulse, badge bounce, stats glow, and kill item slide-ins
    - Persisted to `localStorage` and included in JSON export/import
 - **End-of-game reset** — the *🏁 Spielende – Werte zurücksetzen* button restores all core stats to their class defaults
-   while retaining all equipment and items
+   while retaining all equipment and items and re-enabling used Berserker skills
 - **Persistent state** — all data is automatically saved in the browser via `localStorage`; nothing is lost on a page
   refresh
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
@@ -333,6 +337,7 @@ src/
 │   ├── SkillSheetHeroFields.vue   # Hero name + character class selector
 │   ├── SkillSheetAvatar.vue       # Character avatar / icon display
 │   ├── SkillSheetStats.vue        # The four diamond-shaped stat fields + death overlay
+│   ├── SkillSheetSkills.vue       # Berserker-only one-use skills (Wut, Vergeltung, Raserei)
 │   └── SkillSheetEquipment.vue    # Weapons, armor, and special items (with quantities & charges)
 ├── data/
 │   └── skillSheetData.ts          # All game data (characters, items, stats)
@@ -370,6 +375,7 @@ The exported `.json` file contains the complete character state and can be re-im
     "ring-des-feuers"
   ],
   "usedSpecialItems": [],
+  "usedSkills": [],
   "itemQuantities": {
     "heiltrank": 3
   },
@@ -396,6 +402,7 @@ The exported `.json` file contains the complete character state and can be re-im
 | `equippedArmor`        | List of equipped armor IDs                              |
 | `equippedSpecialItems` | List of equipped special item IDs                       |
 | `usedSpecialItems`     | IDs of items that have been fully consumed / used       |
+| `usedSkills`           | IDs of character skills used since the last end-of-game reset |
 | `itemQuantities`       | Number of doses/copies owned per item ID                |
 | `itemChargesUsed`      | Number of charges spent per multi-use item ID           |
 | `druideShapeShifted`   | Whether Druide is currently shape-shifted               |

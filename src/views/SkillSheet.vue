@@ -4,6 +4,7 @@ import SkillSheetHeader from '@/components/SkillSheetHeader.vue'
 import SkillSheetHeroFields from '@/components/SkillSheetHeroFields.vue'
 import SkillSheetAvatar from '@/components/SkillSheetAvatar.vue'
 import SkillSheetStats from '@/components/SkillSheetStats.vue'
+import SkillSheetSkills from '@/components/SkillSheetSkills.vue'
 import SkillSheetEquipment from '@/components/SkillSheetEquipment.vue'
 
 const store = useSkillSheetStore()
@@ -20,6 +21,7 @@ function saveToFile() {
     equippedArmor: [...store.equippedArmor],
     equippedSpecialItems: [...store.equippedSpecialItems],
     usedSpecialItems: [...store.usedSpecialItems],
+    usedSkills: [...store.usedSkills],
     itemChargesUsed: { ...store.itemChargesUsed },
     itemQuantities: { ...store.itemQuantities },
     druideShapeShifted: store.druideShapeShifted,
@@ -63,6 +65,7 @@ function loadFromFile() {
         equippedArmor: data.equippedArmor ?? [],
         equippedSpecialItems: data.equippedSpecialItems ?? [],
         usedSpecialItems: data.usedSpecialItems ?? [],
+        usedSkills: data.usedSkills ?? [],
         itemChargesUsed: data.itemChargesUsed ?? {},
         itemQuantities: data.itemQuantities ?? {},
         druideShapeShifted: data.druideShapeShifted ?? false,
@@ -96,6 +99,8 @@ function loadFromFile() {
           </div>
 
           <SkillSheetStats />
+
+          <SkillSheetSkills />
 
           <SkillSheetEquipment />
 

@@ -179,6 +179,16 @@ function toggleSpecialItem(id: string) {
   }
 }
 
+// Stackable potions: ask before removing while at least one is left
+function removeSpecialItem(id: string) {
+  const item = specialItemOptions.find((i) => i.id === id)
+  if (item?.kind && potionKinds.has(item.kind) && getPotionQuantity(id) >= 1) {
+    const qty = getPotionQuantity(id)
+    if (!confirm(`${item.label} (${qty}×) wirklich entfernen?`)) return
+  }
+  toggleSpecialItem(id)
+}
+
 // ── Animating state ───────────────────────────────────────
 const animatingItems = ref<string[]>([])
 const animatingFireItems = ref<string[]>([])
@@ -412,13 +422,7 @@ const headerHealPotions = computed(() =>
           <span class="equip-item-placeholder">Keine aktiven Waffen</span>
         </div>
         <template v-else>
-          <button
-            v-for="w in equippedWeaponOptions"
-            :key="w.id"
-            class="equip-item"
-            type="button"
-            @click="toggleWeapon(w.id)"
-          >
+          <div v-for="w in equippedWeaponOptions" :key="w.id" class="equip-item equip-item--removable">
             <span class="equip-item-icon">⚔</span>
             <span class="equip-item-content">
               <span class="equip-item-name">{{ w.label }}</span>
@@ -426,7 +430,15 @@ const headerHealPotions = computed(() =>
             </span>
             <span class="equip-item-bonus">+{{ w.bonus }}</span>
             <span class="equip-item-check">✓</span>
-          </button>
+            <button
+              :aria-label="`${w.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="toggleWeapon(w.id)"
+            >
+              ✕
+            </button>
+          </div>
         </template>
 
         <!-- Dropdown to add a new weapon -->
@@ -459,13 +471,11 @@ const headerHealPotions = computed(() =>
           <span class="equip-item-placeholder">Keine aktive Rüstung</span>
         </div>
         <template v-else>
-          <button
+          <div
             v-for="a in equippedArmorOptions"
             :key="a.id"
             :class="{ 'equip-item--selected equip-item--armor': true }"
-            class="equip-item"
-            type="button"
-            @click="toggleArmor(a.id)"
+            class="equip-item equip-item--removable"
           >
             <span class="equip-item-icon">🛡</span>
             <span class="equip-item-content">
@@ -473,7 +483,15 @@ const headerHealPotions = computed(() =>
             </span>
             <span class="equip-item-bonus equip-item-bonus--armor">+{{ a.bonus }}</span>
             <span class="equip-item-check equip-item-check--armor">✓</span>
-          </button>
+            <button
+              :aria-label="`${a.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="toggleArmor(a.id)"
+            >
+              ✕
+            </button>
+          </div>
         </template>
 
         <!-- Dropdown to add a new armor piece -->
@@ -530,7 +548,16 @@ const headerHealPotions = computed(() =>
           }"
           class="equip-item equip-item--special-wrap"
         >
-          <button class="equip-item-toggle" type="button" @click.stop="toggleSpecialItem(item.id)">
+          <button
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
+            type="button"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div class="equip-item-toggle">
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
               <span class="equip-item-name">{{ item.label }}</span>
@@ -542,7 +569,7 @@ const headerHealPotions = computed(() =>
             <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
               >✓</span
             >
-          </button>
+          </div>
         </div>
 
         <!-- ② FIRE SHIELD (Ring des Feuers – 2 Ladungen, roter Effekt) -->
@@ -556,10 +583,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -573,7 +606,7 @@ const headerHealPotions = computed(() =>
             </span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
             <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check">✓</span>
-          </button>
+          </div>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             class="btn-use-item btn-use-item--fire"
@@ -597,10 +630,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -614,7 +653,7 @@ const headerHealPotions = computed(() =>
               >✓</span
             >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </button>
+          </div>
           <!-- Anzahl -->
           <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
             <span class="qty-label">Anzahl</span>
@@ -647,10 +686,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -664,7 +709,7 @@ const headerHealPotions = computed(() =>
               >✓</span
             >
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </button>
+          </div>
           <!-- Anzahl -->
           <div
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId !== item.id"
@@ -727,10 +772,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -740,7 +791,7 @@ const headerHealPotions = computed(() =>
             <span class="equip-item-bonus">{{ getItemBonusLabel(item) }}</span>
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </button>
+          </div>
           <!-- Anzahl -->
           <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
             <span class="qty-label">Anzahl</span>
@@ -774,10 +825,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -792,7 +849,7 @@ const headerHealPotions = computed(() =>
             </span>
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
-          </button>
+          </div>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             :class="{ 'btn-use-item--fire-spell': getChargesUsed(item) >= 1 }"
@@ -819,10 +876,16 @@ const headerHealPotions = computed(() =>
           class="equip-item equip-item--special-wrap"
         >
           <button
-            :disabled="isFullyUsed(item)"
-            class="equip-item-toggle"
+            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+            :aria-label="`${item.label} entfernen`"
+            class="equip-item-remove"
             type="button"
-            @click.stop="toggleSpecialItem(item.id)"
+            @click="removeSpecialItem(item.id)"
+          >
+            ✕
+          </button>
+          <div
+            class="equip-item-toggle"
           >
             <span class="equip-item-icon">{{ item.symbol }}</span>
             <span class="equip-item-content">
@@ -841,7 +904,7 @@ const headerHealPotions = computed(() =>
             </span>
             <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
             <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ BENUTZT</span>
-          </button>
+          </div>
           <button
             v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
             class="btn-use-item"
@@ -1189,8 +1252,50 @@ button.equip-item {
   text-align: left;
 }
 
-.equip-item-toggle:disabled {
+.equip-item--removable,
+.equip-item--special-wrap {
+  position: relative;
+}
+
+.equip-item--removable {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  padding: 0.55rem 2.25rem 0.55rem 0.65rem;
+  min-height: 2.75rem;
   cursor: default;
+}
+
+.equip-item--special-wrap .equip-item-toggle {
+  padding-right: 2.25rem;
+  cursor: default;
+}
+
+.equip-item-remove {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  z-index: 1;
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--hq-hint);
+  background: transparent;
+  border: 1px solid var(--hq-divider);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.equip-item-remove:hover {
+  color: var(--hq-color-red);
+  border-color: var(--hq-color-red);
 }
 
 .btn-use-item {
@@ -1311,13 +1416,13 @@ button.equip-item {
 
 /* "Abfeuern"-Button: wärmerer Ton wenn Zauber gespeichert ist */
 .btn-use-item--fire-spell {
-  background-color: color-mix(in srgb, var(--color-yellow) 18%, var(--hq-card-bg-dark));
-  color: var(--color-yellow);
-  border-top: 1px solid color-mix(in srgb, var(--color-yellow) 30%, transparent);
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 18%, var(--hq-card-bg-dark));
+  color: var(--hq-color-yellow);
+  border-top: 1px solid color-mix(in srgb, var(--hq-color-yellow) 30%, transparent);
 }
 
 .btn-use-item--fire-spell:hover {
-  background-color: color-mix(in srgb, var(--color-yellow) 28%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--hq-color-yellow) 28%, var(--hq-card-bg-dark));
 }
 
 .btn-use-item--fire {
@@ -1387,13 +1492,13 @@ button.equip-item {
 }
 
 .btn-use-item--heal {
-  background-color: color-mix(in srgb, var(--color-red) 18%, var(--hq-card-bg-dark));
-  color: color-mix(in srgb, var(--color-red) 65%, white);
-  border-top: 1px solid color-mix(in srgb, var(--color-red) 30%, transparent);
+  background-color: color-mix(in srgb, var(--hq-color-red) 18%, var(--hq-card-bg-dark));
+  color: var(--hq-color-red);
+  border-top: 1px solid color-mix(in srgb, var(--hq-color-red) 30%, transparent);
 }
 
 .btn-use-item--heal:hover {
-  background-color: color-mix(in srgb, var(--color-red) 28%, var(--hq-card-bg-dark));
+  background-color: color-mix(in srgb, var(--hq-color-red) 28%, var(--hq-card-bg-dark));
 }
 
 .heal-dialog {
