@@ -56,6 +56,41 @@ export const defaultStats: Record<
   Zauberer: { attackDice: 1, defenseDice: 2, bodyStrength: 4, intelligence: 6 },
 }
 
+export interface CharacterSkill {
+  id: string
+  name: string
+  symbol: string
+  requirement?: string
+  description: string
+}
+
+export const characterSkills: Partial<Record<string, CharacterSkill[]>> = {
+  Berserker: [
+    {
+      id: 'berserker-wut',
+      name: 'Wut',
+      symbol: '😡',
+      description:
+        'Als Aktion darfst du bis zu 2 Körperpunkte opfern und sofort angreifen. Du erhältst so viele zusätzliche Angriffswürfel, wie du Körperpunkte verloren hast.',
+    },
+    {
+      id: 'berserker-vergeltung',
+      name: 'Vergeltung',
+      symbol: '😵',
+      requirement: 'Nur bei 5 oder weniger Körperpunkten.',
+      description: 'Fügt dir ein benachbartes Monster Schaden zu, darfst du sofort zurückschlagen.',
+    },
+    {
+      id: 'berserker-raserei',
+      name: 'Raserei',
+      symbol: '😤',
+      requirement: 'Nur bei 3 oder weniger Körperpunkten.',
+      description:
+        'Als Aktion führst du einen einzigen Rundumschlag gegen alle Monster orthogonal und diagonal um dich herum aus.',
+    },
+  ],
+}
+
 export const weaponOptions: WeaponOption[] = [
   {
     id: 'armbrust',

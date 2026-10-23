@@ -22,6 +22,7 @@ export const useSkillSheetStore = defineStore(
     const equippedArmor = ref<string[]>([])
     const equippedSpecialItems = ref<string[]>([])
     const usedSpecialItems = ref<string[]>([])
+    const usedSkills = ref<string[]>([])
     const itemChargesUsed = ref<Record<string, number>>({})
     const itemQuantities = ref<Record<string, number>>({})
     const druideShapeShifted = ref(false)
@@ -98,6 +99,7 @@ export const useSkillSheetStore = defineStore(
       equippedArmor.value = []
       equippedSpecialItems.value = []
       usedSpecialItems.value = []
+      usedSkills.value = []
       itemChargesUsed.value = {}
       itemQuantities.value = {}
       druideShapeShifted.value = false
@@ -112,6 +114,7 @@ export const useSkillSheetStore = defineStore(
       bodyStrength.value = stats.bodyStrength
       intelligence.value = stats.intelligence
       druideShapeShifted.value = false
+      usedSkills.value = []
     }
 
     function toggleDruideShape() {
@@ -161,6 +164,7 @@ export const useSkillSheetStore = defineStore(
       equippedArmor,
       equippedSpecialItems,
       usedSpecialItems,
+      usedSkills,
       itemChargesUsed,
       itemQuantities,
       druideShapeShifted,
