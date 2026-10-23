@@ -181,7 +181,7 @@ export const specialItemOptions: SpecialItemOption[] = [
     label: 'Amulett der Weisheit',
     symbol: '📿',
     ability: 'Dauerhaft +1 Intelligenz',
-    allowedCharacters: ['Barbar'],
+    allowedCharacters: null,
     passive: true,
     intelligenceBonus: 1,
   },
