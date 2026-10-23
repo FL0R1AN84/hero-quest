@@ -30,6 +30,7 @@ Template Rendering + localStorage persistence
 | `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift). Auto-persisted via `pinia-plugin-persistedstate`. |
 | `src/views/SkillSheet.vue` | **Main page** orchestrating save/load/end-game flows. Contains file I/O logic (`saveToFile()`, `loadFromFile()`). |
 | `src/components/*.vue` | **Presentational components** (Header, Stats, Equipment, etc.) using Composition API `<script setup>`. |
+| `src/components/SkillSheetSkills.vue` | **Character skills** — Berserker-only one-use skills (Wut, Vergeltung, Raserei) from `characterSkills`; used state in `store.usedSkills`, cleared only by `resetStats()` / `reset()`. |
 | `src/components/KillListModal.vue` | **Kill list tracker** — modal dialog for recording monster kills by match day, with animations and persistent storage. |
 | `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. |
 | `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
@@ -88,6 +89,11 @@ const effectiveAttackDice = computed({
 - Player may optionally use a healing potion (from inventory) before selecting revival points
 - Player selects revival Body Strength (1 to class default), overlay closes
 - **End-of-game reset** restores all stats to class defaults but **keeps all equipment & items**
+
+### Berserker Skills
+- Defined in `characterSkills` (`skillSheetData.ts`), shown by `SkillSheetSkills.vue` above the equipment, only for `Berserker`
+- Wut, Vergeltung (≤5 Körperpunkte), Raserei (≤3 Körperpunkte) are display-only rules; requirements are not enforced
+- Clicking a skill adds its id to `store.usedSkills` and disables it; re-enabled only by "Spielende – Werte zurücksetzen"
 
 ### Druide Shape-Shifting
 - Store ref `druideShapeShifted` (boolean) tracks active shift state
@@ -160,7 +166,7 @@ All components use `<style scoped>`. **Never use global selectors in component s
 - Mobile-first: breakpoints at `480px` and above
 
 ### Equipment UI Pattern
-`SkillSheetEquipment.vue` uses a **dropdown-add pattern**: only equipped items are shown in the list; unequipped available items appear in a `<select>` dropdown with an "Hinzufügen" button. Clicking an equipped item removes it. Key computed helpers:
+`SkillSheetEquipment.vue` uses a **dropdown-add pattern**: only equipped items are shown in the list; unequipped available items appear in a `<select>` dropdown with an "Hinzufügen" button. Equipped weapons/armor/items are removed **only via the ✕ button** (`.equip-item-remove`), never by clicking the card; stackable potions ask `confirm()` first (`removeSpecialItem()`). Key computed helpers:
 - `availableWeapons` / `availableArmor` / `availableSpecialItems` — filtered & sorted lists for the dropdowns
 - `equippedWeaponOptions` / `equippedArmorOptions` / `equippedSpecialOptions` — resolve IDs to option objects for rendering
 - `getItemCategory(item)` — returns 0 (Tränke), 1 (Magische Gegenstände), or 2 (Sonstiges) for thematic grouping
@@ -199,6 +205,7 @@ When users export a character, it's a `.json` file with this structure:
   "equippedArmor": ["schild"],
   "equippedSpecialItems": ["ring-des-feuers"],
   "usedSpecialItems": [],
+  "usedSkills": [],
   "itemQuantities": {"heiltrank": 2},
   "itemChargesUsed": {"ring-des-feuers": 1},
   "druideShapeShifted": false,
