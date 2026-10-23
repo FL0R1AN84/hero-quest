@@ -82,6 +82,9 @@ const effectiveAttackDice = computed({
 - **restore-small:** Restore +1 Körperkraft and +1 Intelligence (never above starting value)
 - **fire-shield (Ring des Feuers):** 2-charge item, tracks uses in `itemChargesUsed` lookup
 - **magic-ring (Ring der Magie):** 2-charge item for Druide/Zauberer
+- **consumable (Werkzeug, Magischer Wurfdolch):** Stackable via `itemQuantities` (+/−); the `useLabel` button consumes one, the last one removes the item. Not a weapon.
+- **scroll (Schriftrolle: …):** One-use magic items, effect text is display-only
+- **Legacy saves:** Werkzeug in `equippedWeapon` and Borins Rüstung in `equippedSpecialItems` are migrated on load (`loadFromFile()`) and on hydrate (store `afterHydrate`)
 - **passive items:** Permanently active (no tracking), applied via store computed properties (`intelligenceBonus`); `bonusLabel` is display-only for other passive bonuses (e.g. Ring der Stärke +1 ⚔️ — label only, no computed store field)
 
 ### Death & Revival

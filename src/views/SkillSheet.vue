@@ -54,6 +54,26 @@ function loadFromFile() {
     try {
       const text = await file.text()
       const data = JSON.parse(text)
+      // Migration älterer Savegames: Werkzeug war früher eine Waffe, Borins Rüstung ein Gegenstand
+      const weapons: string[] = [...(data.equippedWeapon ?? [])]
+      const armor: string[] = [...(data.equippedArmor ?? [])]
+      const specials: string[] = [...(data.equippedSpecialItems ?? [])]
+      const quantities: Record<string, number> = { ...(data.itemQuantities ?? {}) }
+      const toolIdx = weapons.indexOf('werkzeug')
+      if (toolIdx >= 0) {
+        weapons.splice(toolIdx, 1)
+        if (!specials.includes('werkzeug')) specials.push('werkzeug')
+        quantities.werkzeug = quantities.werkzeug ?? 1
+      }
+      const borinIdx = specials.indexOf('borins-ruestung')
+      if (borinIdx >= 0) {
+        specials.splice(borinIdx, 1)
+        if (!armor.includes('borins-ruestung')) armor.push('borins-ruestung')
+      }
+      data.equippedWeapon = weapons
+      data.equippedArmor = armor
+      data.equippedSpecialItems = specials
+      data.itemQuantities = quantities
       store.$patch({
         name: data.name ?? '',
         character: data.character ?? '',

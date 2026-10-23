@@ -139,7 +139,6 @@ covers all the essential information a hero needs during a quest:
 | Item                 | Symbol | Effect                                       | Notes                             |
 |----------------------|:------:|----------------------------------------------|-----------------------------------|
 | Amulett der Weisheit |   📿   | Permanently +1 Intelligence                  | Passive, Barbar only              |
-| Borins Rüstung       |   🛡️   | Legendary armor with enhanced protection     | Passive                           |
 | Elixier des Lebens   |   🧴   | Restores all lost *Körperkraft*              | 1 use                             |
 | Fluch der Orks       |   💀   | Summons ork power: 2× attack dice (1 enemy)  | 1 use                             |
 | Geweihtes Wasser     |   💧   | Restores *Körperkraft* & cures spell poison  | 1 use; +3 ❤️                      |
@@ -149,6 +148,11 @@ covers all the essential information a hero needs during a quest:
 | Ring der Stärke      |   💪   | Permanently +1 *Angriffswürfel*              | Passive                           |
 | Ring des Feuers      |   🔥   | Deflects 2 fire spells                       | 2 charges, tracked individually   |
 | Stab der Magie       |   🪄   | Cast twice in a row                          | Passive, Druide & Zauberer only   |
+| Schriftrolle: …      |   📜   | Heilzauber, Umwetter, Feuerkugel, Tapferkeit, Flammende Wut, Schlafzauber, Granithaut, Flaschengeist | 1 use each |
+| Magischer Wurfdolch  |   🗡️   | Thrown dagger, consumed on use               | Stackable (−/+), 📦 Sonstiges     |
+| Werkzeug             |   🔧   | Disarm a trap, consumed on use               | Stackable (−/+), 📦 Sonstiges     |
+
+Borins Rüstung is listed under armor only (+3 Defense), not under items.
 
 ---
 
@@ -165,7 +169,9 @@ covers all the essential information a hero needs during a quest:
 
 ### Item Mechanics
 
-- **Stackable items:** Potions and consumables have a quantity counter (−/+) so you can carry multiple doses
+- **Dropdown grouping:** The item dropdown is grouped (🧪 Tränke, ✨ Magische Gegenstände, 📦 Sonstiges)
+- **Old save files:** Werkzeug (formerly a weapon) and Borins Rüstung (formerly an item) are migrated automatically on load
+- **Stackable items:** Potions, Werkzeug, Magischer Wurfdolch and consumables have a quantity counter (−/+) so you can carry multiple doses
 - **Charged items:** Multi-use items (Ring des Feuers, Ring der Magie) track remaining charges:
     - 🔴 **Red circles** — indicate remaining charges for the Ring des Feuers
     - 🔵 **Blue circles** — indicate stored spells or charges for magic rings
@@ -209,6 +215,8 @@ covers all the essential information a hero needs during a quest:
 1. Determine item category:
     - **Potion:** Set `kind` to one of: `'heal-fixed'`, `'heal-potion'`, `'attack-potion'`, `'defense-potion'`,
       `'extra-attack-same'`, `'movement-potion'`, `'restore-small'`, `'heal-fixed-2'`, `'extra-attack-multi'`
+    - **Stackable consumable:** Set `kind: 'consumable'` and an optional `useLabel` for the use button
+    - **Scroll:** Set `kind: 'scroll'`
     - **Magic ring/item:** Set `kind` to `'fire-shield'` or `'magic-ring'`, or leave `kind` undefined
     - **Passive item:** Set `passive: true`
 2. Add to appropriate array in `src/data/skillSheetData.ts` (weapons, armor, or specialItems)

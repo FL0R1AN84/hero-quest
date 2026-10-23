@@ -27,6 +27,8 @@ export interface SpecialItemOption {
   maxUses?: number
   /** optional static bonus label shown in the item box */
   bonusLabel?: string
+  /** button text for stackable 'consumable' items */
+  useLabel?: string
 }
 
 export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
@@ -172,13 +174,6 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 2,
     allowedCharacters: ['Druide', 'Zauberer'],
   },
-  {
-    id: 'werkzeug',
-    label: 'Werkzeug',
-    note: 'Fällen entschärfen – Mit dem Werkzeug können Sie mechanische Fallen entschärfen',
-    bonus: 1,
-    allowedCharacters: null,
-  },
 ]
 
 export const armorOptions: ArmorOption[] = [
@@ -194,6 +189,15 @@ export const armorOptions: ArmorOption[] = [
 ]
 
 export const specialItemOptions: SpecialItemOption[] = [
+  {
+    id: 'werkzeug',
+    label: 'Werkzeug',
+    symbol: '🔧',
+    ability: 'Entschärft eine mechanische Falle; danach ist das Werkzeug verbraucht',
+    allowedCharacters: null,
+    kind: 'consumable',
+    useLabel: '🔧 Falle entschärfen',
+  },
   {
     id: 'stab-der-magie',
     label: 'Stab der Magie',
@@ -306,14 +310,6 @@ export const specialItemOptions: SpecialItemOption[] = [
   },
   // ── Neue Gegenstände von Board-Game Karten ───────────
   {
-    id: 'borins-ruestung',
-    label: 'Borins Rüstung',
-    symbol: '🛡️',
-    ability: 'Legendäre Rüstung mit verstärktem Schutz',
-    allowedCharacters: null,
-    passive: true,
-  },
-  {
     id: 'elixier-des-lebens',
     label: 'Elixier des Lebens',
     symbol: '🧴',
@@ -363,5 +359,79 @@ export const specialItemOptions: SpecialItemOption[] = [
     allowedCharacters: null,
     passive: true,
     bonusLabel: '+1 ⚔️',
+  },
+  // ── Magischer Wurfdolch & Schriftrollen (Artefaktübersicht) ──
+  {
+    id: 'magischer-wurfdolch',
+    label: 'Magischer Wurfdolch',
+    symbol: '🗡️',
+    ability: 'Verursacht 1 Körperkraft-Verlust bei einem Monster in Sichtlinie; keine Verteidigung möglich. Nach dem Wurf verloren',
+    allowedCharacters: null,
+    kind: 'consumable',
+    useLabel: '🗡️ Dolch werfen',
+  },
+  {
+    id: 'schriftrolle-heilzauber',
+    label: 'Schriftrolle: Heilzauber',
+    symbol: '📜',
+    ability: 'Heilt einen beliebigen Helden (auch dich selbst) um bis zu 4 verlorene Körperkraft-Punkte, nie über den Startwert. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-umwetter',
+    label: 'Schriftrolle: Umwetter',
+    symbol: '📜',
+    ability: 'Ein Monster deiner Wahl muss die nächste Runde aussetzen. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-feuerkugel',
+    label: 'Schriftrolle: Feuerkugel',
+    symbol: '📜',
+    ability: 'Ein Monster verliert 2 Körperkraft; es wirft 2 rote Würfel, jede 5 oder 6 reduziert den Verlust um 1. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-tapferkeit',
+    label: 'Schriftrolle: Tapferkeit',
+    symbol: '📜',
+    ability: 'Ein beliebiger Held (auch du selbst) wirft beim nächsten Angriff 2 zusätzliche Kampfwürfel. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-flammende-wut',
+    label: 'Schriftrolle: Flammende Wut',
+    symbol: '📜',
+    ability: 'Ein Monster verliert 1 Körperkraft, sofern es nicht sofort mit 1 roten Würfel eine 5 oder 6 würfelt. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-schlafzauber',
+    label: 'Schriftrolle: Schlafzauber',
+    symbol: '📜',
+    ability: 'Versetzt ein Monster in tiefen Schlaf (kein Marschieren, Angreifen oder Verteidigen); Bann bricht bei einer 6 auf 1 roten Würfel je Intelligenz-Punkt. Nicht gegen Mumien, Zombies, Skelette. Zerfällt zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-granithaut',
+    label: 'Schriftrolle: Granithaut',
+    symbol: '📜',
+    ability: 'Ein beliebiger Held (auch du selbst) wirft bei der Verteidigung 1 zusätzlichen Kampfwürfel; endet bei Verlust von 1 Körperkraft. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+  },
+  {
+    id: 'schriftrolle-flaschengeist',
+    label: 'Schriftrolle: Flaschengeist',
+    symbol: '📜',
+    ability: 'Öffnet eine beliebige Tür auf dem Spielplan oder setzt 5 Kampfwürfel gegen ein Monster in deiner Sichtlinie ein. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
   },
 ]
