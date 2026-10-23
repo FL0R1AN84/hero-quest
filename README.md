@@ -38,7 +38,7 @@ covers all the essential information a hero needs during a quest:
     - 🧪 **Tränke** — Healing potions, strength potions, defense potions, and special consumables
     - ✨ **Magische Gegenstände** — Passive bonuses, magic rings (with charge tracking), and magical staffs
     - 📦 **Sonstiges** — Miscellaneous items and special abilities
-- **Berserker skills** — *Wut*, *Vergeltung* and *Raserei* appear above the equipment (Berserker only); each can be used
+- **Berserker skills** — *Erzürnung*, *Vergeltung* and *Raserei* appear above the equipment (Berserker only); each can be used
   once and is then disabled until *Spielende – Werte zurücksetzen* is pressed
 - **Removing equipment** — weapons, armor and items are removed only via their ✕ button (never by tapping the card);
   stackable potions ask for confirmation first
@@ -337,7 +337,7 @@ src/
 │   ├── SkillSheetHeroFields.vue   # Hero name + character class selector
 │   ├── SkillSheetAvatar.vue       # Character avatar / icon display
 │   ├── SkillSheetStats.vue        # The four diamond-shaped stat fields + death overlay
-│   ├── SkillSheetSkills.vue       # Berserker-only one-use skills (Wut, Vergeltung, Raserei)
+│   ├── SkillSheetSkills.vue       # Berserker-only one-use skills (Erzürnung, Vergeltung, Raserei)
 │   └── SkillSheetEquipment.vue    # Weapons, armor, and special items (with quantities & charges)
 ├── data/
 │   └── skillSheetData.ts          # All game data (characters, items, stats)

@@ -30,7 +30,7 @@ Template Rendering + localStorage persistence
 | `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift). Auto-persisted via `pinia-plugin-persistedstate`. |
 | `src/views/SkillSheet.vue` | **Main page** orchestrating save/load/end-game flows. Contains file I/O logic (`saveToFile()`, `loadFromFile()`). |
 | `src/components/*.vue` | **Presentational components** (Header, Stats, Equipment, etc.) using Composition API `<script setup>`. |
-| `src/components/SkillSheetSkills.vue` | **Character skills** — Berserker-only one-use skills (Wut, Vergeltung, Raserei) from `characterSkills`; used state in `store.usedSkills`, cleared only by `resetStats()` / `reset()`. |
+| `src/components/SkillSheetSkills.vue` | **Character skills** — Berserker-only one-use skills (Erzürnung, Vergeltung, Raserei) from `characterSkills`; used state in `store.usedSkills`, cleared only by `resetStats()` / `reset()`. |
 | `src/components/KillListModal.vue` | **Kill list tracker** — modal dialog for recording monster kills by match day, with animations and persistent storage. |
 | `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. |
 | `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
@@ -92,7 +92,7 @@ const effectiveAttackDice = computed({
 
 ### Berserker Skills
 - Defined in `characterSkills` (`skillSheetData.ts`), shown by `SkillSheetSkills.vue` above the equipment, only for `Berserker`
-- Wut, Vergeltung (≤5 Körperpunkte), Raserei (≤3 Körperpunkte) are display-only rules; requirements are not enforced
+- Erzürnung, Vergeltung (≤5 Körperpunkte), Raserei (≤3 Körperpunkte) are display-only rules; requirements are not enforced
 - Clicking a skill adds its id to `store.usedSkills` and disables it; re-enabled only by "Spielende – Werte zurücksetzen"
 
 ### Druide Shape-Shifting
