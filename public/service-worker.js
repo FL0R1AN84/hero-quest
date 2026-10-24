@@ -1,4 +1,5 @@
-const CACHE_NAME = 'heroquest-v1'
+// __APP_VERSION__ is replaced at build time
+const CACHE_NAME = 'heroquest-__APP_VERSION__'
 const urlsToCache = [
   '/',
   '/index.html',
@@ -17,7 +18,6 @@ self.addEventListener('install', (event) => {
       })
     }),
   )
-  self.skipWaiting()
 })
 
 // Activate event: clean up old caches
