@@ -18,6 +18,7 @@ self.addEventListener('install', (event) => {
       })
     }),
   )
+  self.skipWaiting()
 })
 
 // Activate event: clean up old caches

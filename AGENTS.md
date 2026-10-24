@@ -33,8 +33,7 @@ Template Rendering + localStorage persistence
 | `src/components/SkillSheetSkills.vue` | **Character skills** — Berserker-only one-use skills (Erzürnung, Vergeltung, Raserei) from `characterSkills`; used state in `store.usedSkills`, cleared only by `resetStats()` / `reset()`. |
 | `src/components/KillListModal.vue` | **Kill list tracker** — modal dialog for recording monster kills by match day, with animations and persistent storage. |
 | `src/components/ExpansionsModal.vue` | **Expansion manager** — modal dialog (📖 button, top-left of header) to enable/disable game expansions (`store.enabledExpansions`); multiple expansions can be active at once. |
-| `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. Shows the new version number and release notes fetched from `/version.json`. |
-| `src/components/AppWhatsNew.vue` | **"What's new" sheet** — shown once after a version change (compares `__APP_VERSION__` with `localStorage['hq-last-seen-version']`; silent on first start); lists `__RELEASE_NOTES__` via `ReleaseNotesList.vue`. |
+| `src/components/AppWhatsNew.vue` | **Update info sheet** — shown once after a version change (compares `__APP_VERSION__` with `localStorage['hq-last-seen-version']`; silent on first start); shows previous and new version. |
 | `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
 
 ### State Management Patterns
@@ -204,7 +203,7 @@ npm run format       # Prettier (src/ only)
 - **TypeScript strict mode:** Full type checking, no implicit `any`
 - **Tailwind CSS v4:** via `@tailwindcss/vite` plugin
 - **Vue DevTools:** Vite plugin included (dev only)
-- **PWA:** Service worker at `public/service-worker.js` polls for updates every 60 s; fires `sw-update-available` custom event consumed by `AppUpdatePrompt.vue`. The worker does **not** call `skipWaiting()` on install (only on the `SKIP_WAITING` message from the prompt). `vite.config.ts` (plugin `release-info`) injects `__APP_VERSION__` / `__RELEASE_NOTES__` (commit subjects since the previous `package.json` version bump, so CI needs `fetch-depth: 0`), emits `dist/version.json` and stamps the version into the service worker cache name. **Bump `package.json` version for every release** — it triggers the update flow
+- **PWA:** Service worker at `public/service-worker.js` polls for updates every 60 s, activates itself (`skipWaiting`) and `main.ts` reloads the page on `controllerchange`. `vite.config.ts` (plugin `release-info`) injects `__APP_VERSION__` and stamps it into the service worker cache name. **The version is bumped automatically** by the `.githooks/post-commit` hook (`scripts/bump-version.mjs`, activated via `npm install` → `prepare`): `feat` → minor+1 (patch=0); `fix`/`refactor`/`chore`/`docs`/other conventional types → patch+1; digits roll over at 9 (1.9.9 → 2.0.0); merge/non-conventional commits are skipped, as are commits that already touch `package.json`. Use Conventional Commit messages. The bump triggers the update and the `AppWhatsNew.vue` sheet
 
 ## File Format (Save/Load)
 

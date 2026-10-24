@@ -63,8 +63,7 @@ covers all the essential information a hero needs during a quest:
    save file). Expansion content is hidden until enabled and marked with its icon (❄️ = *Der eisige Schrecken*):
    Barbarin hero, 14 artifact/equipment cards, and a **Söldner** (mercenary) section to hire the Armbrustschütze,
    Hellebardistin, Späherin and Schwertkämpfer
-- **Update info** — on a new version the app offers an update including the version number and the changes (taken from
-   the commit messages since the last version bump); after updating, a "what's new" sheet is shown once
+- **Automatic updates** — new versions install automatically; afterwards a sheet shows the previous and the new version
 - **Light & Dark mode** — the UI adapts to the system colour scheme
 - **Alphabetical sorting** — weapons, armor, and items are sorted alphabetically in dropdowns for easy navigation
 - **Thematic grouping** — special items are grouped by category (Potions, Magic Items, Miscellaneous) in the app display
@@ -207,6 +206,13 @@ Borins Rüstung is listed under armor only (+3 Defense), not under items.
 - **Vue components:** Composition API with `<script setup>` syntax
 - **Styling:** Scoped CSS within components, CSS variables for theming
 
+### Versioning
+
+The version in `package.json` is bumped automatically by a git hook (`.githooks/post-commit`, enabled by `npm install`)
+based on the Conventional Commit type: `feat:` raises the minor version (`1.2.3 → 1.3.0`), `fix:`, `refactor:`, `chore:`,
+`docs:` etc. raise the patch version (`1.2.3 → 1.2.4`). Digits roll over at 9 (`1.9.9 → 2.0.0`). Merge commits are
+ignored.
+
 ### Adding New Content
 
 #### Adding a New Character
@@ -264,8 +270,8 @@ This app is fully installable as a PWA on iOS, Android, and desktop browsers.
 The app includes a **Service Worker** that automatically checks for updates every 60 seconds. When a new version is
 available:
 
-1. A **notification banner** appears in the app (🔄 Neue Version verfügbar)
-2. Tap **✓ Aktualisieren** to reload with the latest version
+1. The new version is installed automatically and the app reloads
+2. A **sheet** (🎉 Update installiert) shows the previous and the new version
 3. Your character data is preserved across updates (stored in localStorage)
 
 **Manual Update:** If you don't see the update banner:
