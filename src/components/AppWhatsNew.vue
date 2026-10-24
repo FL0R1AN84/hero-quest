@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   <Teleport to="body">
     <transition name="fade">
-      <div v-if="visible" class="whatsnew-overlay" @click.self="close">
+      <div v-if="visible" class="whatsnew-overlay">
         <div class="whatsnew-sheet" role="dialog" aria-modal="true">
           <div class="whatsnew-icon">🎉</div>
           <h3 class="whatsnew-title">Update installiert</h3>
