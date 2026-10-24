@@ -1,8 +1,8 @@
 #!/bin/sh
 # Auto-bumps the version from the commit message (see scripts/bump-version.mjs) and folds it into the commit.
-# Skipped for amend-recursion and when package.json is already part of the commit (manual bump).
+# Skipped for amend-recursion and when the commit already changes the version line (manual bump).
 [ -n "$HQ_VERSION_BUMP" ] && exit 0
-git diff-tree --no-commit-id --name-only -r HEAD | grep -qx package.json && exit 0
+git diff-tree --no-commit-id -p -r HEAD -- package.json | grep -q "^[+-] *\"version\"" && exit 0
 MSG=$(mktemp)
 git log -1 --format=%B > "$MSG"
 if node scripts/bump-version.mjs "$MSG"; then
