@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import {
   characterOptions,
+  expansionCharacters,
   defaultStats,
   weaponOptions,
   armorOptions,
@@ -13,6 +14,16 @@ import {
 const store = useSkillSheetStore()
 const { name, character, attackDice, defenseDice, bodyStrength, intelligence, equippedWeapon, equippedArmor, equippedSpecialItems } =
   storeToRefs(store)
+
+const { enabledExpansions } = storeToRefs(store)
+
+// Expansion characters are listed only while their expansion is enabled (or already selected)
+const visibleCharacters = computed(() =>
+  characterOptions.filter((n) => {
+    const exp = expansionCharacters[n]
+    return !exp || enabledExpansions.value.includes(exp) || n === character.value
+  }),
+)
 
 watch(character, (newChar) => {
   const stats = defaultStats[newChar]
@@ -50,7 +61,9 @@ watch(character, (newChar) => {
     <div class="relative">
       <select id="character" v-model="character" class="field-input field-select">
         <option disabled value="">Wähle deinen Charakter …</option>
-        <option v-for="opt in characterOptions" :key="opt" :value="opt">{{ opt }}</option>
+        <option v-for="opt in visibleCharacters" :key="opt" :value="opt">
+          {{ expansionCharacters[opt] ? '❄️ ' : '' }}{{ opt }}
+        </option>
       </select>
       <span class="select-arrow">▾</span>
     </div>

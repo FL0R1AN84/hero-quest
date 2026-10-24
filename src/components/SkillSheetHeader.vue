@@ -1,9 +1,14 @@
 <script lang="ts" setup>
 import KillListModal from './KillListModal.vue'
+import ExpansionsModal from './ExpansionsModal.vue'
 </script>
 
 <template>
   <div class="header-wrapper">
+    <div class="expansions-slot">
+      <ExpansionsModal />
+    </div>
+
     <div class="kill-list-container">
       <KillListModal />
     </div>
@@ -31,6 +36,13 @@ import KillListModal from './KillListModal.vue'
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 100;
+}
+
+.expansions-slot {
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 100;
 }
 

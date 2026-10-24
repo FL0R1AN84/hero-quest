@@ -27,6 +27,10 @@ export const useSkillSheetStore = defineStore(
     const itemQuantities = ref<Record<string, number>>({})
     const druideShapeShifted = ref(false)
     const kills = ref<Kill[]>([])
+    // ids of expansions (see `expansionOptions`) the player has enabled; empty = base game only
+    const enabledExpansions = ref<string[]>([])
+    // ids of hired mercenaries (see `mercenaryOptions`)
+    const hiredMercenaries = ref<string[]>([])
 
     const weaponBonus = computed(() =>
       equippedWeapon.value.reduce((sum, id) => {
@@ -104,6 +108,8 @@ export const useSkillSheetStore = defineStore(
       itemQuantities.value = {}
       druideShapeShifted.value = false
       kills.value = []
+      enabledExpansions.value = []
+      hiredMercenaries.value = []
     }
 
     function resetStats() {
@@ -153,6 +159,19 @@ export const useSkillSheetStore = defineStore(
       kills.value = []
     }
 
+    function isExpansionEnabled(expansionId: string): boolean {
+      return enabledExpansions.value.includes(expansionId)
+    }
+
+    function toggleExpansion(expansionId: string) {
+      const idx = enabledExpansions.value.indexOf(expansionId)
+      if (idx >= 0) {
+        enabledExpansions.value.splice(idx, 1)
+      } else {
+        enabledExpansions.value.push(expansionId)
+      }
+    }
+
     return {
       name,
       character,
@@ -169,6 +188,8 @@ export const useSkillSheetStore = defineStore(
       itemQuantities,
       druideShapeShifted,
       kills,
+      enabledExpansions,
+      hiredMercenaries,
       killsByMatchDay,
       last5MatchDays,
       todayDate,
@@ -185,6 +206,8 @@ export const useSkillSheetStore = defineStore(
       addKill,
       removeKill,
       clearKills,
+      isExpansionEnabled,
+      toggleExpansion,
     }
   },
   {

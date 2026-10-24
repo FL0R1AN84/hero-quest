@@ -59,6 +59,10 @@ covers all the essential information a hero needs during a quest:
   refresh
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
   other players)
+- **Expansions (Erweiterungen)** — 📖 button in the top-left corner enables optional expansions (combinable, stored in the
+   save file). Expansion content is hidden until enabled and marked with its icon (❄️ = *Der eisige Schrecken*):
+   Barbarin hero, 14 artifact/equipment cards, and a **Söldner** (mercenary) section to hire the Armbrustschütze,
+   Hellebardistin, Späherin and Schwertkämpfer
 - **Light & Dark mode** — the UI adapts to the system colour scheme
 - **Alphabetical sorting** — weapons, armor, and items are sorted alphabetically in dropdowns for easy navigation
 - **Thematic grouping** — special items are grouped by category (Potions, Magic Items, Miscellaneous) in the app display
@@ -70,6 +74,7 @@ covers all the essential information a hero needs during a quest:
 | Character | Avatar | Attack Dice | Defense Dice | Body Strength | Intelligence |
 |-----------|:------:|:-----------:|:------------:|:-------------:|:------------:|
 | Barbar    |   ⚔️   |      3      |      2       |       8       |      2       |
+| ❄️ Barbarin |   ⚔️   |      3      |      2       |       8       |      2       |
 | Barde     |   📯   |      2      |      2       |       5       |      4       |
 | Berserker |   🪓   |      3      |      2       |       7       |      2       |
 | Druide    |   🧙   |      1      |      2       |       6       |      4       |
@@ -346,7 +351,9 @@ src/
 │   ├── SkillSheetAvatar.vue       # Character avatar / icon display
 │   ├── SkillSheetStats.vue        # The four diamond-shaped stat fields + death overlay
 │   ├── SkillSheetSkills.vue       # Berserker-only one-use skills (Erzürnung, Vergeltung, Raserei)
-│   └── SkillSheetEquipment.vue    # Weapons, armor, and special items (with quantities & charges)
+│   ├── SkillSheetEquipment.vue    # Weapons, armor, and special items (with quantities & charges)
+│   ├── SkillSheetMercenaries.vue  # Söldner section (expansion)
+│   └── ExpansionsModal.vue        # Expansion toggle dialog
 ├── data/
 │   └── skillSheetData.ts          # All game data (characters, items, stats)
 ├── stores/
@@ -394,7 +401,9 @@ The exported `.json` file contains the complete character state and can be re-im
   "kills": [
     {"id": "1722716400000-abc123", "matchDay": "2026-08-04", "timestamp": 1722716400000},
     {"id": "1722716420000-xyz789", "matchDay": "2026-08-04", "timestamp": 1722716420000}
-  ]
+  ],
+  "enabledExpansions": ["der-eisige-schrecken"],
+  "hiredMercenaries": []
 }
 ```
 

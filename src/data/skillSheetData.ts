@@ -4,6 +4,8 @@ export interface WeaponOption {
   note: string | null
   bonus: number
   allowedCharacters: string[] | null
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
 
 export interface ArmorOption {
@@ -11,6 +13,8 @@ export interface ArmorOption {
   label: string
   bonus: number
   allowedCharacters: string[] | null
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
 
 export interface SpecialItemOption {
@@ -29,11 +33,109 @@ export interface SpecialItemOption {
   bonusLabel?: string
   /** button text for stackable 'consumable' items */
   useLabel?: string
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
 
-export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
+export interface ExpansionOption {
+  id: string
+  label: string
+  symbol: string
+}
+
+/**
+ * Registry of all available game expansions. New expansions are added here;
+ * cards (weapons/armor/special items) reference them via their `expansion` field
+ * and are only shown once the player enables the expansion (see store `enabledExpansions`).
+ */
+export const expansionOptions: ExpansionOption[] = [
+  { id: 'der-eisige-schrecken', label: 'Der eisige Schrecken', symbol: '❄️' },
+]
+
+export const characterOptions = [
+  'Barbar',
+  'Barbarin',
+  'Barde',
+  'Berserker',
+  'Druide',
+  'Elf',
+  'Ritter',
+  'Zwerg',
+  'Zauberer',
+]
+
+/** Heroes that only become selectable once their expansion is enabled (character name → expansion id) */
+export const expansionCharacters: Record<string, string> = {
+  Barbarin: 'der-eisige-schrecken',
+}
+
+export interface MercenaryOption {
+  id: string
+  label: string
+  symbol: string
+  expansion: string
+  movement: number
+  attackDice: number
+  defenseDice: number
+  bodyStrength: number
+  intelligence: number
+  ability: string | null
+}
+
+/** Söldner: hired per adventure, extra board figures (no equipment/items) */
+export const mercenaryOptions: MercenaryOption[] = [
+  {
+    id: 'armbrustschuetze',
+    label: 'Armbrustschütze',
+    symbol: '🏹',
+    expansion: 'der-eisige-schrecken',
+    movement: 6,
+    attackDice: 3,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Kann aus der Entfernung mit der Armbrust angreifen',
+  },
+  {
+    id: 'hellebardistin',
+    label: 'Hellebardistin',
+    symbol: '🔱',
+    expansion: 'der-eisige-schrecken',
+    movement: 6,
+    attackDice: 3,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Kann mit der Hellebarde auch diagonal angreifen',
+  },
+  {
+    id: 'spaeherin',
+    label: 'Späherin',
+    symbol: '🏃‍♀️',
+    expansion: 'der-eisige-schrecken',
+    movement: 9,
+    attackDice: 2,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Darf Fallen suchen und entschärfen',
+  },
+  {
+    id: 'schwertkaempfer',
+    label: 'Schwertkämpfer',
+    symbol: '🗡️',
+    expansion: 'der-eisige-schrecken',
+    movement: 5,
+    attackDice: 4,
+    defenseDice: 5,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: null,
+  },
+]
 
 export const characterAvatars: Record<string, { symbol: string; color: string }> = {
+  Barbarin: { symbol: '⚔️', color: 'var(--color-red)' },
   Barbar: { symbol: '⚔️', color: 'var(--color-red)' },
   Barde: { symbol: '📯', color: 'var(--color-blue)' },
   Berserker: { symbol: '🪓', color: 'var(--color-red)' },
@@ -48,6 +150,7 @@ export const defaultStats: Record<
   string,
   { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }
 > = {
+  Barbarin: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barde: { attackDice: 2, defenseDice: 2, bodyStrength: 5, intelligence: 4 },
   Berserker: { attackDice: 3, defenseDice: 2, bodyStrength: 7, intelligence: 2 },
@@ -101,7 +204,13 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 2,
     allowedCharacters: null,
   },
-  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar', 'Berserker'] },
+  {
+    id: 'breitschwert',
+    label: 'Breitschwert',
+    note: null,
+    bonus: 2,
+    allowedCharacters: ['Barbar', 'Barbarin', 'Berserker'],
+  },
   {
     id: 'dolch',
     label: 'Dolch',
@@ -184,7 +293,7 @@ export const armorOptions: ArmorOption[] = [
   { id: 'harnisch', label: 'Harnisch', bonus: 2, allowedCharacters: null },
   { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
   { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
-  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar', 'Barbarin'] },
   { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
 ]
 
@@ -365,7 +474,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'magischer-wurfdolch',
     label: 'Magischer Wurfdolch',
     symbol: '🗡️',
-    ability: 'Verursacht 1 Körperkraft-Verlust bei einem Monster in Sichtlinie; keine Verteidigung möglich. Nach dem Wurf verloren',
+    ability:
+      'Verursacht 1 Körperkraft-Verlust bei einem Monster in Sichtlinie; keine Verteidigung möglich. Nach dem Wurf verloren',
     allowedCharacters: null,
     kind: 'consumable',
     useLabel: '🗡️ Dolch werfen',
@@ -374,7 +484,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-heilzauber',
     label: 'Schriftrolle: Heilzauber',
     symbol: '📜',
-    ability: 'Heilt einen beliebigen Helden (auch dich selbst) um bis zu 4 verlorene Körperkraft-Punkte, nie über den Startwert. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Heilt einen beliebigen Helden (auch dich selbst) um bis zu 4 verlorene Körperkraft-Punkte, nie über den Startwert. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -390,7 +501,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-feuerkugel',
     label: 'Schriftrolle: Feuerkugel',
     symbol: '📜',
-    ability: 'Ein Monster verliert 2 Körperkraft; es wirft 2 rote Würfel, jede 5 oder 6 reduziert den Verlust um 1. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Ein Monster verliert 2 Körperkraft; es wirft 2 rote Würfel, jede 5 oder 6 reduziert den Verlust um 1. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -398,7 +510,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-tapferkeit',
     label: 'Schriftrolle: Tapferkeit',
     symbol: '📜',
-    ability: 'Ein beliebiger Held (auch du selbst) wirft beim nächsten Angriff 2 zusätzliche Kampfwürfel. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Ein beliebiger Held (auch du selbst) wirft beim nächsten Angriff 2 zusätzliche Kampfwürfel. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -406,7 +519,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-flammende-wut',
     label: 'Schriftrolle: Flammende Wut',
     symbol: '📜',
-    ability: 'Ein Monster verliert 1 Körperkraft, sofern es nicht sofort mit 1 roten Würfel eine 5 oder 6 würfelt. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Ein Monster verliert 1 Körperkraft, sofern es nicht sofort mit 1 roten Würfel eine 5 oder 6 würfelt. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -414,7 +528,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-schlafzauber',
     label: 'Schriftrolle: Schlafzauber',
     symbol: '📜',
-    ability: 'Versetzt ein Monster in tiefen Schlaf (kein Marschieren, Angreifen oder Verteidigen); Bann bricht bei einer 6 auf 1 roten Würfel je Intelligenz-Punkt. Nicht gegen Mumien, Zombies, Skelette. Zerfällt zu Staub',
+    ability:
+      'Versetzt ein Monster in tiefen Schlaf (kein Marschieren, Angreifen oder Verteidigen); Bann bricht bei einer 6 auf 1 roten Würfel je Intelligenz-Punkt. Nicht gegen Mumien, Zombies, Skelette. Zerfällt zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -422,7 +537,8 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-granithaut',
     label: 'Schriftrolle: Granithaut',
     symbol: '📜',
-    ability: 'Ein beliebiger Held (auch du selbst) wirft bei der Verteidigung 1 zusätzlichen Kampfwürfel; endet bei Verlust von 1 Körperkraft. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Ein beliebiger Held (auch du selbst) wirft bei der Verteidigung 1 zusätzlichen Kampfwürfel; endet bei Verlust von 1 Körperkraft. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
   },
@@ -430,8 +546,147 @@ export const specialItemOptions: SpecialItemOption[] = [
     id: 'schriftrolle-flaschengeist',
     label: 'Schriftrolle: Flaschengeist',
     symbol: '📜',
-    ability: 'Öffnet eine beliebige Tür auf dem Spielplan oder setzt 5 Kampfwürfel gegen ein Monster in deiner Sichtlinie ein. Zerfällt nach der Verwendung zu Staub',
+    ability:
+      'Öffnet eine beliebige Tür auf dem Spielplan oder setzt 5 Kampfwürfel gegen ein Monster in deiner Sichtlinie ein. Zerfällt nach der Verwendung zu Staub',
     allowedCharacters: null,
     kind: 'scroll',
+  },
+  // ── Der eisige Schrecken ────────────────────────────
+  {
+    id: 'amulett-des-nordens',
+    label: '❄️ Amulett des Nordens',
+    symbol: '📿',
+    ability: 'Dauerhaft +2 Körperkraft und +1 Intelligenz',
+    allowedCharacters: ['Barbar', 'Barbarin'],
+    passive: true,
+    intelligenceBonus: 1,
+    bonusLabel: '+2 ❤️',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'armband-aus-eis',
+    label: '❄️ Armband aus Eis',
+    symbol: '🧊',
+    ability:
+      'Schützt vor Gehirnfrost und Kältezaubern sowie vor Schaden durch Eisgewölbe und eisige Flüsse; verringert Schaden durch Eissturm um 1',
+    allowedCharacters: null,
+    passive: true,
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'ring-der-waerme',
+    label: '❄️ Ring der Wärme',
+    symbol: '💍',
+    ability: 'Schützt vor Kältezaubern und den Auswirkungen von Eisgewölben und eisigen Flüssen',
+    allowedCharacters: null,
+    passive: true,
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schneeschuhe-der-geschwindigkeit',
+    label: '❄️ Schneeschuhe der Geschwindigkeit',
+    symbol: '🥾',
+    ability:
+      'Erhöhen die Bewegung um 2 Felder und verhindern das Ausrutschen auf Glatteis; nur in eisigen Abenteuern verwendbar',
+    allowedCharacters: null,
+    passive: true,
+    bonusLabel: '+2 👣',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-abkuehlung',
+    label: '❄️ Schriftrolle: Abkühlung',
+    symbol: '📜',
+    ability:
+      'Verursacht bei einem angrenzenden Monster 1 Körperkraft-Schaden; keine Verteidigung möglich. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-eisbruecke',
+    label: '❄️ Schriftrolle: Eisbrücke',
+    symbol: '📜',
+    ability:
+      'Erzeugt eine dauerhafte Brücke aus magischem Eis, über die Gruben, Fallen, Schluchten und eisige Felder überquert werden können. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-eissturm',
+    label: '❄️ Schriftrolle: Eissturm',
+    symbol: '📜',
+    ability:
+      'Greift alle Figuren in einem Bereich von 2 × 2 Feldern mit 3 Kampfwürfeln an; keine Verteidigung möglich. Nicht in Korridoren einsetzbar. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-psychische-erholung',
+    label: '❄️ Schriftrolle: Psychische Erholung',
+    symbol: '📜',
+    ability:
+      'Stellt dem Anwender oder einem gewählten Helden alle verlorenen Intelligenzpunkte wieder her. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-schlittschuh',
+    label: '❄️ Schriftrolle: Schlittschuh',
+    symbol: '📜',
+    ability:
+      'Der Anwender zählt in dieser Runde 6 zur Bewegungswürfelzahl hinzu und darf durch Helden und Monster hindurchgehen. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'schriftrolle-waerme',
+    label: '❄️ Schriftrolle: Wärme',
+    symbol: '📜',
+    ability:
+      'Stellt dem Anwender oder einem gewählten Helden bis zu 3 verlorene Körperkraftpunkte wieder her. Zerfällt nach der Verwendung zu Staub',
+    allowedCharacters: null,
+    kind: 'scroll',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'trank-der-kampfeswut',
+    label: '❄️ Trank der Kampfeswut',
+    symbol: '🔥',
+    ability: 'Der Barbar darf zwei Angriffe pro Runde ausführen, solange Monster in Sichtweite sind',
+    allowedCharacters: ['Barbar', 'Barbarin'],
+    kind: 'extra-attack-same',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'trank-der-eisigen-staerke',
+    label: '❄️ Trank der eisigen Stärke',
+    symbol: '🧊',
+    ability: 'Der nächste Angriff verursacht doppelten Körperkraft-Schaden entsprechend den gewürfelten Treffern',
+    allowedCharacters: ['Barbar', 'Barbarin'],
+    kind: 'extra-attack-same',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'verjuengungstrank',
+    label: '❄️ Verjüngungstrank',
+    symbol: '🧪',
+    ability: 'Würfle 1 roten Würfel – so viele Körperkraftpunkte kehren zurück (nie über Startwert)',
+    allowedCharacters: null,
+    kind: 'heal-potion',
+    expansion: 'der-eisige-schrecken',
+  },
+  {
+    id: 'trank-der-frosthaut',
+    label: '❄️ Trank der Frosthaut',
+    symbol: '🛡️',
+    ability: 'Der Barbar erhält beim Verteidigen 2 zusätzliche Kampfwürfel, solange Monster in Sichtweite sind',
+    allowedCharacters: ['Barbar', 'Barbarin'],
+    kind: 'defense-potion',
+    expansion: 'der-eisige-schrecken',
   },
 ]

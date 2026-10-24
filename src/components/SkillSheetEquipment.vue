@@ -17,19 +17,27 @@ const {
   attackDice,
   defenseDice,
   bodyStrength,
+  enabledExpansions,
 } = storeToRefs(store)
 
 // ── Restriction helpers ───────────────────────────────────
+function isExpansionAvailable(card: { expansion?: string }): boolean {
+  return !card.expansion || enabledExpansions.value.includes(card.expansion)
+}
+
 function canEquipWeapon(w: WeaponOption): boolean {
   if (character.value === 'Zauberer') return false
+  if (!isExpansionAvailable(w)) return false
   return !w.allowedCharacters || w.allowedCharacters.includes(character.value)
 }
 
-function canEquipArmor(a: { allowedCharacters: string[] | null }): boolean {
+function canEquipArmor(a: ArmorOption): boolean {
+  if (!isExpansionAvailable(a)) return false
   return !a.allowedCharacters || a.allowedCharacters.includes(character.value)
 }
 
 function canEquipSpecialItem(item: SpecialItemOption): boolean {
+  if (!isExpansionAvailable(item)) return false
   return !item.allowedCharacters || item.allowedCharacters.includes(character.value)
 }
 
@@ -590,7 +598,10 @@ const headerHealPotions = computed(() =>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
             <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
-              +{{ item.intelligenceBonus }} 🧠
+              {{ item.bonusLabel ? `${item.bonusLabel} ` : '' }}+{{ item.intelligenceBonus }} 🧠
+            </span>
+            <span v-else-if="item.bonusLabel" class="equip-item-bonus equip-item-bonus--passive">
+              {{ item.bonusLabel }}
             </span>
             <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
               >✓</span
