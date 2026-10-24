@@ -26,12 +26,13 @@ Template Rendering + localStorage persistence
 
 | File | Purpose |
 |------|---------|
-| `src/data/skillSheetData.ts` | **Single source of truth** for all game data: 8 character classes, weapons, armor, special items with bonuses, restrictions, and item types. Also exports `characterAvatars` (symbol + color per class). Never duplicate these definitions. |
-| `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift). Auto-persisted via `pinia-plugin-persistedstate`. |
+| `src/data/skillSheetData.ts` | **Single source of truth** for all game data: 8 character classes, weapons, armor, special items with bonuses, restrictions, and item types. Also exports `characterAvatars` (symbol + color per class) and `expansionOptions` (registry of game expansions, e.g. "Der eisige Schrecken"). Never duplicate these definitions. |
+| `src/stores/skillSheet.ts` | **Pinia store** managing character state (stats, equipment, items, quantities, charges, Druide shape-shift, `enabledExpansions`). Auto-persisted via `pinia-plugin-persistedstate`. |
 | `src/views/SkillSheet.vue` | **Main page** orchestrating save/load/end-game flows. Contains file I/O logic (`saveToFile()`, `loadFromFile()`). |
 | `src/components/*.vue` | **Presentational components** (Header, Stats, Equipment, etc.) using Composition API `<script setup>`. |
 | `src/components/SkillSheetSkills.vue` | **Character skills** — Berserker-only one-use skills (Erzürnung, Vergeltung, Raserei) from `characterSkills`; used state in `store.usedSkills`, cleared only by `resetStats()` / `reset()`. |
 | `src/components/KillListModal.vue` | **Kill list tracker** — modal dialog for recording monster kills by match day, with animations and persistent storage. |
+| `src/components/ExpansionsModal.vue` | **Expansion manager** — modal dialog (📖 button, top-left of header) to enable/disable game expansions (`store.enabledExpansions`); multiple expansions can be active at once. |
 | `src/components/AppUpdatePrompt.vue` | **PWA update banner** — listens for `sw-update-available` custom event, prompts user to reload for new version. |
 | `src/components/AppVersion.vue` | **Version display** — shows `package.json` version; 5× click reveals a hidden full-reset button (`store.reset()`). |
 
@@ -139,6 +140,15 @@ interface Kill {
 - `store.totalKills` — Total across all games
 - `store.todayKills` — Today's kills only
 
+### Expansions (Erweiterungen)
+- **Purpose:** Support official HeroQuest expansions that add new weapons, armor, and special items. Expansion content is hidden by default and only appears once the player explicitly enables that expansion; multiple expansions can be combined at the same time.
+- **Registry:** `expansionOptions` in `skillSheetData.ts` — `{ id, label, symbol }[]`. The first registered expansion is `der-eisige-schrecken` ("Der eisige Schrecken"); it currently has no cards of its own yet (infrastructure only — see "Adding a New Expansion" below for how to attach cards to it).
+- **Tagging cards:** `WeaponOption`, `ArmorOption`, and `SpecialItemOption` all have an optional `expansion?: string` field referencing an `expansionOptions` id. Omitted/`undefined` means the card belongs to the base game and is always visible.
+- **UI Location:** 📖 button in top-left corner of character sheet (`ExpansionsModal.vue`), mirroring the 💀 kill list button on the right. Clicking an expansion row toggles it on/off.
+- **Filtering:** `SkillSheetEquipment.vue`'s `canEquipWeapon()` / `canEquipArmor()` / `canEquipSpecialItem()` helpers additionally check `isExpansionAvailable()`, which looks up `store.enabledExpansions`. Already-equipped cards from a since-disabled expansion remain visible/removable on the sheet; only the "add" dropdowns hide unavailable cards.
+- **Store:** `store.enabledExpansions: string[]` (expansion ids), `store.isExpansionEnabled(id)`, `store.toggleExpansion(id)`. Cleared by `reset()` (full reset); **not** cleared by `resetStats()` (end-of-game reset), since expansions are a persistent setting, not per-campaign stats.
+- **Persistence:** Saved to `localStorage` via Pinia, included in JSON export/import as `enabledExpansions` (see File Format below).
+
 ## Component Patterns
 
 ### Composition API + `<script setup>`
@@ -216,7 +226,8 @@ When users export a character, it's a `.json` file with this structure:
     {"id": "1722716400000-abc123", "matchDay": "2026-08-04", "timestamp": 1722716400000},
     {"id": "1722716420000-xyz789", "matchDay": "2026-08-04", "timestamp": 1722716420000},
     {"id": "1722802800000-def456", "matchDay": "2026-08-03", "timestamp": 1722802800000}
-  ]
+  ],
+  "enabledExpansions": ["der-eisige-schrecken"]
 }
 ```
 
@@ -276,6 +287,12 @@ When users export a character, it's a `.json` file with this structure:
 1. Edit `allowedCharacters` array in item definition (`null` = unrestricted)
 2. Restriction helpers in `SkillSheetEquipment.vue` (`canEquipWeapon()`, etc.) automatically filter options
 3. Template `v-if` bindings prevent equipping restricted items
+
+### Adding a New Expansion
+1. Add a new entry `{ id, label, symbol }` to `expansionOptions` in `skillSheetData.ts` (id is the kebab-case key used everywhere, e.g. `'der-eisige-schrecken'`)
+2. It immediately appears as a toggle in `ExpansionsModal.vue` (📖 button) — no further UI changes needed
+3. Add the expansion's new weapons/armor/items to `weaponOptions` / `armorOptions` / `specialItemOptions` with `expansion: '<expansion-id>'` set
+4. Those cards are automatically hidden from the equip dropdowns until the player enables the expansion; already-equipped legacy cards are unaffected
 
 ### Fixing Display Bugs
 - **Stats not updating?** → Check if computed property is reactive (use `storeToRefs()`)

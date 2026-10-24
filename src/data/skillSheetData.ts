@@ -4,6 +4,8 @@ export interface WeaponOption {
   note: string | null
   bonus: number
   allowedCharacters: string[] | null
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
 
 export interface ArmorOption {
@@ -11,6 +13,8 @@ export interface ArmorOption {
   label: string
   bonus: number
   allowedCharacters: string[] | null
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
 
 export interface SpecialItemOption {
@@ -29,7 +33,24 @@ export interface SpecialItemOption {
   bonusLabel?: string
   /** button text for stackable 'consumable' items */
   useLabel?: string
+  /** id of the expansion this card belongs to; omitted/undefined = base game */
+  expansion?: string
 }
+
+export interface ExpansionOption {
+  id: string
+  label: string
+  symbol: string
+}
+
+/**
+ * Registry of all available game expansions. New expansions are added here;
+ * cards (weapons/armor/special items) reference them via their `expansion` field
+ * and are only shown once the player enables the expansion (see store `enabledExpansions`).
+ */
+export const expansionOptions: ExpansionOption[] = [
+  { id: 'der-eisige-schrecken', label: 'Der eisige Schrecken', symbol: '❄️' },
+]
 
 export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
 

@@ -17,19 +17,27 @@ const {
   attackDice,
   defenseDice,
   bodyStrength,
+  enabledExpansions,
 } = storeToRefs(store)
 
 // ── Restriction helpers ───────────────────────────────────
+function isExpansionAvailable(card: { expansion?: string }): boolean {
+  return !card.expansion || enabledExpansions.value.includes(card.expansion)
+}
+
 function canEquipWeapon(w: WeaponOption): boolean {
   if (character.value === 'Zauberer') return false
+  if (!isExpansionAvailable(w)) return false
   return !w.allowedCharacters || w.allowedCharacters.includes(character.value)
 }
 
-function canEquipArmor(a: { allowedCharacters: string[] | null }): boolean {
+function canEquipArmor(a: ArmorOption): boolean {
+  if (!isExpansionAvailable(a)) return false
   return !a.allowedCharacters || a.allowedCharacters.includes(character.value)
 }
 
 function canEquipSpecialItem(item: SpecialItemOption): boolean {
+  if (!isExpansionAvailable(item)) return false
   return !item.allowedCharacters || item.allowedCharacters.includes(character.value)
 }
 
