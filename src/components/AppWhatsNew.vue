@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
-import ReleaseNotesList from '@/components/ReleaseNotesList.vue'
 
 const STORAGE_KEY = 'hq-last-seen-version'
 
 const version = __APP_VERSION__
-const notes = __RELEASE_NOTES__
+const previousVersion = ref('')
 const visible = ref(false)
 
 function close() {
@@ -16,6 +15,7 @@ onMounted(() => {
   const lastSeen = localStorage.getItem(STORAGE_KEY)
   localStorage.setItem(STORAGE_KEY, version)
   // First start has nothing to compare against, so only a real version change shows the sheet
+  previousVersion.value = lastSeen ?? ''
   visible.value = lastSeen !== null && lastSeen !== version
 })
 </script>
@@ -26,9 +26,12 @@ onMounted(() => {
       <div v-if="visible" class="whatsnew-overlay" @click.self="close">
         <div class="whatsnew-sheet" role="dialog" aria-modal="true">
           <div class="whatsnew-icon">🎉</div>
-          <h3 class="whatsnew-title">Update auf Version {{ version }}</h3>
-          <p class="whatsnew-message">HeroQuest wurde aktualisiert. Das ist neu:</p>
-          <ReleaseNotesList :notes="notes" />
+          <h3 class="whatsnew-title">Update installiert</h3>
+          <p class="whatsnew-message">
+            HeroQuest wurde aktualisiert.<br />
+            Bisherige Version: <strong>{{ previousVersion }}</strong><br />
+            Neue Version: <strong>{{ version }}</strong>
+          </p>
           <button class="btn-close" @click="close">✓ Verstanden</button>
         </div>
       </div>
@@ -77,8 +80,9 @@ onMounted(() => {
   font-family: var(--font-body), serif;
   font-size: 0.95rem;
   color: var(--hq-hint);
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.25rem 0;
   text-align: center;
+  line-height: 1.6;
 }
 
 .btn-close {

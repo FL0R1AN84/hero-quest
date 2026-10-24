@@ -28,23 +28,15 @@ if ('serviceWorker' in navigator) {
         registration.update()
       }, 60000)
 
-      // Listen for updates
-      registration.addEventListener('updatefound', () => {
-        const newWorker = registration.installing
-        if (!newWorker) return
-
-        newWorker.addEventListener('statechange', () => {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // New version available - dispatch custom event
-            window.dispatchEvent(
-              new CustomEvent('sw-update-available', {
-                detail: { registration },
-              }),
-            )
-            console.log('[SW] New version available')
-          }
+      // The new worker activates itself; reload once it takes over
+      if (navigator.serviceWorker.controller) {
+        let reloading = false
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (reloading) return
+          reloading = true
+          window.location.reload()
         })
-      })
+      }
     })
   })
 }
