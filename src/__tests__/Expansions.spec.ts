@@ -90,3 +90,22 @@ describe('Expansion characters', () => {
     expect(store.bodyStrength).toBe(8)
   })
 })
+
+describe('Expansion items', () => {
+  it('shows Der eisige Schrecken items with ice icon only when enabled, respecting Barbar restriction', async () => {
+    setActivePinia(createPinia())
+    const store = useSkillSheetStore()
+    store.character = 'Zwerg'
+    const wrapper = mount(SkillSheetEquipment)
+    expect(wrapper.text()).not.toContain('❄️')
+    store.toggleExpansion('der-eisige-schrecken')
+    await wrapper.vm.$nextTick()
+    const labels = wrapper.findAll('option').map((o) => o.text())
+    expect(labels).toContain('❄️ Ring der Wärme')
+    expect(labels).toContain('❄️ Schriftrolle: Eissturm')
+    expect(labels).not.toContain('❄️ Trank der Kampfeswut')
+    store.character = 'Barbarin'
+    await wrapper.vm.$nextTick()
+    expect(wrapper.findAll('option').map((o) => o.text())).toContain('❄️ Trank der Kampfeswut')
+  })
+})

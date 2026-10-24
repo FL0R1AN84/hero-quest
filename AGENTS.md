@@ -142,7 +142,7 @@ interface Kill {
 
 ### Expansions (Erweiterungen)
 - **Purpose:** Support official HeroQuest expansions that add new weapons, armor, and special items. Expansion content is hidden by default and only appears once the player explicitly enables that expansion; multiple expansions can be combined at the same time.
-- **Registry:** `expansionOptions` in `skillSheetData.ts` — `{ id, label, symbol }[]`. The first registered expansion is `der-eisige-schrecken` ("Der eisige Schrecken"); it currently has no cards of its own yet (infrastructure only — see "Adding a New Expansion" below for how to attach cards to it).
+- **Registry:** `expansionOptions` in `skillSheetData.ts` — `{ id, label, symbol }[]`. The first registered expansion is `der-eisige-schrecken` ("Der eisige Schrecken"); it contains Barbarin, the Söldner, and 14 ❄️ cards in `specialItemOptions` (Amulett des Nordens, Armband aus Eis, Ring der Wärme, Schneeschuhe der Geschwindigkeit, 6 Zauberschriftrollen, Trank der Kampfeswut / eisigen Stärke / Frosthaut, Verjüngungstrank). Prices are part of the `ability` text; the Amulett's +2 Körperkraft and the Schneeschuhe's +2 Bewegung are display-only (`bonusLabel`, shown on passive items).
 - **Tagging cards:** `WeaponOption`, `ArmorOption`, and `SpecialItemOption` all have an optional `expansion?: string` field referencing an `expansionOptions` id. Omitted/`undefined` means the card belongs to the base game and is always visible.
 - **UI Location:** 📖 button in top-left corner of character sheet (`ExpansionsModal.vue`), mirroring the 💀 kill list button on the right. Clicking an expansion row toggles it on/off.
 - **Filtering:** `SkillSheetEquipment.vue`'s `canEquipWeapon()` / `canEquipArmor()` / `canEquipSpecialItem()` helpers additionally check `isExpansionAvailable()`, which looks up `store.enabledExpansions`. Already-equipped cards from a since-disabled expansion remain visible/removable on the sheet; only the "add" dropdowns hide unavailable cards.
@@ -229,7 +229,8 @@ When users export a character, it's a `.json` file with this structure:
     {"id": "1722716420000-xyz789", "matchDay": "2026-08-04", "timestamp": 1722716420000},
     {"id": "1722802800000-def456", "matchDay": "2026-08-03", "timestamp": 1722802800000}
   ],
-  "enabledExpansions": ["der-eisige-schrecken"]
+  "enabledExpansions": ["der-eisige-schrecken"],
+  "hiredMercenaries": ["armbrustschuetze"]
 }
 ```
 
@@ -291,6 +292,7 @@ When users export a character, it's a `.json` file with this structure:
 3. Template `v-if` bindings prevent equipping restricted items
 
 ### Adding a New Expansion
+0. **Convention:** every card/hero from an expansion gets the expansion's icon (❄️ for Der eisige Schrecken) as prefix in its `label`.
 1. Add a new entry `{ id, label, symbol }` to `expansionOptions` in `skillSheetData.ts` (id is the kebab-case key used everywhere, e.g. `'der-eisige-schrecken'`)
 2. It immediately appears as a toggle in `ExpansionsModal.vue` (📖 button) — no further UI changes needed
 3. Add the expansion's new weapons/armor/items to `weaponOptions` / `armorOptions` / `specialItemOptions` with `expansion: '<expansion-id>'` set

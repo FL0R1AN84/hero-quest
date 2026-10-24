@@ -598,7 +598,10 @@ const headerHealPotions = computed(() =>
               <span class="equip-item-note">{{ item.ability }}</span>
             </span>
             <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
-              +{{ item.intelligenceBonus }} 🧠
+              {{ item.bonusLabel ? `${item.bonusLabel} ` : '' }}+{{ item.intelligenceBonus }} 🧠
+            </span>
+            <span v-else-if="item.bonusLabel" class="equip-item-bonus equip-item-bonus--passive">
+              {{ item.bonusLabel }}
             </span>
             <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
               >✓</span
