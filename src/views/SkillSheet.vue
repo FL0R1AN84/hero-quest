@@ -6,6 +6,7 @@ import SkillSheetAvatar from '@/components/SkillSheetAvatar.vue'
 import SkillSheetStats from '@/components/SkillSheetStats.vue'
 import SkillSheetSkills from '@/components/SkillSheetSkills.vue'
 import SkillSheetEquipment from '@/components/SkillSheetEquipment.vue'
+import SkillSheetMercenaries from '@/components/SkillSheetMercenaries.vue'
 
 const store = useSkillSheetStore()
 
@@ -27,6 +28,7 @@ function saveToFile() {
     druideShapeShifted: store.druideShapeShifted,
     kills: [...store.kills],
     enabledExpansions: [...store.enabledExpansions],
+    hiredMercenaries: [...store.hiredMercenaries],
   }
   const json = JSON.stringify(data, null, 2)
   const blob = new Blob([json], { type: 'application/json' })
@@ -92,6 +94,7 @@ function loadFromFile() {
         druideShapeShifted: data.druideShapeShifted ?? false,
         kills: data.kills ?? [],
         enabledExpansions: data.enabledExpansions ?? [],
+        hiredMercenaries: data.hiredMercenaries ?? [],
       })
     } catch {
       alert('Ungültige Datei – bitte eine gültige JSON-Skillsheet-Datei wählen.')
@@ -125,6 +128,8 @@ function loadFromFile() {
           <SkillSheetSkills />
 
           <SkillSheetEquipment />
+
+          <SkillSheetMercenaries />
 
           <div class="flex">
             <button :disabled="!store.character" class="btn-end-game" type="button" @click="endGame">

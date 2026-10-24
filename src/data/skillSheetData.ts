@@ -52,9 +52,80 @@ export const expansionOptions: ExpansionOption[] = [
   { id: 'der-eisige-schrecken', label: 'Der eisige Schrecken', symbol: '❄️' },
 ]
 
-export const characterOptions = ['Barbar', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
+export const characterOptions = ['Barbar', 'Barbarin', 'Barde', 'Berserker', 'Druide', 'Elf', 'Ritter', 'Zwerg', 'Zauberer']
+
+/** Heroes that only become selectable once their expansion is enabled (character name → expansion id) */
+export const expansionCharacters: Record<string, string> = {
+  Barbarin: 'der-eisige-schrecken',
+}
+
+export interface MercenaryOption {
+  id: string
+  label: string
+  symbol: string
+  expansion: string
+  movement: number
+  attackDice: number
+  defenseDice: number
+  bodyStrength: number
+  intelligence: number
+  ability: string | null
+}
+
+/** Söldner: hired per adventure, extra board figures (no equipment/items) */
+export const mercenaryOptions: MercenaryOption[] = [
+  {
+    id: 'armbrustschuetze',
+    label: 'Armbrustschütze',
+    symbol: '🏹',
+    expansion: 'der-eisige-schrecken',
+    movement: 6,
+    attackDice: 3,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Kann aus der Entfernung mit der Armbrust angreifen',
+  },
+  {
+    id: 'hellebardistin',
+    label: 'Hellebardistin',
+    symbol: '🔱',
+    expansion: 'der-eisige-schrecken',
+    movement: 6,
+    attackDice: 3,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Kann mit der Hellebarde auch diagonal angreifen',
+  },
+  {
+    id: 'spaeherin',
+    label: 'Späherin',
+    symbol: '🏃‍♀️',
+    expansion: 'der-eisige-schrecken',
+    movement: 9,
+    attackDice: 2,
+    defenseDice: 3,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: 'Darf Fallen suchen und entschärfen',
+  },
+  {
+    id: 'schwertkaempfer',
+    label: 'Schwertkämpfer',
+    symbol: '🗡️',
+    expansion: 'der-eisige-schrecken',
+    movement: 5,
+    attackDice: 4,
+    defenseDice: 5,
+    bodyStrength: 2,
+    intelligence: 2,
+    ability: null,
+  },
+]
 
 export const characterAvatars: Record<string, { symbol: string; color: string }> = {
+  Barbarin: { symbol: '⚔️', color: 'var(--color-red)' },
   Barbar: { symbol: '⚔️', color: 'var(--color-red)' },
   Barde: { symbol: '📯', color: 'var(--color-blue)' },
   Berserker: { symbol: '🪓', color: 'var(--color-red)' },
@@ -69,6 +140,7 @@ export const defaultStats: Record<
   string,
   { attackDice: number; defenseDice: number; bodyStrength: number; intelligence: number }
 > = {
+  Barbarin: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barbar: { attackDice: 3, defenseDice: 2, bodyStrength: 8, intelligence: 2 },
   Barde: { attackDice: 2, defenseDice: 2, bodyStrength: 5, intelligence: 4 },
   Berserker: { attackDice: 3, defenseDice: 2, bodyStrength: 7, intelligence: 2 },
@@ -122,7 +194,7 @@ export const weaponOptions: WeaponOption[] = [
     bonus: 2,
     allowedCharacters: null,
   },
-  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar', 'Berserker'] },
+  { id: 'breitschwert', label: 'Breitschwert', note: null, bonus: 2, allowedCharacters: ['Barbar', 'Barbarin', 'Berserker'] },
   {
     id: 'dolch',
     label: 'Dolch',
@@ -205,7 +277,7 @@ export const armorOptions: ArmorOption[] = [
   { id: 'harnisch', label: 'Harnisch', bonus: 2, allowedCharacters: null },
   { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },
   { id: 'kettenhemd', label: 'Kettenhemd', bonus: 1, allowedCharacters: null },
-  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar'] },
+  { id: 'plattenruestung', label: 'Plattenrüstung', bonus: 2, allowedCharacters: ['Barbar', 'Barbarin'] },
   { id: 'schild', label: 'Schild', bonus: 1, allowedCharacters: null },
 ]
 

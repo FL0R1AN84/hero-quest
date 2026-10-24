@@ -3,6 +3,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, it } from 'vitest'
 import ExpansionsModal from '@/components/ExpansionsModal.vue'
 import SkillSheetEquipment from '@/components/SkillSheetEquipment.vue'
+import SkillSheetHeroFields from '@/components/SkillSheetHeroFields.vue'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { expansionOptions, specialItemOptions } from '@/data/skillSheetData'
 
@@ -71,5 +72,21 @@ describe('Expansions', () => {
     } finally {
       item.expansion = original
     }
+  })
+})
+
+describe('Expansion characters', () => {
+  it('lists Barbarin with an ice icon only when the expansion is enabled', async () => {
+    setActivePinia(createPinia())
+    const store = useSkillSheetStore()
+    const wrapper = mount(SkillSheetHeroFields)
+    expect(wrapper.text()).not.toContain('Barbarin')
+    store.toggleExpansion('der-eisige-schrecken')
+    await wrapper.vm.$nextTick()
+    const labels = wrapper.findAll('option').map((o) => o.text())
+    expect(labels).toContain('❄️ Barbarin')
+    store.character = 'Barbarin'
+    await wrapper.vm.$nextTick()
+    expect(store.bodyStrength).toBe(8)
   })
 })
