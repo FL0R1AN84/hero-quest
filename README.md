@@ -63,6 +63,8 @@ covers all the essential information a hero needs during a quest:
    save file). Expansion content is hidden until enabled and marked with its icon (❄️ = *Der eisige Schrecken*):
    Barbarin hero, 14 artifact/equipment cards, and a **Söldner** (mercenary) section to hire the Armbrustschütze,
    Hellebardistin, Späherin and Schwertkämpfer
+- **Update info** — on a new version the app offers an update including the version number and the changes (taken from
+   the commit messages since the last version bump); after updating, a "what's new" sheet is shown once
 - **Light & Dark mode** — the UI adapts to the system colour scheme
 - **Alphabetical sorting** — weapons, armor, and items are sorted alphabetically in dropdowns for easy navigation
 - **Thematic grouping** — special items are grouped by category (Potions, Magic Items, Miscellaneous) in the app display

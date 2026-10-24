@@ -1,12 +1,28 @@
 <script lang="ts" setup>
 import { ref, onMounted, onUnmounted } from 'vue'
+import ReleaseNotesList from '@/components/ReleaseNotesList.vue'
 
 const showUpdatePrompt = ref(false)
+const newVersion = ref('')
+const notes = ref<string[]>([])
 let registration: ServiceWorkerRegistration | null = null
 
-function handleUpdateAvailable(event: Event) {
+async function loadNewVersionInfo() {
+  try {
+    const response = await fetch('/version.json', { cache: 'no-store' })
+    if (!response.ok) return
+    const info = (await response.json()) as { version?: string; notes?: string[] }
+    newVersion.value = info.version ?? ''
+    notes.value = info.notes ?? []
+  } catch {
+    // Offline or missing file: the prompt is shown without details
+  }
+}
+
+async function handleUpdateAvailable(event: Event) {
   const customEvent = event as CustomEvent<{ registration: ServiceWorkerRegistration }>
   registration = customEvent.detail.registration
+  await loadNewVersionInfo()
   showUpdatePrompt.value = true
 }
 
@@ -41,10 +57,13 @@ onUnmounted(() => {
       <div v-if="showUpdatePrompt" class="update-overlay">
         <div class="update-prompt">
           <div class="update-icon">🔄</div>
-          <h3 class="update-title">Neue Version verfügbar</h3>
+          <h3 class="update-title">
+            Neue Version verfügbar<template v-if="newVersion"> – {{ newVersion }}</template>
+          </h3>
           <p class="update-message">
             Eine neue Version von HeroQuest ist verfügbar. Möchtest du die App aktualisieren?
           </p>
+          <ReleaseNotesList :notes="notes" />
           <div class="update-actions">
             <button class="btn-update" @click="acceptUpdate">
               ✓ Aktualisieren
