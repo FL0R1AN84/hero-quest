@@ -37,6 +37,12 @@ const releaseNotes = getReleaseNotes()
 function releaseInfoPlugin(): Plugin {
   return {
     name: 'release-info',
+    configureServer(server) {
+      server.middlewares.use('/version.json', (_req, res) => {
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify({ version, notes: releaseNotes }))
+      })
+    },
     generateBundle() {
       this.emitFile({
         type: 'asset',
