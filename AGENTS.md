@@ -204,6 +204,7 @@ npm run format       # Prettier (src/ only)
 - **Tailwind CSS v4:** via `@tailwindcss/vite` plugin
 - **Vue DevTools:** Vite plugin included (dev only)
 - **PWA:** Service worker at `public/service-worker.js` polls for updates every 60 s, activates itself (`skipWaiting`) and `main.ts` reloads the page on `controllerchange`. `vite.config.ts` (plugin `release-info`) injects `__APP_VERSION__` and stamps it into the service worker cache name. **The version is bumped automatically** by the `.githooks/post-commit` hook (`scripts/bump-version.mjs`, activated via `npm install` → `prepare`): `feat` → minor+1 (patch=0); `fix`/`refactor`/`style`/`chore`/`docs`/other conventional types → patch+1; digits roll over at 9 (1.9.9 → 2.0.0); merge/non-conventional commits are skipped, as are commits that already change the `version` line. Use Conventional Commit messages. The bump triggers the update and the `AppWhatsNew.vue` sheet
+- **PR metadata automation:** `.github/workflows/pr-metadata.yml` runs on every `opened`/`synchronize`/`reopened` PR targeting `main`. It reads the PR head's `package.json` version and overwrites the PR title with `Version: <version>` and the PR body with a Markdown changelog (full commit messages, oldest first, merges excluded) built from `git log <base>..<head>`, via `gh pr edit`. Re-runs on every push to the PR, so manual title/body edits are overwritten.
 
 ## File Format (Save/Load)
 
