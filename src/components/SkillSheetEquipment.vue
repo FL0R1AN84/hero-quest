@@ -1750,6 +1750,7 @@ button.equip-item {
 }
 .equip-add-row select {
   flex: 1;
+  min-width: 0;
   padding: 0.35rem 0.5rem;
   border-radius: 2px;
   border: 1px solid var(--hq-input-border);
@@ -1757,6 +1758,7 @@ button.equip-item {
   color: var(--hq-input-text);
 }
 .btn-add {
+  flex-shrink: 0;
   padding: 0.35rem 0.6rem;
   border-radius: 2px;
   border: none;
