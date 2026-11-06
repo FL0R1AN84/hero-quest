@@ -10,6 +10,7 @@ const { enabledExpansions } = storeToRefs(store)
 const isOpen = ref(false)
 
 function toggleModal() {
+  navigator.vibrate?.(20)
   isOpen.value = !isOpen.value
 }
 
@@ -25,7 +26,13 @@ function isActive(id: string): boolean {
 <template>
   <div class="expansions-container">
     <!-- Toggle Button -->
-    <button :class="{ active: isOpen }" class="expansions-btn" title="Erweiterungen" @click="toggleModal">
+    <button
+      :class="{ active: isOpen }"
+      class="expansions-btn"
+      title="Erweiterungen"
+      @click="toggleModal"
+      @selectstart.prevent
+    >
       <span class="book-icon">📖</span>
       <span v-if="enabledExpansions.length > 0" class="expansions-badge">{{ enabledExpansions.length }}</span>
     </button>
@@ -92,6 +99,10 @@ function isActive(id: string): boolean {
     border-color 0.2s,
     color 0.2s;
   font-size: 1.25rem;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .expansions-btn:hover {

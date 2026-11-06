@@ -13,42 +13,52 @@ const recentKillIds = ref<Set<string>>(new Set())
 const badgeAnimationKey = ref(0)
 const expandedDay = ref<string | null>(null)
 let pressTimer: ReturnType<typeof setTimeout> | undefined
-let isPressing = false
-let longPressTriggered = false
+const isPressing = ref(false)
+const longPressTriggered = ref(false)
 
-function startButtonPress() {
+function vibrate(pattern: number | number[]) {
+  navigator.vibrate?.(pattern)
+}
+
+function startButtonPress(event: PointerEvent) {
   if (pressTimer !== undefined) {
     clearTimeout(pressTimer)
   }
-  isPressing = true
-  longPressTriggered = false
+  isPressing.value = true
+  longPressTriggered.value = false
+  const button = event.currentTarget
+  if (button instanceof HTMLButtonElement) {
+    button.setPointerCapture?.(event.pointerId)
+  }
   pressTimer = setTimeout(() => {
-    if (!isPressing) return
-    longPressTriggered = true
+    if (!isPressing.value) return
+    longPressTriggered.value = true
+    vibrate([20, 30, 20])
     toggleModal()
-  }, 500)
+  }, 600)
 }
 
 function finishButtonPress() {
-  if (!isPressing) return
-  isPressing = false
+  if (!isPressing.value) return
+  isPressing.value = false
   if (pressTimer !== undefined) {
     clearTimeout(pressTimer)
     pressTimer = undefined
   }
-  if (!longPressTriggered) {
+  if (!longPressTriggered.value) {
+    vibrate(20)
     addKill()
   }
-  longPressTriggered = false
+  longPressTriggered.value = false
 }
 
 function cancelButtonPress() {
-  isPressing = false
+  isPressing.value = false
   if (pressTimer !== undefined) {
     clearTimeout(pressTimer)
     pressTimer = undefined
   }
-  longPressTriggered = false
+  longPressTriggered.value = false
 }
 
 function handleButtonClick(event: MouseEvent) {
@@ -152,13 +162,15 @@ const killsForDisplay = computed(() => {
   <div class="kill-list-container">
     <!-- Toggle Button -->
     <button
-      :class="{ active: isOpen }"
+      :class="{ active: isOpen, pressing: isPressing, 'long-press': longPressTriggered }"
       class="kill-list-btn"
       title="Kurz drücken: Kill zählen, lange drücken: Todesliste öffnen"
       @click="handleButtonClick"
+      @contextmenu.prevent
       @pointercancel="cancelButtonPress"
       @pointerdown="startButtonPress"
       @pointerup="finishButtonPress"
+      @selectstart.prevent
     >
       <span class="skull-icon">💀</span>
       <span v-if="totalKills > 0" :key="badgeAnimationKey" class="kill-badge">{{ totalKills }}</span>
@@ -265,6 +277,42 @@ const killsForDisplay = computed(() => {
     border-color 0.2s,
     color 0.2s;
   font-size: 1.25rem;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.kill-list-btn.pressing {
+  border-color: var(--color-gold);
+  background-color: var(--hq-card-bg-dark);
+}
+
+.kill-list-btn.pressing::after {
+  position: absolute;
+  inset: 0.2rem;
+  border: 2px solid var(--color-gold);
+  border-radius: 50%;
+  content: '';
+  pointer-events: none;
+  animation: long-press-progress 600ms linear forwards;
+}
+
+.kill-list-btn.long-press::after {
+  animation: none;
+  background-color: rgb(255 255 255 / 12%);
+}
+
+@keyframes long-press-progress {
+  from {
+    transform: scale(0.35);
+    opacity: 0.35;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .kill-list-btn:hover {

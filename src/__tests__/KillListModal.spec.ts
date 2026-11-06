@@ -30,8 +30,9 @@ describe('KillListModal button', () => {
     const button = wrapper.get('.kill-list-btn')
 
     button.element.dispatchEvent(new Event('pointerdown', { bubbles: true }))
-    vi.advanceTimersByTime(500)
+    vi.advanceTimersByTime(600)
     await wrapper.vm.$nextTick()
+    expect(button.classes()).toContain('long-press')
     button.element.dispatchEvent(new Event('pointerup', { bubbles: true }))
 
     expect(useSkillSheetStore().totalKills).toBe(0)
