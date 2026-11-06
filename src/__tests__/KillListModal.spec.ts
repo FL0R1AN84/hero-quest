@@ -43,6 +43,22 @@ describe('KillListModal button', () => {
     expect(wrapper.get('[role="status"]').text()).toBe('Todesliste geöffnet')
   })
 
+  it('clears long-press feedback when the modal closes', async () => {
+    const wrapper = mount(KillListModal)
+    const button = wrapper.get('.kill-list-btn')
+
+    button.element.dispatchEvent(new Event('pointerdown', { bubbles: true }))
+    vi.advanceTimersByTime(600)
+    await wrapper.vm.$nextTick()
+    expect(button.classes()).toContain('pressing')
+    expect(button.classes()).toContain('long-press')
+
+    await wrapper.get('.close-btn').trigger('click')
+
+    expect(button.classes()).not.toContain('pressing')
+    expect(button.classes()).not.toContain('long-press')
+  })
+
   it('counts a kill when activated by keyboard', async () => {
     const wrapper = mount(KillListModal)
 
