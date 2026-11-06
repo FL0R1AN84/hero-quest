@@ -54,7 +54,8 @@ covers all the essential information a hero needs during a quest:
    - Smooth animations: button pulse, badge bounce, stats glow, and kill item slide-ins
    - Persisted to `localStorage` and included in JSON export/import
 - **End-of-game reset** — the *🏁 Spielende – Werte zurücksetzen* button restores all core stats to their class defaults
-   while retaining all equipment and items and re-enabling used Berserker skills
+   while retaining equipment and items, re-enabling used Berserker skills and restoring used magic items and charges.
+   Consumed potions are not replenished.
 - **Persistent state** — all data is automatically saved in the browser via `localStorage`; nothing is lost on a page
   refresh
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
@@ -152,7 +153,7 @@ covers all the essential information a hero needs during a quest:
 | Ring der Rückkehr    |   💫   | Permits return to quest starting point       | 1 use, simple activation          |
 | Ring der Stärke      |   💪   | Permanently +1 *Angriffswürfel*              | Passive                           |
 | Ring des Feuers      |   🔥   | Deflects 2 fire spells                       | 2 charges, tracked individually   |
-| Stab der Magie       |   🪄   | Cast twice in a row                          | Passive, Druide & Zauberer only   |
+| Stab der Magie       |   🪄   | Cast twice in a row                          | Druide & Zauberer only            |
 | Schriftrolle: …      |   📜   | Heilzauber, Umwetter, Feuerkugel, Tapferkeit, Flammende Wut, Schlafzauber, Granithaut, Flaschengeist | 1 use each |
 | Magischer Wurfdolch  |   🗡️   | Thrown dagger, consumed on use               | Stackable (−/+), 📦 Sonstiges     |
 | Werkzeug             |   🔧   | Disarm a trap, consumed on use               | Stackable (−/+), 📦 Sonstiges     |

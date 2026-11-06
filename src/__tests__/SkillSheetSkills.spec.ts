@@ -23,6 +23,8 @@ describe('SkillSheetSkills', () => {
   it('disables a used skill until the end of the game resets it', async () => {
     const store = useSkillSheetStore()
     store.character = 'Berserker'
+    store.usedSpecialItems = ['ring-der-magie', 'heiltrank', 'schriftrolle-heilzauber']
+    store.itemChargesUsed = { 'ring-der-magie': 2, 'ring-des-feuers': 1 }
     const wrapper = mount(SkillSheetSkills)
 
     await wrapper.findAll('button')[0]!.trigger('click')
@@ -34,5 +36,7 @@ describe('SkillSheetSkills', () => {
     await wrapper.vm.$nextTick()
     expect(store.usedSkills).toEqual([])
     expect(wrapper.findAll('button')[0]!.attributes('disabled')).toBeUndefined()
+    expect(store.usedSpecialItems).toEqual(['heiltrank'])
+    expect(store.itemChargesUsed).toEqual({})
   })
 })
