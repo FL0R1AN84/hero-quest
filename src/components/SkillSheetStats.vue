@@ -8,17 +8,29 @@ import type { SpecialItemOption } from '@/data/skillSheetData'
 const store = useSkillSheetStore()
 const { character, attackDice, defenseDice, bodyStrength, intelligence, druideShapeShifted, equippedSpecialItems, usedSpecialItems, itemQuantities, itemChargesUsed } = storeToRefs(store)
 
+const isDruideInWolfForm = computed(() => character.value === 'Druide' && druideShapeShifted.value)
+const minimumAttackDice = computed(() => (isDruideInWolfForm.value ? 3 : 1))
+const minimumDefenseDice = computed(() => (isDruideInWolfForm.value ? 2 : 1))
+
 const effectiveAttackDice = computed({
-  get: () => (attackDice.value ?? 0) + store.weaponBonus + store.druideShapeBonus,
+  get: () =>
+    Math.max(
+      minimumAttackDice.value,
+      (attackDice.value ?? 0) + store.weaponBonus + (isDruideInWolfForm.value ? 1 : 0),
+    ),
   set: (v: number) => {
-    attackDice.value = v - store.weaponBonus - store.druideShapeBonus
+    attackDice.value = v - store.weaponBonus - (isDruideInWolfForm.value ? 1 : 0)
   },
 })
 
 const effectiveDefenseDice = computed({
-  get: () => (defenseDice.value ?? 0) + store.armorBonus + store.druideShapeBonus,
+  get: () =>
+    Math.max(
+      minimumDefenseDice.value,
+      (defenseDice.value ?? 0) + store.armorBonus + (isDruideInWolfForm.value ? 1 : 0),
+    ),
   set: (v: number) => {
-    defenseDice.value = v - store.armorBonus - store.druideShapeBonus
+    defenseDice.value = v - store.armorBonus - (isDruideInWolfForm.value ? 1 : 0)
   },
 })
 
@@ -38,11 +50,17 @@ const canToggleDruideShape = computed(
 )
 
 function changeAttack(delta: number) {
-  effectiveAttackDice.value = Math.min(6, Math.max(1, effectiveAttackDice.value + delta))
+  effectiveAttackDice.value = Math.min(
+    6,
+    Math.max(minimumAttackDice.value, effectiveAttackDice.value + delta),
+  )
 }
 
 function changeDefense(delta: number) {
-  effectiveDefenseDice.value = Math.min(6, Math.max(1, effectiveDefenseDice.value + delta))
+  effectiveDefenseDice.value = Math.min(
+    6,
+    Math.max(minimumDefenseDice.value, effectiveDefenseDice.value + delta),
+  )
 }
 
 function changeBodyStrength(delta: number) {
@@ -320,7 +338,11 @@ function createDeathFlash() {
     <!-- Angriffswürfel: green -->
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
-        <button :disabled="!character || effectiveAttackDice <= 1" class="adj-btn adj-minus" @click="changeAttack(-1)">
+        <button
+          :disabled="!character || effectiveAttackDice <= minimumAttackDice"
+          class="adj-btn adj-minus"
+          @click="changeAttack(-1)"
+        >
           −
         </button>
         <div class="diamond" style="border-color: var(--color-green)">
@@ -338,7 +360,7 @@ function createDeathFlash() {
     <div class="stat-cell">
       <div class="stat-diamond-wrap">
         <button
-          :disabled="!character || effectiveDefenseDice <= 1"
+          :disabled="!character || effectiveDefenseDice <= minimumDefenseDice"
           class="adj-btn adj-minus"
           @click="changeDefense(-1)"
         >
