@@ -59,7 +59,11 @@ function loadFromFile() {
       const data = JSON.parse(text)
       // Migration älterer Savegames: Werkzeug war früher eine Waffe, Borins Rüstung ein Gegenstand
       const weapons: string[] = [...(data.equippedWeapon ?? [])]
-      const armor: string[] = [...(data.equippedArmor ?? [])]
+      const armor: string[] = [
+        ...new Set<string>(
+          (data.equippedArmor ?? []).map((id: string) => (id === 'armpanzer' ? 'armschutz' : id)),
+        ),
+      ]
       const specials: string[] = [...(data.equippedSpecialItems ?? [])]
       const quantities: Record<string, number> = { ...(data.itemQuantities ?? {}) }
       const toolIdx = weapons.indexOf('werkzeug')
