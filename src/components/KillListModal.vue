@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 
@@ -12,6 +12,50 @@ const isAnimatingButton = ref(false)
 const recentKillIds = ref<Set<string>>(new Set())
 const badgeAnimationKey = ref(0)
 const expandedDay = ref<string | null>(null)
+let pressTimer: ReturnType<typeof setTimeout> | undefined
+let isPressing = false
+let longPressTriggered = false
+
+function startButtonPress() {
+  if (pressTimer !== undefined) {
+    clearTimeout(pressTimer)
+  }
+  isPressing = true
+  longPressTriggered = false
+  pressTimer = setTimeout(() => {
+    if (!isPressing) return
+    longPressTriggered = true
+    toggleModal()
+  }, 500)
+}
+
+function finishButtonPress() {
+  if (!isPressing) return
+  isPressing = false
+  if (pressTimer !== undefined) {
+    clearTimeout(pressTimer)
+    pressTimer = undefined
+  }
+  if (!longPressTriggered) {
+    addKill()
+  }
+  longPressTriggered = false
+}
+
+function cancelButtonPress() {
+  isPressing = false
+  if (pressTimer !== undefined) {
+    clearTimeout(pressTimer)
+    pressTimer = undefined
+  }
+  longPressTriggered = false
+}
+
+function handleButtonClick(event: MouseEvent) {
+  if (event.detail === 0) {
+    addKill()
+  }
+}
 
 function toggleModal() {
   isOpen.value = !isOpen.value
@@ -50,6 +94,8 @@ function addKill() {
     }, 1000)
   }
 }
+
+onUnmounted(cancelButtonPress)
 
 function isRecentKill(killId: string): boolean {
   return recentKillIds.value.has(killId)
@@ -105,7 +151,15 @@ const killsForDisplay = computed(() => {
 <template>
   <div class="kill-list-container">
     <!-- Toggle Button -->
-    <button :class="{ active: isOpen }" class="kill-list-btn" title="Todesliste" @click="toggleModal">
+    <button
+      :class="{ active: isOpen }"
+      class="kill-list-btn"
+      title="Kurz drücken: Kill zählen, lange drücken: Todesliste öffnen"
+      @click="handleButtonClick"
+      @pointercancel="cancelButtonPress"
+      @pointerdown="startButtonPress"
+      @pointerup="finishButtonPress"
+    >
       <span class="skull-icon">💀</span>
       <span v-if="totalKills > 0" :key="badgeAnimationKey" class="kill-badge">{{ totalKills }}</span>
     </button>
