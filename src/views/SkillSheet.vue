@@ -65,7 +65,7 @@ function loadFromFile() {
         ),
       ]
       const specials: string[] = [...(data.equippedSpecialItems ?? [])]
-      const quantities: Record<string, number> = { ...(data.itemQuantities ?? {}) }
+      const quantities: Record<string, number> = { ...data.itemQuantities }
       const toolIdx = weapons.indexOf('werkzeug')
       if (toolIdx >= 0) {
         weapons.splice(toolIdx, 1)
@@ -202,14 +202,14 @@ function loadFromFile() {
 .btn-load {
   flex: 1;
   font-family: var(--font-fantasy), serif;
-  font-size: 1rem;
+  font-size: 0.875rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   border: 2px solid var(--hq-card-border);
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 0.75rem;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  min-height: 3rem;
+  min-height: 2.75rem;
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -248,15 +248,15 @@ function loadFromFile() {
 .btn-end-game {
   flex: 1;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   border: 2px solid rgba(180, 60, 60, 0.5);
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   background-color: rgba(180, 60, 60, 0.08);
   color: #c06060;
-  min-height: 3rem;
+  min-height: 3.25rem;
   transition:
     background-color 0.2s,
     color 0.2s,
