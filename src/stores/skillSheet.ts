@@ -2,6 +2,17 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { weaponOptions, armorOptions, specialItemOptions, defaultStats } from '@/data/skillSheetData'
 
+const reusableMagicItemIds = new Set(
+  specialItemOptions
+    .filter(
+      (item) =>
+        ['fire-shield', 'magic-ring', 'scroll'].includes(item.kind ?? '') ||
+        item.id === 'stab-der-magie' ||
+        item.id === 'ring-der-rueckkehr',
+    )
+    .map((item) => item.id),
+)
+
 export interface Kill {
   id: string
   matchDay: string  // ISO date string (YYYY-MM-DD)
@@ -119,6 +130,19 @@ export const useSkillSheetStore = defineStore(
       intelligence.value = stats.intelligence
       druideShapeShifted.value = false
       usedSkills.value = []
+      hiredMercenaries.value = []
+
+      for (let index = usedSpecialItems.value.length - 1; index >= 0; index--) {
+        if (reusableMagicItemIds.has(usedSpecialItems.value[index]!)) {
+          usedSpecialItems.value.splice(index, 1)
+        }
+      }
+
+      const charges = { ...itemChargesUsed.value }
+      for (const id of reusableMagicItemIds) {
+        delete charges[id]
+      }
+      itemChargesUsed.value = charges
     }
 
     function toggleDruideShape() {

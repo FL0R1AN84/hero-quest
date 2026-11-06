@@ -31,4 +31,38 @@ describe('SkillSheetMercenaries', () => {
     await wrapper.find('.equip-item-remove').trigger('click')
     expect(store.hiredMercenaries).toEqual([])
   })
+
+  it('dismisses all mercenaries at the end of the game while keeping equipment and expansions', async () => {
+    const store = useSkillSheetStore()
+    store.character = 'Druide'
+    store.toggleExpansion('der-eisige-schrecken')
+    store.hiredMercenaries = ['spaeherin', 'armbrustschuetze']
+    store.equippedWeapon = ['dolch']
+    store.equippedArmor = ['helm']
+    store.equippedSpecialItems = ['ring-der-magie']
+    const wrapper = mount(SkillSheetMercenaries)
+    expect(wrapper.findAll('.equip-item--removable')).toHaveLength(2)
+
+    store.resetStats()
+    await wrapper.vm.$nextTick()
+
+    expect(store.hiredMercenaries).toEqual([])
+    expect(wrapper.findAll('.equip-item--removable')).toHaveLength(0)
+    expect(wrapper.findAll('option')).toHaveLength(5)
+    expect(store.enabledExpansions).toEqual(['der-eisige-schrecken'])
+    expect(store.equippedWeapon).toEqual(['dolch'])
+    expect(store.equippedArmor).toEqual(['helm'])
+    expect(store.equippedSpecialItems).toEqual(['ring-der-magie'])
+  })
+
+  it('dismisses mercenaries even if their expansion was disabled', () => {
+    const store = useSkillSheetStore()
+    store.character = 'Druide'
+    store.hiredMercenaries = ['spaeherin']
+
+    store.resetStats()
+
+    expect(store.hiredMercenaries).toEqual([])
+    expect(store.enabledExpansions).toEqual([])
+  })
 })
