@@ -29,7 +29,8 @@ onMounted(() => {
           <h3 class="whatsnew-title">Update installiert</h3>
           <p class="whatsnew-message">
             HeroQuest wurde aktualisiert.<br />
-            Bisherige Version: <strong>{{ previousVersion }}</strong><br />
+            Bisherige Version: <strong>{{ previousVersion }}</strong
+            ><br />
             Neue Version: <strong>{{ version }}</strong>
           </p>
           <button class="btn-close" @click="close">✓ Verstanden</button>
@@ -43,55 +44,55 @@ onMounted(() => {
 .whatsnew-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--hq-overlay);
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  z-index: 10000;
-  padding: 1rem;
+  z-index: var(--z-whatsnew-overlay);
+  padding: var(--space-4);
 }
 
 .whatsnew-sheet {
   background: var(--hq-card-bg);
   border: 2px solid var(--hq-input-border);
-  border-radius: 8px;
-  padding: 1.5rem;
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   width: 100%;
-  max-width: 400px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: var(--size-whatsnew-max);
+  box-shadow: 0 8px 32px color-mix(in srgb, var(--color-black) 30%, transparent);
 }
 
 .whatsnew-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
+  font-size: var(--font-size-dialog);
+  margin-bottom: var(--space-2);
   text-align: center;
 }
 
 .whatsnew-title {
   font-family: var(--font-fantasy), serif;
-  font-size: 1.1rem;
+  font-size: var(--font-size-dialog-title);
   font-weight: bold;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 var(--space-2) 0;
   color: var(--hq-input-text);
   text-align: center;
 }
 
 .whatsnew-message {
   font-family: var(--font-body), serif;
-  font-size: 0.95rem;
+  font-size: var(--font-size-dialog-copy);
   color: var(--hq-hint);
-  margin: 0 0 1.25rem 0;
+  margin: 0 0 var(--space-5) 0;
   text-align: center;
   line-height: 1.6;
 }
 
 .btn-close {
   width: 100%;
-  padding: 0.75rem 1rem;
-  background: linear-gradient(135deg, var(--color-green) 0%, #5fdd7b 100%);
-  color: white;
+  padding: var(--space-3) var(--space-4);
+  background: linear-gradient(135deg, var(--color-green) 0%, var(--color-success-bright) 100%);
+  color: var(--color-white);
   border: none;
-  border-radius: 6px;
+  border-radius: var(--radius-md);
   font-family: var(--font-fantasy), serif;
   font-weight: bold;
   cursor: pointer;

@@ -6,7 +6,18 @@ import { defaultStats, specialItemOptions } from '@/data/skillSheetData'
 import type { SpecialItemOption } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
-const { character, attackDice, defenseDice, bodyStrength, intelligence, druideShapeShifted, equippedSpecialItems, usedSpecialItems, itemQuantities, itemChargesUsed } = storeToRefs(store)
+const {
+  character,
+  attackDice,
+  defenseDice,
+  bodyStrength,
+  intelligence,
+  druideShapeShifted,
+  equippedSpecialItems,
+  usedSpecialItems,
+  itemQuantities,
+  itemChargesUsed,
+} = storeToRefs(store)
 
 const isDruideInWolfForm = computed(() => character.value === 'Druide' && druideShapeShifted.value)
 const minimumAttackDice = computed(() => (isDruideInWolfForm.value ? 3 : 1))
@@ -14,10 +25,7 @@ const minimumDefenseDice = computed(() => (isDruideInWolfForm.value ? 2 : 1))
 
 const effectiveAttackDice = computed({
   get: () =>
-    Math.max(
-      minimumAttackDice.value,
-      (attackDice.value ?? 0) + store.weaponBonus + (isDruideInWolfForm.value ? 1 : 0),
-    ),
+    Math.max(minimumAttackDice.value, (attackDice.value ?? 0) + store.weaponBonus + (isDruideInWolfForm.value ? 1 : 0)),
   set: (v: number) => {
     attackDice.value = v - store.weaponBonus - (isDruideInWolfForm.value ? 1 : 0)
   },
@@ -50,17 +58,11 @@ const canToggleDruideShape = computed(
 )
 
 function changeAttack(delta: number) {
-  effectiveAttackDice.value = Math.min(
-    6,
-    Math.max(minimumAttackDice.value, effectiveAttackDice.value + delta),
-  )
+  effectiveAttackDice.value = Math.min(6, Math.max(minimumAttackDice.value, effectiveAttackDice.value + delta))
 }
 
 function changeDefense(delta: number) {
-  effectiveDefenseDice.value = Math.min(
-    6,
-    Math.max(minimumDefenseDice.value, effectiveDefenseDice.value + delta),
-  )
+  effectiveDefenseDice.value = Math.min(6, Math.max(minimumDefenseDice.value, effectiveDefenseDice.value + delta))
 }
 
 function changeBodyStrength(delta: number) {
@@ -224,7 +226,7 @@ function ensureDeathAnimationStyles() {
   }
   @keyframes hq-death {
     0% { transform: translateY(0) scale(1); filter: none; }
-    30% { transform: translateY(-8px) rotate(-3deg) scale(1.03); filter: drop-shadow(0 0 24px #b00) saturate(1.2); }
+    30% { transform: translateY(-8px) rotate(-3deg) scale(1.03); filter: drop-shadow(0 0 24px var(--color-death-shadow)) saturate(1.2); }
     60% { transform: translateY(8px) rotate(3deg) scale(0.98); filter: grayscale(1) blur(0.6px); }
     100% { transform: scale(1); filter: grayscale(1) opacity(0.6); }
   }
@@ -235,12 +237,12 @@ function ensureDeathAnimationStyles() {
     align-items: center;
     justify-content: center;
     z-index: 99999;
-    background: radial-gradient(circle at center, rgba(255,240,240,0.95), rgba(0,0,0,0.7));
+    background: radial-gradient(circle at center, color-mix(in srgb, var(--color-death-overlay) 95%, transparent), color-mix(in srgb, var(--color-black) 70%, transparent));
     animation: hq-flash 1.2s ease both;
   }
   .hq-death-flash .skull {
     font-size: 6.5rem;
-    filter: drop-shadow(0 0 32px #b00);
+    filter: drop-shadow(0 0 32px var(--color-death-shadow));
     transform: rotate(-6deg);
   }
   @keyframes hq-flash {
@@ -262,7 +264,6 @@ function createDeathFlash() {
   el.innerHTML = `<div class="skull">💀</div>`
   return el
 }
-
 </script>
 
 <template>
@@ -273,7 +274,10 @@ function createDeathFlash() {
       <div class="death-text">Der Held ist gefallen!</div>
 
       <!-- Healing potions selection -->
-      <div v-if="availableHealPotions.length > 0 && !selectedHealPotion && potionDialogType === null" class="heal-potions-box">
+      <div
+        v-if="availableHealPotions.length > 0 && !selectedHealPotion && potionDialogType === null"
+        class="heal-potions-box"
+      >
         <p class="heal-label">Verfügbare Tränke:</p>
         <div class="potions-grid">
           <button
@@ -416,18 +420,18 @@ function createDeathFlash() {
     </div>
   </div>
 
-   <!-- Druide Gestalt-Wechsel Button -->
-   <div v-if="character === 'Druide'" class="druide-shape-section">
-     <button
-       :disabled="!canToggleDruideShape"
-       :class="{ 'shape-active': druideShapeShifted }"
-       class="druide-shape-btn"
-       @click="store.toggleDruideShape"
-     >
-       <span class="shape-icon">🐺</span>
-       <span class="shape-text">{{ druideShapeShifted ? 'Gestalt: Aktiviert' : 'Gestalt wechseln' }}</span>
-      </button>
-    </div>
+  <!-- Druide Gestalt-Wechsel Button -->
+  <div v-if="character === 'Druide'" class="druide-shape-section">
+    <button
+      :disabled="!canToggleDruideShape"
+      :class="{ 'shape-active': druideShapeShifted }"
+      class="druide-shape-btn"
+      @click="store.toggleDruideShape"
+    >
+      <span class="shape-icon">🐺</span>
+      <span class="shape-text">{{ druideShapeShifted ? 'Gestalt: Aktiviert' : 'Gestalt wechseln' }}</span>
+    </button>
+  </div>
 </template>
 
 <style scoped>
@@ -435,9 +439,9 @@ function createDeathFlash() {
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem 1rem;
-  padding-block-start: 2rem;
-  padding-block-end: 1rem;
+  gap: var(--space-4);
+  padding-block-start: var(--space-8);
+  padding-block-end: var(--space-4);
   position: relative;
   transition: filter 0.5s;
 }
@@ -449,7 +453,7 @@ function createDeathFlash() {
 @media (min-width: 480px) {
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: var(--space-4);
   }
 }
 
@@ -457,13 +461,13 @@ function createDeathFlash() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .stat-diamond-wrap {
   position: relative;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: var(--size-stat-diamond);
+  height: var(--size-stat-diamond);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -472,13 +476,13 @@ function createDeathFlash() {
 /* +/- buttons – positioned at the corners so they don't affect layout width */
 .adj-btn {
   position: absolute;
-  width: 1.5rem;
-  height: 1.5rem;
-  border-radius: 50%;
-  border: 2px solid var(--hq-label);
-  background: var(--hq-card-bg-dark, #1a1a1a);
+  width: var(--size-stat-control);
+  height: var(--size-stat-control);
+  border-radius: var(--radius-circle);
+  border: var(--border-width-default) solid var(--hq-label);
+  background: var(--hq-card-bg-dark);
   color: var(--hq-label);
-  font-size: 0.95rem;
+  font-size: var(--font-size-adjustment);
   line-height: 1;
   cursor: pointer;
   display: flex;
@@ -512,16 +516,16 @@ function createDeathFlash() {
 }
 
 .diamond {
-  width: 4.5rem;
-  height: 4.5rem;
-  border-width: 2px;
+  width: var(--size-stat-diamond);
+  height: var(--size-stat-diamond);
+  border-width: var(--border-width-default);
   border-style: solid;
   background-color: var(--hq-card-bg-dark);
   display: flex;
   align-items: center;
   justify-content: center;
   transform: rotate(45deg);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 2px 4px color-mix(in srgb, var(--color-black) 20%, transparent);
   transition:
     background-color 0.4s,
     border-color 0.4s;
@@ -529,30 +533,30 @@ function createDeathFlash() {
 }
 
 .diamond-dead {
-  border-color: #666 !important;
-  background-color: #1a1a1a;
+  border-color: var(--color-gray-dark) !important;
+  background-color: var(--color-disabled-bg);
   animation: pulse-dead 1.5s ease-in-out infinite;
 }
 
 .diamond-input {
   transform: rotate(-45deg);
   background: transparent;
-  width: 2.75rem;
+  width: var(--size-diamond-input);
   text-align: center;
   font-family: var(--font-fantasy), serif;
-  font-size: 1.375rem;
+  font-size: var(--font-size-stat-value);
   color: var(--hq-input-text);
   outline: none;
   border: none;
   transition: color 0.4s;
-  padding: 0.25rem 0;
+  padding: var(--space-1) 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .text-dead {
-  color: #555 !important;
+  color: var(--color-gray-darker) !important;
 }
 
 .diamond-input::placeholder {
@@ -570,11 +574,11 @@ function createDeathFlash() {
 
 .stat-label {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.6rem;
+  font-size: var(--font-size-tiny);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   text-align: center;
-  line-height: 1.4;
+  line-height: var(--line-height-text);
   color: var(--hq-label);
   transition: color 0.4s;
 }
@@ -583,11 +587,11 @@ function createDeathFlash() {
 .death-overlay {
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: var(--z-death-overlay);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.78);
+  background: var(--hq-overlay-strong);
   backdrop-filter: blur(4px);
   animation: overlay-in 0.4s ease both;
 }
@@ -605,27 +609,27 @@ function createDeathFlash() {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   animation: rise 0.6s ease-out both;
   width: 100%;
-  max-width: 28rem;
-  padding-inline: 1.5rem;
+  max-width: var(--size-modal-max);
+  padding-inline: var(--space-6);
   box-sizing: border-box;
 }
 
 .death-skull {
   font-size: 6rem;
-  filter: drop-shadow(0 0 24px #b00);
+  filter: drop-shadow(0 0 24px var(--color-death-shadow));
   animation: shake 0.5s ease-in-out 0.6s both;
 }
 
 .death-text {
   font-family: var(--font-fantasy), serif;
-  font-size: 2rem;
-  color: #cc2222;
+  font-size: var(--font-size-2xl);
+  color: var(--color-death);
   text-shadow:
-    0 0 16px #ff0000aa,
-    0 2px 4px #000;
+    0 0 16px color-mix(in srgb, var(--color-death-glow) 67%, transparent),
+    0 2px 4px var(--color-black);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
@@ -634,15 +638,15 @@ function createDeathFlash() {
 
 /* ── Revive box ───────────────────────────────────────── */
 .revive-box {
-  margin-top: 1rem;
+  margin-top: var(--space-4);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 0.75rem;
-  padding: 1rem 1.5rem;
+  gap: var(--space-3);
+  background: color-mix(in srgb, var(--color-white) 5%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-white) 12%, transparent);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4) var(--space-6);
   backdrop-filter: blur(2px);
   width: 100%;
   box-sizing: border-box;
@@ -651,7 +655,7 @@ function createDeathFlash() {
 .revive-label {
   font-family: var(--font-fantasy), serif;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, var(--color-white) 70%, transparent);
   text-align: center;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -667,9 +671,9 @@ function createDeathFlash() {
   width: 2rem;
   height: 2rem;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  border: 2px solid color-mix(in srgb, var(--color-white) 50%, transparent);
   background: transparent;
-  color: #fff;
+  color: var(--color-white);
   font-size: 1.2rem;
   cursor: pointer;
   display: flex;
@@ -679,7 +683,7 @@ function createDeathFlash() {
 }
 
 .revive-adj:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: color-mix(in srgb, var(--color-white) 15%, transparent);
 }
 
 .revive-adj:disabled {
@@ -690,7 +694,7 @@ function createDeathFlash() {
 .revive-value {
   font-family: var(--font-fantasy), serif;
   font-size: 2rem;
-  color: #fff;
+  color: var(--color-white);
   min-width: 2rem;
   text-align: center;
 }
@@ -706,9 +710,9 @@ function createDeathFlash() {
   flex: 1;
   padding: 0.55rem 1rem;
   border-radius: 2rem;
-  border: 2px solid #4caf50;
-  background: rgba(76, 175, 80, 0.15);
-  color: #88dd8a;
+  border: 2px solid var(--color-success);
+  background: color-mix(in srgb, var(--color-success) 15%, transparent);
+  color: var(--color-success-light);
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -720,18 +724,18 @@ function createDeathFlash() {
 }
 
 .revive-btn:hover {
-  background-color: #4caf50;
-  color: #000;
-  box-shadow: 0 0 16px #4caf5088;
+  background-color: var(--color-success);
+  color: var(--color-black);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--color-success) 53%, transparent);
 }
 
 .skip-btn {
   flex: 1;
   padding: 0.55rem 1rem;
   border-radius: 2rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  border: 2px solid color-mix(in srgb, var(--color-white) 30%, transparent);
+  background: color-mix(in srgb, var(--color-white) 5%, transparent);
+  color: color-mix(in srgb, var(--color-white) 60%, transparent);
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -743,9 +747,9 @@ function createDeathFlash() {
 }
 
 .skip-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.5);
+  background-color: color-mix(in srgb, var(--color-white) 10%, transparent);
+  color: color-mix(in srgb, var(--color-white) 80%, transparent);
+  border-color: color-mix(in srgb, var(--color-white) 50%, transparent);
 }
 
 /* Sterben-Button (rot, Totenkopf) */
@@ -753,9 +757,9 @@ function createDeathFlash() {
   flex: 1;
   padding: 0.55rem 1rem;
   border-radius: 2rem;
-  border: 2px solid rgba(180, 60, 60, 0.8);
-  background: rgba(180, 60, 60, 0.14);
-  color: #ffdddd;
+  border: 2px solid color-mix(in srgb, var(--color-danger) 80%, transparent);
+  background: color-mix(in srgb, var(--color-danger) 14%, transparent);
+  color: var(--color-danger-pale);
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   letter-spacing: 0.05em;
@@ -767,10 +771,10 @@ function createDeathFlash() {
 }
 
 .die-btn:hover {
-  background-color: rgba(180, 60, 60, 0.28);
-  color: #fff;
-  border-color: rgba(200, 50, 50, 1);
-  box-shadow: 0 0 12px rgba(200,50,50,0.35);
+  background-color: color-mix(in srgb, var(--color-danger) 28%, transparent);
+  color: var(--color-white);
+  border-color: var(--color-danger-strong);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-danger-strong) 35%, transparent);
 }
 
 /* ── Healing potions selection ──────────────────────────── */
@@ -779,8 +783,8 @@ function createDeathFlash() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background: rgba(76, 175, 80, 0.08);
-  border: 1px solid rgba(76, 175, 80, 0.25);
+  background: color-mix(in srgb, var(--color-success) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success) 25%, transparent);
   border-radius: 0.75rem;
   padding: 0.75rem;
   width: 100%;
@@ -790,7 +794,7 @@ function createDeathFlash() {
 .heal-label {
   font-family: var(--font-fantasy), serif;
   font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.65);
+  color: color-mix(in srgb, var(--color-white) 65%, transparent);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin: 0;
@@ -810,9 +814,9 @@ function createDeathFlash() {
   gap: 0.35rem;
   padding: 0.5rem;
   border-radius: 0.4rem;
-  border: 1px solid rgba(76, 175, 80, 0.4);
-  background: rgba(76, 175, 80, 0.1);
-  color: rgba(255, 255, 255, 0.75);
+  border: 1px solid color-mix(in srgb, var(--color-success) 40%, transparent);
+  background: color-mix(in srgb, var(--color-success) 10%, transparent);
+  color: color-mix(in srgb, var(--color-white) 75%, transparent);
   font-family: var(--font-fantasy), serif;
   font-size: 0.65rem;
   cursor: pointer;
@@ -823,9 +827,9 @@ function createDeathFlash() {
 }
 
 .potion-btn:hover:not(:disabled) {
-  background-color: rgba(76, 175, 80, 0.25);
-  border-color: rgba(76, 175, 80, 0.7);
-  color: #88dd8a;
+  background-color: color-mix(in srgb, var(--color-success) 25%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 70%, transparent);
+  color: var(--color-success-light);
 }
 
 .potion-btn:disabled {
@@ -847,7 +851,7 @@ function createDeathFlash() {
 
 .potion-amount {
   font-size: 0.6rem;
-  color: rgba(255, 255, 255, 0.5);
+  color: color-mix(in srgb, var(--color-white) 50%, transparent);
   font-weight: 600;
 }
 
@@ -857,8 +861,8 @@ function createDeathFlash() {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  background: rgba(100, 150, 255, 0.08);
-  border: 1px solid rgba(100, 150, 255, 0.25);
+  background: color-mix(in srgb, var(--color-blue-highlight) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-blue-highlight) 25%, transparent);
   border-radius: 0.75rem;
   padding: 0.75rem;
   width: 100%;
@@ -868,7 +872,7 @@ function createDeathFlash() {
 .roll-label {
   font-family: var(--font-fantasy), serif;
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: color-mix(in srgb, var(--color-white) 70%, transparent);
   text-align: center;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -884,29 +888,28 @@ function createDeathFlash() {
 .roll-btn {
   width: 100%;
   aspect-ratio: 1;
-  border: 1px solid rgba(100, 150, 255, 0.4);
-  background: rgba(100, 150, 255, 0.05);
-  color: rgba(255, 255, 255, 0.6);
+  border: 1px solid color-mix(in srgb, var(--color-blue-highlight) 40%, transparent);
+  background: color-mix(in srgb, var(--color-blue-highlight) 5%, transparent);
+  color: color-mix(in srgb, var(--color-white) 60%, transparent);
   border-radius: 0.3rem;
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
-  transition:
-    all 0.2s;
+  transition: all 0.2s;
 }
 
 .roll-btn:hover {
-  background: rgba(100, 150, 255, 0.15);
-  border-color: rgba(100, 150, 255, 0.7);
-  color: rgba(255, 255, 255, 0.85);
+  background: color-mix(in srgb, var(--color-blue-highlight) 15%, transparent);
+  border-color: color-mix(in srgb, var(--color-blue-highlight) 70%, transparent);
+  color: color-mix(in srgb, var(--color-white) 85%, transparent);
 }
 
 .roll-btn-active {
-  background: rgba(100, 150, 255, 0.35) !important;
-  border-color: #6496ff !important;
-  color: #fff !important;
-  box-shadow: 0 0 8px rgba(100, 150, 255, 0.4);
+  background: color-mix(in srgb, var(--color-blue-highlight) 35%, transparent) !important;
+  border-color: var(--color-blue-highlight) !important;
+  color: var(--color-white) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-blue-highlight) 40%, transparent);
 }
 
 .roll-actions {
@@ -919,9 +922,9 @@ function createDeathFlash() {
   flex: 1;
   padding: 0.5rem;
   border-radius: 0.3rem;
-  border: 1px solid rgba(76, 175, 80, 0.5);
-  background: rgba(76, 175, 80, 0.2);
-  color: #88dd8a;
+  border: 1px solid color-mix(in srgb, var(--color-success) 50%, transparent);
+  background: color-mix(in srgb, var(--color-success) 20%, transparent);
+  color: var(--color-success-light);
   font-family: var(--font-fantasy), serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -932,17 +935,17 @@ function createDeathFlash() {
 }
 
 .btn-confirm:hover {
-  background: rgba(76, 175, 80, 0.35);
-  border-color: rgba(76, 175, 80, 0.8);
+  background: color-mix(in srgb, var(--color-success) 35%, transparent);
+  border-color: color-mix(in srgb, var(--color-success) 80%, transparent);
 }
 
 .btn-cancel {
   flex: 1;
   padding: 0.5rem;
   border-radius: 0.3rem;
-  border: 1px solid rgba(255, 100, 100, 0.4);
-  background: rgba(255, 100, 100, 0.08);
-  color: rgba(255, 150, 150, 0.8);
+  border: 1px solid color-mix(in srgb, var(--color-danger-strong) 40%, transparent);
+  background: color-mix(in srgb, var(--color-danger-strong) 8%, transparent);
+  color: color-mix(in srgb, var(--color-danger-soft) 80%, transparent);
   font-family: var(--font-fantasy), serif;
   font-size: 0.8rem;
   font-weight: 600;
@@ -954,8 +957,8 @@ function createDeathFlash() {
 }
 
 .btn-cancel:hover {
-  background: rgba(255, 100, 100, 0.15);
-  border-color: rgba(255, 100, 100, 0.7);
+  background: color-mix(in srgb, var(--color-danger-strong) 15%, transparent);
+  border-color: color-mix(in srgb, var(--color-danger-strong) 70%, transparent);
 }
 
 /* Transitions – handled via overlay-in keyframe, no Transition component needed */
@@ -993,12 +996,12 @@ function createDeathFlash() {
 @keyframes pulse-dead {
   0%,
   100% {
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 2px 4px color-mix(in srgb, var(--color-black) 20%, transparent);
   }
   50% {
     box-shadow:
-      inset 0 2px 4px rgba(0, 0, 0, 0.2),
-      0 0 10px 2px #b00;
+      inset 0 2px 4px color-mix(in srgb, var(--color-black) 20%, transparent),
+      0 0 10px 2px var(--color-death-shadow);
   }
 }
 
@@ -1009,16 +1012,16 @@ function createDeathFlash() {
   gap: 0.75rem;
   margin-top: 1.5rem;
   padding: 1rem;
-  background-color: rgba(34, 139, 34, 0.08);
-  border: 1px solid rgba(34, 139, 34, 0.3);
+  background-color: color-mix(in srgb, var(--color-success-strong) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-success-strong) 30%, transparent);
   border-radius: 4px;
   transition: all 0.3s;
 }
 
 .druide-shape-section:has(.shape-active) {
-  background-color: rgba(34, 139, 34, 0.15);
-  border-color: rgba(34, 139, 34, 0.6);
-  box-shadow: 0 0 12px rgba(34, 139, 34, 0.2);
+  background-color: color-mix(in srgb, var(--color-success-strong) 15%, transparent);
+  border-color: color-mix(in srgb, var(--color-success-strong) 60%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-success-strong) 20%, transparent);
 }
 
 .druide-shape-btn {
@@ -1026,10 +1029,10 @@ function createDeathFlash() {
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  background-color: rgba(34, 139, 34, 0.1);
-  border: 2px solid rgba(34, 139, 34, 0.4);
+  background-color: color-mix(in srgb, var(--color-success-strong) 10%, transparent);
+  border: 2px solid color-mix(in srgb, var(--color-success-strong) 40%, transparent);
   border-radius: 4px;
-  color: #228b22;
+  color: var(--color-success-strong);
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   font-weight: 600;
@@ -1044,24 +1047,24 @@ function createDeathFlash() {
 }
 
 .druide-shape-btn:hover {
-  background-color: rgba(34, 139, 34, 0.2);
-  border-color: rgba(34, 139, 34, 0.7);
-  box-shadow: 0 0 8px rgba(34, 139, 34, 0.3);
+  background-color: color-mix(in srgb, var(--color-success-strong) 20%, transparent);
+  border-color: color-mix(in srgb, var(--color-success-strong) 70%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-success-strong) 30%, transparent);
 }
 
 .druide-shape-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
-  color: #888;
-  border-color: rgba(34, 139, 34, 0.2);
-  background-color: rgba(34, 139, 34, 0.04);
+  color: var(--color-gray);
+  border-color: color-mix(in srgb, var(--color-success-strong) 20%, transparent);
+  background-color: color-mix(in srgb, var(--color-success-strong) 4%, transparent);
 }
 
 .druide-shape-btn.shape-active {
-  background-color: rgba(34, 139, 34, 0.25);
-  border-color: #228b22;
-  color: #1a6b1a;
-  box-shadow: 0 0 10px rgba(34, 139, 34, 0.4);
+  background-color: color-mix(in srgb, var(--color-success-strong) 25%, transparent);
+  border-color: var(--color-success-strong);
+  color: var(--color-success-strong-text);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-success-strong) 40%, transparent);
 }
 
 .shape-icon {

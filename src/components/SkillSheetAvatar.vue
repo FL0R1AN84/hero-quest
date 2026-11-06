@@ -29,15 +29,15 @@ const { character } = storeToRefs(useSkillSheetStore())
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.25rem 0;
+  gap: var(--space-inline);
+  padding: var(--space-1) 0;
 }
 
 .avatar-frame {
-  width: 5.5rem;
-  height: 5.5rem;
-  border-radius: 50%;
-  border: 3px solid;
+  width: var(--size-avatar);
+  height: var(--size-avatar);
+  border-radius: var(--radius-circle);
+  border: var(--border-width-heavy) solid;
   background-color: var(--hq-card-bg-dark);
   display: flex;
   align-items: center;
@@ -57,23 +57,22 @@ const { character } = storeToRefs(useSkillSheetStore())
 }
 
 .avatar-symbol {
-  font-size: 2.25rem;
-  line-height: 1;
+  font-size: var(--font-size-avatar-symbol);
+  line-height: var(--line-height-tight);
   transition: color 0.3s;
 }
 
 .avatar-symbol--empty {
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   color: var(--hq-input-placeholder);
 }
 
 .avatar-name {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small-plus);
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--hq-label);
   transition: color 0.4s;
 }
 </style>
-

@@ -83,7 +83,7 @@ function dismiss(id: string) {
 .equip-block {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   padding-block: 0.25rem;
   margin-top: 1.5rem;
   margin-bottom: 1.5rem;
@@ -93,23 +93,23 @@ function dismiss(id: string) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .equip-block-label {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.68rem;
+  font-size: var(--font-size-label);
   letter-spacing: 0.1em;
   color: var(--hq-label);
 }
 
 .equip-badge {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.65rem;
+  font-size: var(--font-size-caption);
   letter-spacing: 0.04em;
-  padding: 0.1rem 0.5rem;
+  padding: 0.1rem var(--space-2);
   border: 1px solid;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 }
 
 .equip-badge--inactive {
@@ -126,7 +126,7 @@ function dismiss(id: string) {
 .equip-list {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-compact);
 }
 
 .equip-item {
@@ -141,14 +141,14 @@ function dismiss(id: string) {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.75rem;
+  padding: var(--space-3);
   border-style: dashed;
 }
 
 .equip-item-placeholder {
   font-family: var(--font-body), serif;
   font-style: italic;
-  font-size: 0.7rem;
+  font-size: var(--font-size-label);
   color: var(--hq-input-placeholder);
   text-align: center;
 }
@@ -157,9 +157,9 @@ function dismiss(id: string) {
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
-  padding: 0.55rem 2.25rem 0.55rem 0.65rem;
-  min-height: 2.75rem;
+  gap: var(--space-inline);
+  padding: var(--space-item-block) var(--space-remove-reserve) var(--space-item-block) var(--space-card);
+  min-height: var(--size-button-min);
 }
 
 .equip-item--selected {
@@ -191,7 +191,7 @@ function dismiss(id: string) {
 .equip-item-note {
   font-family: var(--font-body), serif;
   font-style: italic;
-  font-size: 0.65rem;
+  font-size: var(--font-size-caption);
   color: var(--hq-hint);
   line-height: 1.3;
 }
@@ -199,22 +199,22 @@ function dismiss(id: string) {
 .merc-stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: var(--space-inline);
   font-family: var(--font-body), serif;
-  font-size: 0.75rem;
+  font-size: var(--font-size-small);
   color: var(--hq-subtitle);
 }
 
 .equip-item-remove {
   position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
-  width: 1.75rem;
-  height: 1.75rem;
+  top: var(--space-remove-inset);
+  right: var(--space-remove-inset);
+  width: var(--size-remove-control);
+  height: var(--size-remove-control);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: var(--font-size-small-plus);
   line-height: 1;
   color: var(--hq-hint);
   background: transparent;
@@ -233,7 +233,7 @@ function dismiss(id: string) {
 
 .equip-add-row {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-2);
   align-items: center;
   padding-top: 0.35rem;
 }

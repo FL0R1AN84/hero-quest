@@ -4,79 +4,203 @@
   --color-green: #52b422;
   --color-blue: #0ba0ab;
   --color-red: #f67449;
+  --color-white: #fff;
+  --color-black: #000;
   --color-dark: #242623;
   --color-parchment: #f5e6c8;
   --color-parchment-dark: #e8d5a3;
   --color-ink: #2c1a0e;
   --color-gold: #c9a84c;
+  --color-success: #4caf50;
+  --color-success-strong: #228b22;
+  --color-success-light: #88dd8a;
+  --color-success-bright: #5fdd7b;
+  --color-danger: #b43c3c;
+  --color-danger-strong: #c83232;
+  --color-danger-light: #c06060;
+  --color-danger-lighter: #e07070;
+  --color-danger-pale: #ffdddd;
+  --color-danger-soft: #ff9696;
+  --color-danger-glow: #ff8566;
+  --color-danger-hover: #ff6b5a;
+  --color-death: #cc2222;
+  --color-death-shadow: #b00;
+  --color-death-glow: #f00;
+  --color-death-overlay: #fff0f0;
+  --color-blue-highlight: #6496ff;
+  --color-gray: #888;
+  --color-gray-dark: #666;
+  --color-gray-darker: #555;
+  --color-charcoal: #2a2a2a;
+  --color-disabled-bg: #1a1a1a;
+  --color-success-strong-text: #1a6b1a;
+  --color-stone: #bfaf96;
+  --color-gold-hover: #a07830;
+  --color-night: #1a1a18;
+  --color-parchment-night: #2e2416;
+  --color-parchment-shadow: #231b0f;
+  --color-gold-muted: var(--color-gold-hover);
+  --color-gold-shadow: #8c6a00;
+  --color-red-shadow: #8c2e14;
+  --color-cream: #f0d898;
+  --color-gold-light: #c8a86a;
   --font-fantasy: 'MedievalSharp', serif;
   --font-body: 'IM Fell English', serif;
+
+  --font-size-root: 16px;
+  --font-size-tiny: var(--font-size-xxs);
+  --font-size-caption: var(--font-size-xs);
+  --font-size-label: 0.7rem;
+  --font-size-small: var(--font-size-sm);
+  --font-size-small-plus: 0.8rem;
+  --font-size-button: 0.9rem;
+  --font-size-body-small: 0.875rem;
+  --font-size-title-large: 1.875rem;
+  --font-size-dialog: 2.5rem;
+  --font-size-dialog-title: 1.1rem;
+  --font-size-dialog-copy: var(--font-size-adjustment);
+  --font-size-avatar-symbol: 2.25rem;
+  --font-size-icon: 1.1rem;
+  --font-size-item-icon: 1.25rem;
+  --font-size-stat-value: 1.375rem;
+  --font-size-adjustment: 0.95rem;
+
+  --font-size-xxs: 0.6rem;
+  --font-size-xs: 0.65rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-compact: 0.35rem;
+  --space-inline: 0.6rem;
+  --space-card: 0.65rem;
+  --space-item-block: 0.55rem;
+  --space-remove-inset: 0.3rem;
+  --space-remove-reserve: 2.25rem;
+  --space-badge-offset: -0.5rem;
+
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 0.75rem;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  --border-width-thin: 1px;
+  --border-width-default: 2px;
+  --border-width-heavy: 3px;
+
+  --size-control: 2.5rem;
+  --size-control-small: 2rem;
+  --size-control-compact: 2.25rem;
+  --size-badge: 1.25rem;
+  --size-badge-small: 1.1rem;
+  --size-modal-max: 28rem;
+  --size-sheet-max: 32rem;
+  --size-whatsnew-max: 25rem;
+  --size-avatar: 5.5rem;
+  --size-stat-diamond: 4.5rem;
+  --size-stat-control: 1.5rem;
+  --size-diamond-input: var(--size-button-min);
+  --size-remove-control: 1.75rem;
+  --size-modal-close: var(--size-control-small);
+  --size-button-min: 2.75rem;
+  --size-button-min-large: 3.25rem;
+  --size-viewport-dynamic: 100dvh;
+  --line-height-body: 1.6;
+  --line-height-tight: 1;
+  --line-height-compact: 1.2;
+  --line-height-small: 1.35;
+  --line-height-text: 1.4;
+
+  --duration-fast: 0.2s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.4s;
+
+  --z-header-controls: 100;
+  --z-modal-overlay: 999;
+  --z-modal-dialog: 1000;
+  --z-feedback: 1100;
+  --z-death-overlay: 9999;
+  --z-whatsnew-overlay: 10000;
 }
 
 /* ── Light mode (default) ───────────────────────────────── */
 :root {
-  --hq-bg: #bfaf96; /* warm stone, lighter */
+  --hq-bg: var(--color-stone); /* warm stone, lighter */
   --hq-card-bg: var(--color-parchment);
   --hq-card-bg-dark: var(--color-parchment-dark);
   --hq-card-border: var(--color-gold);
-  --hq-card-shadow: rgba(0, 0, 0, 0.45);
+  --hq-card-shadow: rgb(0 0 0 / 45%);
+  --hq-overlay: rgb(0 0 0 / 50%);
+  --hq-overlay-strong: rgb(0 0 0 / 78%);
 
   --hq-title: var(--color-dark);
   --hq-subtitle: var(--color-ink);
   --hq-label: var(--color-ink);
   --hq-input-text: var(--color-ink);
-  --hq-input-placeholder: rgba(44, 26, 14, 0.35);
-  --hq-input-border: rgba(201, 168, 76, 0.6);
+  --hq-input-placeholder: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  --hq-input-border: color-mix(in srgb, var(--color-gold) 60%, transparent);
   --hq-input-border-focus: var(--color-gold);
 
-  --hq-divider: rgba(201, 168, 76, 0.4);
+  --hq-divider: color-mix(in srgb, var(--color-gold) 40%, transparent);
   --hq-ornament: var(--color-gold);
 
   --hq-btn-save-bg: var(--color-gold);
   --hq-btn-save-text: var(--color-dark);
-  --hq-btn-save-hover-bg: #a07830;
+  --hq-btn-save-hover-bg: var(--color-gold-hover);
   --hq-btn-save-hover-text: var(--color-parchment);
-  --hq-btn-reset-text: rgba(44, 26, 14, 0.55);
-  --hq-btn-reset-border: rgba(201, 168, 76, 0.4);
+  --hq-btn-reset-text: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  --hq-btn-reset-border: var(--hq-divider);
 
-  --hq-hint: rgba(44, 26, 14, 0.38);
-  --hq-footer: rgba(44, 26, 14, 0.4);
+  --hq-hint: color-mix(in srgb, var(--color-ink) 38%, transparent);
+  --hq-footer: color-mix(in srgb, var(--color-ink) 40%, transparent);
 
   --hq-color-defense: var(--hq-color-yellow);
   /* Yellow readable on light parchment */
-  --hq-color-yellow: #8c6a00;
-  --hq-color-red: #8c2e14;
+  --hq-color-yellow: var(--color-gold-shadow);
+  --hq-color-red: var(--color-red-shadow);
 }
 
 /* ── Dark mode ──────────────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   :root {
-    --hq-bg: #1a1a18; /* near-black stone */
-    --hq-card-bg: #2e2416; /* very dark parchment */
-    --hq-card-bg-dark: #231b0f;
-    --hq-card-border: #a07830; /* muted gold */
-    --hq-card-shadow: rgba(0, 0, 0, 0.85);
+    --hq-bg: var(--color-night); /* near-black stone */
+    --hq-card-bg: var(--color-parchment-night); /* very dark parchment */
+    --hq-card-bg-dark: var(--color-parchment-shadow);
+    --hq-card-border: var(--color-gold-muted); /* muted gold */
+    --hq-card-shadow: rgb(0 0 0 / 85%);
 
-    --hq-title: #f0d898; /* warm cream */
-    --hq-subtitle: #c8a86a;
-    --hq-label: #c8a86a;
-    --hq-input-text: #f0d898;
-    --hq-input-placeholder: rgba(240, 216, 152, 0.3);
-    --hq-input-border: rgba(160, 120, 48, 0.55);
-    --hq-input-border-focus: #c9a84c;
+    --hq-title: var(--color-cream); /* warm cream */
+    --hq-subtitle: var(--color-gold-light);
+    --hq-label: var(--color-gold-light);
+    --hq-input-text: var(--color-cream);
+    --hq-input-placeholder: color-mix(in srgb, var(--color-cream) 30%, transparent);
+    --hq-input-border: color-mix(in srgb, var(--color-gold-muted) 55%, transparent);
+    --hq-input-border-focus: var(--color-gold);
 
-    --hq-divider: rgba(160, 120, 48, 0.35);
-    --hq-ornament: #a07830;
+    --hq-divider: color-mix(in srgb, var(--color-gold-muted) 35%, transparent);
+    --hq-ornament: var(--color-gold-muted);
 
-    --hq-btn-save-bg: #a07830;
-    --hq-btn-save-text: #1a1a18;
-    --hq-btn-save-hover-bg: #c9a84c;
-    --hq-btn-save-hover-text: #1a1a18;
-    --hq-btn-reset-text: rgba(200, 168, 106, 0.55);
-    --hq-btn-reset-border: rgba(160, 120, 48, 0.35);
+    --hq-btn-save-bg: var(--color-gold-muted);
+    --hq-btn-save-text: var(--color-night);
+    --hq-btn-save-hover-bg: var(--color-gold);
+    --hq-btn-save-hover-text: var(--color-night);
+    --hq-btn-reset-text: color-mix(in srgb, var(--color-gold-light) 55%, transparent);
+    --hq-btn-reset-border: var(--hq-divider);
 
-    --hq-hint: rgba(200, 168, 106, 0.35);
-    --hq-footer: rgba(200, 168, 106, 0.35);
+    --hq-hint: color-mix(in srgb, var(--color-gold-light) 35%, transparent);
+    --hq-footer: var(--hq-hint);
 
     /* Armor/defense highlight – full yellow works on dark backgrounds */
     --hq-color-defense: var(--color-yellow);

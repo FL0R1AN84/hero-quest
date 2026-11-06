@@ -12,8 +12,17 @@ import {
 } from '@/data/skillSheetData'
 
 const store = useSkillSheetStore()
-const { name, character, attackDice, defenseDice, bodyStrength, intelligence, equippedWeapon, equippedArmor, equippedSpecialItems } =
-  storeToRefs(store)
+const {
+  name,
+  character,
+  attackDice,
+  defenseDice,
+  bodyStrength,
+  intelligence,
+  equippedWeapon,
+  equippedArmor,
+  equippedSpecialItems,
+} = storeToRefs(store)
 
 const { enabledExpansions } = storeToRefs(store)
 
@@ -73,7 +82,7 @@ watch(character, (newChar) => {
 <style scoped>
 .field-label {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.7rem;
+  font-size: var(--font-size-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--hq-label);
@@ -85,15 +94,15 @@ watch(character, (newChar) => {
   border: none;
   border-bottom: 2px solid var(--hq-input-border);
   outline: none;
-  padding: 0.5rem 0.5rem;
+  padding: var(--space-2) var(--space-2);
   font-family: var(--font-body), serif;
-  font-size: 1rem;
+  font-size: var(--font-size-base);
   transition:
     border-color 0.2s,
     background-color 0.4s,
     color 0.4s;
   width: 100%;
-  min-height: 2.5rem;
+  min-height: var(--size-control);
 }
 
 .field-input::placeholder {
@@ -112,7 +121,7 @@ watch(character, (newChar) => {
 .select-arrow {
   pointer-events: none;
   position: absolute;
-  right: 0.5rem;
+  right: var(--space-2);
   top: 50%;
   transform: translateY(-50%);
   color: var(--hq-ornament);
@@ -120,8 +129,7 @@ watch(character, (newChar) => {
 
 @media (min-width: 480px) {
   .field-label {
-    font-size: 0.75rem;
+    font-size: var(--font-size-small);
   }
 }
 </style>
-

@@ -290,18 +290,20 @@ const killsForDisplay = computed(() => {
 
 .action-feedback {
   position: fixed;
-  right: 1rem;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
-  left: 1rem;
-  z-index: 1100;
+  right: var(--space-4);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-5));
+  left: var(--space-4);
+  z-index: var(--z-feedback);
   width: fit-content;
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100vw - var(--space-8));
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: var(--space-3) var(--space-5);
   border: 2px solid var(--color-gold);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background-color: var(--hq-card-bg-dark);
-  box-shadow: 0 0 1.25rem rgb(0 0 0 / 45%), 0 0 0.75rem rgb(246 116 73 / 35%);
+  box-shadow:
+    0 0 1.25rem var(--hq-card-shadow),
+    0 0 0.75rem color-mix(in srgb, var(--color-red) 35%, transparent);
   color: var(--hq-title);
   font-weight: 700;
   text-align: center;
@@ -330,10 +332,10 @@ const killsForDisplay = computed(() => {
 /* Toggle Button */
 .kill-list-btn {
   position: relative;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: var(--size-control);
+  height: var(--size-control);
   border: 2px solid var(--hq-input-border);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   background-color: var(--hq-card-bg);
   color: var(--hq-label);
   cursor: pointer;
@@ -341,10 +343,10 @@ const killsForDisplay = computed(() => {
   align-items: center;
   justify-content: center;
   transition:
-    background-color 0.2s,
-    border-color 0.2s,
-    color 0.2s;
-  font-size: 1.25rem;
+    background-color var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+  font-size: var(--font-size-item-icon);
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -370,7 +372,7 @@ const killsForDisplay = computed(() => {
   position: absolute;
   inset: 0.2rem;
   border: 2px solid var(--color-gold);
-  border-radius: 50%;
+  border-radius: var(--radius-circle);
   content: '';
   pointer-events: none;
   animation: long-press-progress 600ms linear forwards;
@@ -379,18 +381,18 @@ const killsForDisplay = computed(() => {
 @keyframes press-feedback {
   from {
     opacity: 0.55;
-    box-shadow: 0 0 0 0 rgb(201 168 76 / 18%);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-gold) 18%, transparent);
   }
 
   to {
     opacity: 1;
-    box-shadow: 0 0 0 0.3rem rgb(201 168 76 / 35%);
+    box-shadow: 0 0 0 0.3rem color-mix(in srgb, var(--color-gold) 35%, transparent);
   }
 }
 
 .kill-list-btn.long-press::after {
   animation: none;
-  background-color: rgb(255 255 255 / 12%);
+  background-color: color-mix(in srgb, var(--color-white) 12%, transparent);
 }
 
 @keyframes long-press-progress {
@@ -425,13 +427,13 @@ const killsForDisplay = computed(() => {
 
 .kill-badge {
   position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
-  background-color: #f67449;
-  color: white;
-  border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
+  top: var(--space-badge-offset);
+  right: var(--space-badge-offset);
+  background-color: var(--color-red);
+  color: var(--color-white);
+  border-radius: var(--radius-circle);
+  width: var(--size-badge);
+  height: var(--size-badge);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -448,8 +450,8 @@ const killsForDisplay = computed(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  background-color: var(--hq-overlay);
+  z-index: var(--z-modal-overlay);
 }
 
 /* Modal Dialog */
@@ -459,16 +461,16 @@ const killsForDisplay = computed(() => {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90vw;
-  max-width: 28rem;
+  max-width: var(--size-modal-max);
   max-height: 80vh;
   background-color: var(--hq-card-bg);
-  border: 3px solid var(--hq-card-border);
-  border-radius: 2px;
+  border: var(--border-width-heavy) solid var(--hq-card-border);
+  border-radius: var(--radius-sm);
   box-shadow: 0 0 60px var(--hq-card-shadow);
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out;
+  z-index: var(--z-modal-dialog);
+  animation: slideIn var(--duration-normal) ease-out;
   overscroll-behavior: contain;
 }
 
@@ -488,8 +490,8 @@ const killsForDisplay = computed(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 2px solid var(--hq-divider);
+  padding: var(--space-6);
+  border-bottom: var(--border-width-default) solid var(--hq-divider);
   flex-shrink: 0;
 }
 
@@ -508,16 +510,16 @@ const killsForDisplay = computed(() => {
   color: var(--hq-label);
   cursor: pointer;
   padding: 0;
-  width: 2rem;
-  height: 2rem;
+  width: var(--size-modal-close);
+  height: var(--size-modal-close);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: color var(--duration-fast);
 }
 
 .close-btn:hover {
-  color: #f67449;
+  color: var(--color-red);
 }
 
 /* Modal Content */
@@ -526,8 +528,8 @@ const killsForDisplay = computed(() => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 1rem;
-  gap: 1rem;
+  padding: var(--space-4);
+  gap: var(--space-4);
   overflow: hidden;
 }
 
@@ -538,19 +540,19 @@ const killsForDisplay = computed(() => {
 
 .btn-add-kill {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: var(--space-3) var(--space-4);
   background-color: var(--hq-btn-save-bg);
   color: var(--hq-btn-save-text);
   border: 2px solid var(--hq-card-border);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   font-family: var(--font-fantasy), serif;
   font-size: 0.9rem;
   font-weight: bold;
   letter-spacing: 0.08em;
   cursor: pointer;
   transition:
-    background-color 0.2s,
-    color 0.2s;
+    background-color var(--duration-fast),
+    color var(--duration-fast);
 }
 
 .btn-add-kill:hover {
@@ -568,9 +570,9 @@ const killsForDisplay = computed(() => {
 
 /* Kill Stats */
 .kill-stats {
-  padding: 0.75rem;
+  padding: var(--space-3);
   background-color: var(--hq-card-bg-dark);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .stat-line {
@@ -579,13 +581,13 @@ const killsForDisplay = computed(() => {
   justify-content: space-between;
   align-items: center;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.9rem;
+  font-size: var(--font-size-button);
   color: var(--hq-label);
 }
 
 .stat-value {
   font-weight: bold;
-  color: #f67449;
+  color: var(--color-red);
   font-size: 1.1rem;
 }
 
@@ -634,7 +636,7 @@ const killsForDisplay = computed(() => {
 
 .match-day-group {
   border: 2px solid var(--hq-divider);
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   overflow: hidden;
   background-color: var(--hq-card-bg-dark);
 }
@@ -645,15 +647,15 @@ const killsForDisplay = computed(() => {
   align-items: center;
   column-gap: 0.5rem;
   padding: 0.75rem 1rem;
-  background-color: rgba(201, 168, 76, 0.15);
+  background-color: color-mix(in srgb, var(--color-gold) 15%, transparent);
   border-bottom: 2px solid var(--hq-divider);
   cursor: pointer;
   user-select: none;
-  transition: background-color 0.2s;
+  transition: background-color var(--duration-fast);
 }
 
 .match-day-header:hover {
-  background-color: rgba(201, 168, 76, 0.25);
+  background-color: color-mix(in srgb, var(--color-gold) 25%, transparent);
 }
 
 .match-day-title {
@@ -671,8 +673,8 @@ const killsForDisplay = computed(() => {
 
 .match-day-count {
   font-family: var(--font-fantasy), serif;
-  background-color: #f67449;
-  color: white;
+  background-color: var(--color-red);
+  color: var(--color-white);
   width: 2.25rem;
   padding: 0.25rem 0;
   border-radius: 2px;
@@ -686,7 +688,7 @@ const killsForDisplay = computed(() => {
   font-size: 0.75rem;
   color: var(--hq-label);
   margin-left: 0;
-  transition: transform 0.3s ease;
+  transition: transform var(--duration-normal) ease;
   flex-shrink: 0;
   justify-self: end;
 }
@@ -706,17 +708,17 @@ const killsForDisplay = computed(() => {
   align-items: center;
   padding: 0.6rem 0.75rem;
   border-left: 3px solid var(--color-gold);
-  transition: background-color 0.2s;
+  transition: background-color var(--duration-fast);
 }
 
 .kill-item:hover {
-  background-color: rgba(201, 168, 76, 0.1);
+  background-color: color-mix(in srgb, var(--color-gold) 10%, transparent);
 }
 
 .kill-item.kill-new {
   animation: killItemSlideIn 0.5s ease-out;
-  background-color: rgba(201, 168, 76, 0.2) !important;
-  border-left: 3px solid #f67449;
+  background-color: color-mix(in srgb, var(--color-gold) 20%, transparent) !important;
+  border-left: 3px solid var(--color-red);
 }
 
 .kill-content {
@@ -745,8 +747,8 @@ const killsForDisplay = computed(() => {
 .btn-delete-kill {
   background: none;
   border: none;
-  color: #f67449;
-  font-size: 0.9rem;
+  color: var(--color-red);
+  font-size: var(--font-size-button);
   cursor: pointer;
   padding: 0.25rem;
   width: 1.5rem;
@@ -755,13 +757,13 @@ const killsForDisplay = computed(() => {
   align-items: center;
   justify-content: center;
   transition:
-    color 0.2s,
-    transform 0.2s;
+    color var(--duration-fast),
+    transform var(--duration-fast);
   flex-shrink: 0;
 }
 
 .btn-delete-kill:hover {
-  color: #ff6b5a;
+  color: var(--color-danger-hover);
   transform: scale(1.1);
 }
 
@@ -771,7 +773,7 @@ const killsForDisplay = computed(() => {
 
 /* Modal Footer */
 .modal-footer {
-  padding: 1rem;
+  padding: var(--space-4);
   border-top: 2px solid var(--hq-divider);
   flex-shrink: 0;
 }
@@ -779,9 +781,9 @@ const killsForDisplay = computed(() => {
 .btn-clear-all {
   width: 100%;
   padding: 0.75rem;
-  background-color: rgba(180, 60, 60, 0.08);
-  color: #c06060;
-  border: 2px solid rgba(180, 60, 60, 0.5);
+  background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  color: var(--color-danger-light);
+  border: 2px solid color-mix(in srgb, var(--color-danger) 50%, transparent);
   border-radius: 2px;
   font-family: var(--font-fantasy), serif;
   font-size: 0.85rem;
@@ -789,15 +791,15 @@ const killsForDisplay = computed(() => {
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    background-color 0.2s,
-    color 0.2s,
-    border-color 0.2s;
+    background-color var(--duration-fast),
+    color var(--duration-fast),
+    border-color var(--duration-fast);
 }
 
 .btn-clear-all:hover {
-  background-color: rgba(180, 60, 60, 0.18);
-  color: #e07070;
-  border-color: rgba(180, 60, 60, 0.8);
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+  color: var(--color-danger-lighter);
+  border-color: color-mix(in srgb, var(--color-danger) 80%, transparent);
 }
 
 .btn-clear-all:active {
@@ -807,7 +809,7 @@ const killsForDisplay = computed(() => {
 /* Transitions */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-normal) ease;
 }
 
 .modal-fade-enter-from,
@@ -818,8 +820,8 @@ const killsForDisplay = computed(() => {
 .modal-slide-enter-active,
 .modal-slide-leave-active {
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+    opacity var(--duration-normal) ease,
+    transform var(--duration-normal) ease;
 }
 
 .modal-slide-enter-from,
@@ -832,8 +834,8 @@ const killsForDisplay = computed(() => {
 .expand-enter-active,
 .expand-leave-active {
   transition:
-    max-height 0.3s ease,
-    opacity 0.3s ease;
+    max-height var(--duration-normal) ease,
+    opacity var(--duration-normal) ease;
 }
 
 .expand-enter-from,
@@ -854,15 +856,15 @@ const killsForDisplay = computed(() => {
   }
 
   .kill-list-btn {
-    width: 2.25rem;
-    height: 2.25rem;
-    font-size: 1.1rem;
+    width: var(--size-control-compact);
+    height: var(--size-control-compact);
+    font-size: var(--font-size-icon);
   }
 
   .kill-badge {
-    width: 1.1rem;
-    height: 1.1rem;
-    font-size: 0.6rem;
+    width: var(--size-badge-small);
+    height: var(--size-badge-small);
+    font-size: var(--font-size-tiny);
   }
 }
 
@@ -871,15 +873,15 @@ const killsForDisplay = computed(() => {
 @keyframes killButtonPulse {
   0% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(246, 116, 73, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-red) 70%, transparent);
   }
   50% {
     transform: scale(1.05);
-    box-shadow: 0 0 0 10px rgba(246, 116, 73, 0);
+    box-shadow: 0 0 0 10px transparent;
   }
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(246, 116, 73, 0);
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
@@ -897,15 +899,15 @@ const killsForDisplay = computed(() => {
 @keyframes statsValuePulse {
   0% {
     transform: scale(1);
-    color: #f67449;
+    color: var(--color-red);
   }
   50% {
     transform: scale(1.15);
-    color: #ff8566;
+    color: var(--color-danger-glow);
   }
   100% {
     transform: scale(1);
-    color: #f67449;
+    color: var(--color-red);
   }
 }
 
