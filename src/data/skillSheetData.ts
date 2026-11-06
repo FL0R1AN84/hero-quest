@@ -288,7 +288,6 @@ export const weaponOptions: WeaponOption[] = [
 export const armorOptions: ArmorOption[] = [
   { id: 'armbrust', label: 'Armbrust', bonus: 1, allowedCharacters: null },
   { id: 'armschutz', label: 'Armschutz', bonus: 1, allowedCharacters: null },
-  { id: 'armpanzer', label: 'Armpanzer', bonus: 1, allowedCharacters: null },
   { id: 'borins-ruestung', label: 'Borins Rüstung', bonus: 3, allowedCharacters: null },
   { id: 'harnisch', label: 'Harnisch', bonus: 2, allowedCharacters: null },
   { id: 'helm', label: 'Helm', bonus: 1, allowedCharacters: null },

@@ -215,12 +215,18 @@ export const useSkillSheetStore = defineStore(
       // Werkzeug moved from weapons to items: migrate saved state
       afterHydrate: ({ store }) => {
         const idx = store.equippedWeapon.indexOf('werkzeug')
-        if (idx < 0) return
-        store.equippedWeapon.splice(idx, 1)
-        if (!store.equippedSpecialItems.includes('werkzeug')) {
-          store.equippedSpecialItems.push('werkzeug')
-          store.itemQuantities = { ...store.itemQuantities, werkzeug: 1 }
+        if (idx >= 0) {
+          store.equippedWeapon.splice(idx, 1)
+          if (!store.equippedSpecialItems.includes('werkzeug')) {
+            store.equippedSpecialItems.push('werkzeug')
+            store.itemQuantities = { ...store.itemQuantities, werkzeug: 1 }
+          }
         }
+
+        const armor = store.equippedArmor.map((id: string) =>
+          id === 'armpanzer' ? 'armschutz' : id,
+        )
+        store.equippedArmor.splice(0, store.equippedArmor.length, ...new Set(armor))
       },
     },
   },

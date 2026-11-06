@@ -116,7 +116,6 @@ covers all the essential information a hero needs during a quest:
 |----------------|:-----:|-------------|
 | Armbrust       |  +1   | —           |
 | Armschutz      |  +1   | —           |
-| Armpanzer      |  +1   | —           |
 | Borins Rüstung |  +3   | —           |
 | Harnisch       |  +2   | —           |
 | Helm           |  +1   | —           |
