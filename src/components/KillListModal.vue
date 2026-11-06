@@ -15,9 +15,24 @@ const expandedDay = ref<string | null>(null)
 let pressTimer: ReturnType<typeof setTimeout> | undefined
 const isPressing = ref(false)
 const longPressTriggered = ref(false)
+const feedbackMessage = ref('')
+const feedbackKey = ref(0)
+let feedbackTimer: ReturnType<typeof setTimeout> | undefined
 
 function vibrate(pattern: number | number[]) {
   navigator.vibrate?.(pattern)
+}
+
+function showFeedback(message: string) {
+  if (feedbackTimer !== undefined) {
+    clearTimeout(feedbackTimer)
+  }
+  feedbackMessage.value = message
+  feedbackKey.value += 1
+  feedbackTimer = setTimeout(() => {
+    feedbackMessage.value = ''
+    feedbackTimer = undefined
+  }, 1400)
 }
 
 function startButtonPress(event: PointerEvent) {
@@ -34,6 +49,7 @@ function startButtonPress(event: PointerEvent) {
     if (!isPressing.value) return
     longPressTriggered.value = true
     vibrate([20, 30, 20])
+    showFeedback('Todesliste geöffnet')
     toggleModal()
   }, 600)
 }
@@ -94,6 +110,7 @@ function addKill() {
 
   // Add the kill
   store.addKill()
+  showFeedback(`Kill gezählt · Gesamt: ${totalKills.value}`)
 
   // Mark the new kill as recent for animation
   const newKill = store.kills[store.kills.length - 1]
@@ -105,7 +122,12 @@ function addKill() {
   }
 }
 
-onUnmounted(cancelButtonPress)
+onUnmounted(() => {
+  cancelButtonPress()
+  if (feedbackTimer !== undefined) {
+    clearTimeout(feedbackTimer)
+  }
+})
 
 function isRecentKill(killId: string): boolean {
   return recentKillIds.value.has(killId)
@@ -160,6 +182,12 @@ const killsForDisplay = computed(() => {
 
 <template>
   <div class="kill-list-container">
+    <transition name="action-feedback">
+      <div v-if="feedbackMessage" :key="feedbackKey" class="action-feedback" role="status" aria-live="polite">
+        {{ feedbackMessage }}
+      </div>
+    </transition>
+
     <!-- Toggle Button -->
     <button
       :class="{ active: isOpen, pressing: isPressing, 'long-press': longPressTriggered }"
@@ -257,6 +285,45 @@ const killsForDisplay = computed(() => {
 <style scoped>
 .kill-list-container {
   position: relative;
+}
+
+.action-feedback {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  left: 1rem;
+  z-index: 1100;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--color-gold);
+  border-radius: 999px;
+  background-color: var(--hq-card-bg-dark);
+  box-shadow: 0 0 1.25rem rgb(0 0 0 / 45%), 0 0 0.75rem rgb(246 116 73 / 35%);
+  color: var(--hq-title);
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  animation: feedback-pop 1.4s ease both;
+}
+
+@keyframes feedback-pop {
+  0% {
+    transform: translateY(0.75rem) scale(0.92);
+    opacity: 0;
+  }
+
+  12%,
+  82% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
 }
 
 /* Toggle Button */
