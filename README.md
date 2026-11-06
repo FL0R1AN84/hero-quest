@@ -48,7 +48,9 @@ covers all the essential information a hero needs during a quest:
 - **Death overlay** — when *Körperkraft* reaches 0 a full-screen overlay appears with a configurable revival point
    selector (capped at the hero's starting *Körperkraft*), with the option to use a healing potion before reviving
 - **Kill List** — 💀 button in the top-right corner tracks every monster defeated with animated celebration effects:
-   - Single-click "+ Kill hinzufügen" button records kills with automatic timestamps
+   - A short click or tap on 💀 immediately records a kill with an automatic timestamp
+   - Hold 💀 for 600 ms to open the modal and view the kill statistics without recording a kill
+   - Kills can also be recorded using the "+ Kill hinzufügen" button inside the modal
    - Kills grouped by match day (gaming session); last 5 days displayed
    - Shows total cumulative kills + per-day kill counts
    - Smooth animations: button pulse, badge bounce, stats glow, and kill item slide-ins
