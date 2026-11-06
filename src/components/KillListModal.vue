@@ -355,6 +355,16 @@ const killsForDisplay = computed(() => {
   background-color: var(--hq-card-bg-dark);
 }
 
+.kill-list-btn.pressing::before {
+  position: absolute;
+  inset: -0.5rem;
+  border: 2px solid var(--color-gold);
+  border-radius: 8px;
+  content: '';
+  pointer-events: none;
+  animation: press-feedback 0.8s ease-in-out infinite alternate;
+}
+
 .kill-list-btn.pressing::after {
   position: absolute;
   inset: 0.2rem;
@@ -363,6 +373,18 @@ const killsForDisplay = computed(() => {
   content: '';
   pointer-events: none;
   animation: long-press-progress 600ms linear forwards;
+}
+
+@keyframes press-feedback {
+  from {
+    opacity: 0.55;
+    box-shadow: 0 0 0 0 rgb(201 168 76 / 18%);
+  }
+
+  to {
+    opacity: 1;
+    box-shadow: 0 0 0 0.3rem rgb(201 168 76 / 35%);
+  }
 }
 
 .kill-list-btn.long-press::after {
