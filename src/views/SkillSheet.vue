@@ -42,7 +42,7 @@ function saveToFile() {
 
 function endGame() {
   if (!store.character) return
-  if (confirm('Spielende – alle Werte auf den Startwert zurücksetzen? Ausrüstung und Gegenstände bleiben erhalten.')) {
+  if (confirm('Spielende – alle Werte auf den Startwert zurücksetzen? Ausrüstung und Gegenstände bleiben erhalten, Söldner werden entlassen.')) {
     store.resetStats()
   }
 }

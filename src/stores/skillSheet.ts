@@ -130,6 +130,7 @@ export const useSkillSheetStore = defineStore(
       intelligence.value = stats.intelligence
       druideShapeShifted.value = false
       usedSkills.value = []
+      hiredMercenaries.value = []
 
       for (let index = usedSpecialItems.value.length - 1; index >= 0; index--) {
         if (reusableMagicItemIds.has(usedSpecialItems.value[index]!)) {

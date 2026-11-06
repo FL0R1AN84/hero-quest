@@ -55,7 +55,7 @@ covers all the essential information a hero needs during a quest:
    - Persisted to `localStorage` and included in JSON export/import
 - **End-of-game reset** — the *🏁 Spielende – Werte zurücksetzen* button restores all core stats to their class defaults
    while retaining equipment and items, re-enabling used Berserker skills and restoring used magic items and charges.
-   Consumed potions are not replenished.
+   Hired mercenaries are dismissed, enabled expansions remain active, and consumed potions are not replenished.
 - **Persistent state** — all data is automatically saved in the browser via `localStorage`; nothing is lost on a page
   refresh
 - **Save & Load** — export the complete character sheet as a `.json` file and reload it at any time (or share it with
