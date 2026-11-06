@@ -94,6 +94,7 @@ function toggleModal() {
 function closeModal() {
   isOpen.value = false
   expandedDay.value = null
+  cancelButtonPress()
 }
 
 function addKill() {
