@@ -42,7 +42,11 @@ function saveToFile() {
 
 function endGame() {
   if (!store.character) return
-  if (confirm('Spielende – alle Werte auf den Startwert zurücksetzen? Ausrüstung und Gegenstände bleiben erhalten, Söldner werden entlassen.')) {
+  if (
+    confirm(
+      'Spielende – alle Werte auf den Startwert zurücksetzen? Ausrüstung und Gegenstände bleiben erhalten, Söldner werden entlassen.',
+    )
+  ) {
     store.resetStats()
   }
 }
@@ -60,9 +64,7 @@ function loadFromFile() {
       // Migration älterer Savegames: Werkzeug war früher eine Waffe, Borins Rüstung ein Gegenstand
       const weapons: string[] = [...(data.equippedWeapon ?? [])]
       const armor: string[] = [
-        ...new Set<string>(
-          (data.equippedArmor ?? []).map((id: string) => (id === 'armpanzer' ? 'armschutz' : id)),
-        ),
+        ...new Set<string>((data.equippedArmor ?? []).map((id: string) => (id === 'armpanzer' ? 'armschutz' : id))),
       ]
       const specials: string[] = [...(data.equippedSpecialItems ?? [])]
       const quantities: Record<string, number> = { ...data.itemQuantities }
@@ -155,7 +157,7 @@ function loadFromFile() {
 
 <style scoped>
 .main-bg {
-  min-height: 100dvh;
+  min-height: var(--size-viewport-dynamic);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -167,7 +169,7 @@ function loadFromFile() {
 .card-wrap {
   position: relative;
   width: 100%;
-  max-width: 32rem;
+  max-width: var(--size-sheet-max);
 }
 
 .card {
@@ -175,9 +177,9 @@ function loadFromFile() {
   border: none;
   border-radius: 0;
   overflow: hidden;
-  min-height: 100dvh;
-  padding: calc(1.25rem + env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
-    calc(2rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+  min-height: var(--size-viewport-dynamic);
+  padding: calc(var(--space-5) + env(safe-area-inset-top)) max(var(--space-4), env(safe-area-inset-right))
+    calc(var(--space-8) + env(safe-area-inset-bottom)) max(var(--space-4), env(safe-area-inset-left));
   box-shadow: none;
   transition:
     background-color 0.4s,
@@ -194,8 +196,8 @@ function loadFromFile() {
 .section-divider {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
 }
 
 .btn-save,
@@ -206,10 +208,10 @@ function loadFromFile() {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   border: 2px solid var(--hq-card-border);
-  padding: 0.5rem 0.75rem;
+  padding: var(--space-2) var(--space-3);
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  min-height: 2.75rem;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--color-black) 30%, transparent);
+  min-height: var(--size-button-min);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -251,12 +253,12 @@ function loadFromFile() {
   font-size: 0.9rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  border: 2px solid rgba(180, 60, 60, 0.5);
-  padding: 0.75rem 1rem;
+  border: 2px solid color-mix(in srgb, var(--color-danger) 50%, transparent);
+  padding: var(--space-3) var(--space-4);
   cursor: pointer;
-  background-color: rgba(180, 60, 60, 0.08);
-  color: #c06060;
-  min-height: 3.25rem;
+  background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
+  color: var(--color-danger-light);
+  min-height: var(--size-button-min-large);
   transition:
     background-color 0.2s,
     color 0.2s,
@@ -264,9 +266,9 @@ function loadFromFile() {
 }
 
 .btn-end-game:hover:not(:disabled) {
-  background-color: rgba(180, 60, 60, 0.18);
-  color: #e07070;
-  border-color: rgba(180, 60, 60, 0.8);
+  background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+  color: var(--color-danger-lighter);
+  border-color: color-mix(in srgb, var(--color-danger) 80%, transparent);
 }
 
 .btn-end-game:disabled {
@@ -291,14 +293,14 @@ function loadFromFile() {
 @media (min-width: 480px) {
   .main-bg {
     align-items: center;
-    padding: 1.5rem;
+    padding: var(--space-6);
   }
 
   .card {
     border: 4px solid var(--hq-card-border);
     border-radius: 2px;
     min-height: unset;
-    padding: 2rem 2rem 2.5rem;
+    padding: var(--space-8) var(--space-8) var(--space-10);
     box-shadow: 0 0 60px var(--hq-card-shadow);
   }
 }

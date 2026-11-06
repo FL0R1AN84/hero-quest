@@ -29,26 +29,26 @@ import ExpansionsModal from './ExpansionsModal.vue'
 <style scoped>
 .header-wrapper {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-8);
 }
 
 .kill-list-container {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 100;
+  z-index: var(--z-header-controls);
 }
 
 .expansions-slot {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 100;
+  z-index: var(--z-header-controls);
 }
 
 .title {
   font-family: var(--font-fantasy), serif;
-  font-size: 1.5rem;
+  font-size: var(--font-size-xl);
   letter-spacing: 0.15em;
   color: var(--hq-title);
   transition: color 0.4s;
@@ -56,7 +56,7 @@ import ExpansionsModal from './ExpansionsModal.vue'
 
 .subtitle {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.75rem;
+  font-size: var(--font-size-small);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--hq-subtitle);
@@ -65,25 +65,24 @@ import ExpansionsModal from './ExpansionsModal.vue'
 
 .divider-line {
   flex: 1;
-  height: 1px;
+  height: var(--border-width-thin);
   background-color: var(--hq-divider);
   transition: background-color 0.4s;
 }
 
 .sword-ornament {
-  font-size: 1.25rem;
+  font-size: var(--font-size-lg);
   color: var(--hq-ornament);
   transition: color 0.4s;
 }
 
 @media (min-width: 480px) {
   .title {
-    font-size: 1.875rem;
+    font-size: var(--font-size-title-large);
   }
 
   .subtitle {
-    font-size: 0.875rem;
+    font-size: var(--font-size-body-small);
   }
 }
 </style>
-

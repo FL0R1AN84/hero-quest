@@ -42,13 +42,13 @@ function resetAll() {
 .reset-btn {
   margin-top: 2rem;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.65rem;
+  font-size: var(--font-size-caption);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--hq-btn-reset-text);
   background: transparent;
   border: 1px solid var(--hq-btn-reset-border);
-  padding: 0.35rem 0.75rem;
+  padding: var(--space-compact) var(--space-3);
   cursor: pointer;
   transition:
     color 0.2s,

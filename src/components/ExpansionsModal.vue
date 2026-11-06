@@ -80,8 +80,8 @@ onUnmounted(() => {
 
         <div class="modal-content">
           <p class="expansions-hint">
-            Aktiviere Erweiterungen, um ihre neuen Waffen, Rüstungen und Gegenstände in der Ausrüstung
-            freizuschalten. Mehrere Erweiterungen können gleichzeitig aktiv sein.
+            Aktiviere Erweiterungen, um ihre neuen Waffen, Rüstungen und Gegenstände in der Ausrüstung freizuschalten.
+            Mehrere Erweiterungen können gleichzeitig aktiv sein.
           </p>
 
           <ul class="expansions-list">
@@ -111,18 +111,20 @@ onUnmounted(() => {
 
 .action-feedback {
   position: fixed;
-  right: 1rem;
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
-  left: 1rem;
-  z-index: 1100;
+  right: var(--space-4);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-5));
+  left: var(--space-4);
+  z-index: var(--z-feedback);
   width: fit-content;
-  max-width: calc(100vw - 2rem);
+  max-width: calc(100vw - var(--space-8));
   margin: 0 auto;
-  padding: 0.75rem 1.25rem;
+  padding: var(--space-3) var(--space-5);
   border: 2px solid var(--color-gold);
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background-color: var(--hq-card-bg-dark);
-  box-shadow: 0 0 1.25rem rgb(0 0 0 / 45%), 0 0 0.75rem rgb(246 116 73 / 35%);
+  box-shadow:
+    0 0 1.25rem var(--hq-card-shadow),
+    0 0 0.75rem color-mix(in srgb, var(--color-red) 35%, transparent);
   color: var(--hq-title);
   font-weight: 700;
   text-align: center;
@@ -151,10 +153,10 @@ onUnmounted(() => {
 /* Toggle Button */
 .expansions-btn {
   position: relative;
-  width: 2.5rem;
-  height: 2.5rem;
+  width: var(--size-control);
+  height: var(--size-control);
   border: 2px solid var(--hq-input-border);
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   background-color: var(--hq-card-bg);
   color: var(--hq-label);
   cursor: pointer;
@@ -162,10 +164,10 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   transition:
-    background-color 0.2s,
-    border-color 0.2s,
-    color 0.2s;
-  font-size: 1.25rem;
+    background-color var(--duration-fast),
+    border-color var(--duration-fast),
+    color var(--duration-fast);
+  font-size: var(--font-size-item-icon);
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -192,17 +194,17 @@ onUnmounted(() => {
 
 .expansions-badge {
   position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
+  top: var(--space-badge-offset);
+  right: var(--space-badge-offset);
   background-color: var(--color-gold);
-  color: #2a2a2a;
-  border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
+  color: var(--color-charcoal);
+  border-radius: var(--radius-circle);
+  width: var(--size-badge);
+  height: var(--size-badge);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.7rem;
+  font-size: var(--font-size-label);
   font-weight: bold;
   border: 2px solid var(--hq-card-bg);
 }
@@ -214,8 +216,8 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 999;
+  background-color: var(--hq-overlay);
+  z-index: var(--z-modal-overlay);
 }
 
 /* Modal Dialog */
@@ -225,16 +227,16 @@ onUnmounted(() => {
   left: 50%;
   transform: translate(-50%, -50%);
   width: 90vw;
-  max-width: 28rem;
+  max-width: var(--size-modal-max);
   max-height: 80vh;
   background-color: var(--hq-card-bg);
-  border: 3px solid var(--hq-card-border);
-  border-radius: 2px;
+  border: var(--border-width-heavy) solid var(--hq-card-border);
+  border-radius: var(--radius-sm);
   box-shadow: 0 0 60px var(--hq-card-shadow);
   display: flex;
   flex-direction: column;
-  z-index: 1000;
-  animation: slideIn 0.3s ease-out;
+  z-index: var(--z-modal-dialog);
+  animation: slideIn var(--duration-normal) ease-out;
   overscroll-behavior: contain;
 }
 
@@ -254,14 +256,14 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.5rem;
-  border-bottom: 2px solid var(--hq-divider);
+  padding: var(--space-6);
+  border-bottom: var(--border-width-default) solid var(--hq-divider);
   flex-shrink: 0;
 }
 
 .modal-title {
   font-family: var(--font-fantasy), serif;
-  font-size: 1.25rem;
+  font-size: var(--font-size-item-icon);
   letter-spacing: 0.1em;
   color: var(--hq-title);
   margin: 0;
@@ -274,16 +276,16 @@ onUnmounted(() => {
   color: var(--hq-label);
   cursor: pointer;
   padding: 0;
-  width: 2rem;
-  height: 2rem;
+  width: var(--size-modal-close);
+  height: var(--size-modal-close);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s;
+  transition: color var(--duration-fast);
 }
 
 .close-btn:hover {
-  color: #f67449;
+  color: var(--color-red);
 }
 
 /* Modal Content */
@@ -292,8 +294,8 @@ onUnmounted(() => {
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 1rem;
-  gap: 1rem;
+  padding: var(--space-4);
+  gap: var(--space-4);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -303,14 +305,14 @@ onUnmounted(() => {
   margin: 0;
   font-family: var(--font-body), serif;
   font-size: 0.8rem;
-  line-height: 1.4;
+  line-height: var(--line-height-text);
   color: var(--hq-subtitle);
 }
 
 .expansions-list {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -329,9 +331,9 @@ onUnmounted(() => {
   border-left-color: var(--hq-divider);
   background-color: transparent;
   transition:
-    opacity 0.2s,
-    background-color 0.2s,
-    border-color 0.2s;
+    opacity var(--duration-fast),
+    background-color var(--duration-fast),
+    border-color var(--duration-fast);
 }
 
 .expansion-item:active {
@@ -344,21 +346,21 @@ onUnmounted(() => {
 }
 
 .expansion-item-icon {
-  font-size: 1.25rem;
-  line-height: 1.2;
+  font-size: var(--font-size-item-icon);
+  line-height: var(--line-height-compact);
 }
 
 .expansion-item-name {
   flex: 1;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.9rem;
+  font-size: var(--font-size-button);
   color: var(--hq-title);
 }
 
 .expansion-item-state {
   flex-shrink: 0;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.6rem;
+  font-size: var(--font-size-tiny);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--hq-hint);
@@ -371,7 +373,7 @@ onUnmounted(() => {
 /* Transitions */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
-  transition: opacity 0.3s ease;
+  transition: opacity var(--duration-normal) ease;
 }
 
 .modal-fade-enter-from,
@@ -382,8 +384,8 @@ onUnmounted(() => {
 .modal-slide-enter-active,
 .modal-slide-leave-active {
   transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+    opacity var(--duration-normal) ease,
+    transform var(--duration-normal) ease;
 }
 
 .modal-slide-enter-from,

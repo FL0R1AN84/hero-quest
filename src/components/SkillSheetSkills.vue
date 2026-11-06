@@ -45,12 +45,12 @@ function useSkill(id: string) {
 .character-skills {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .character-skills-title {
   font-family: var(--font-fantasy), serif;
-  font-size: 0.75rem;
+  font-size: var(--font-size-small);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--hq-label);
@@ -61,9 +61,9 @@ function useSkill(id: string) {
 .character-skill {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: var(--space-inline);
   width: 100%;
-  padding: 0.55rem 0.65rem;
+  padding: 0.55rem var(--space-card);
   text-align: left;
   cursor: pointer;
   border: 1px solid var(--hq-color-red);
@@ -87,7 +87,7 @@ function useSkill(id: string) {
 
 .character-skill-icon {
   font-size: 1.25rem;
-  line-height: 1.2;
+  line-height: var(--line-height-compact);
 }
 
 .character-skill-content {
@@ -105,8 +105,8 @@ function useSkill(id: string) {
 
 .character-skill-description {
   font-family: var(--font-body), serif;
-  font-size: 0.8rem;
-  line-height: 1.35;
+  font-size: var(--font-size-small-plus);
+  line-height: var(--line-height-small);
   color: var(--hq-subtitle);
 }
 
@@ -114,7 +114,7 @@ function useSkill(id: string) {
   align-self: center;
   flex-shrink: 0;
   font-family: var(--font-fantasy), serif;
-  font-size: 0.6rem;
+  font-size: var(--font-size-tiny);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--hq-color-red);

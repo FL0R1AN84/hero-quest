@@ -45,19 +45,34 @@ function canEquipSpecialItem(item: SpecialItemOption): boolean {
 const visibleWeapons = computed(() => weaponOptions.filter(canEquipWeapon))
 const visibleArmor = computed(() => armorOptions.filter(canEquipArmor))
 
-const potionKinds = new Set(['heal-fixed', 'heal-potion', 'attack-potion', 'defense-potion', 'extra-attack-same', 'movement-potion', 'restore-small', 'heal-fixed-2', 'extra-attack-multi'])
+const potionKinds = new Set([
+  'heal-fixed',
+  'heal-potion',
+  'attack-potion',
+  'defense-potion',
+  'extra-attack-same',
+  'movement-potion',
+  'restore-small',
+  'heal-fixed-2',
+  'extra-attack-multi',
+])
 // Items with an adjustable quantity (potions + tools)
 const stackableKinds = new Set([...potionKinds, 'consumable'])
 const magicKinds = new Set(['fire-shield', 'magic-ring', 'scroll'])
 
-const visibleSpecialItems = computed(() =>
-  specialItemOptions.filter(canEquipSpecialItem)
-)
+const visibleSpecialItems = computed(() => specialItemOptions.filter(canEquipSpecialItem))
 
 // Kategorisierung für thematische Gruppierung
 function getItemCategory(item: SpecialItemOption): number {
   if (item.kind && potionKinds.has(item.kind)) return 0 // Tränke
-  if (item.passive || (item.kind && magicKinds.has(item.kind)) || item.id === 'stab-der-magie' || item.id === 'ring-der-magie' || item.id === 'ring-der-rueckkehr') return 1 // Magische Items & Ringe
+  if (
+    item.passive ||
+    (item.kind && magicKinds.has(item.kind)) ||
+    item.id === 'stab-der-magie' ||
+    item.id === 'ring-der-magie' ||
+    item.id === 'ring-der-rueckkehr'
+  )
+    return 1 // Magische Items & Ringe
   return 2 // Sonstiges
 }
 
@@ -84,12 +99,10 @@ const selectedSpecialToAdd = vueRef('')
 const availableWeapons = computed(() =>
   visibleWeapons.value
     .filter((w) => !equippedWeapon.value.includes(w.id))
-    .sort((a, b) => a.label.localeCompare(b.label))
+    .sort((a, b) => a.label.localeCompare(b.label)),
 )
 const availableArmor = computed(() =>
-  visibleArmor.value
-    .filter((a) => !equippedArmor.value.includes(a.id))
-    .sort((a, b) => a.label.localeCompare(b.label))
+  visibleArmor.value.filter((a) => !equippedArmor.value.includes(a.id)).sort((a, b) => a.label.localeCompare(b.label)),
 )
 const availableSpecialItems = computed(() =>
   visibleSpecialItems.value
@@ -103,12 +116,17 @@ const availableSpecialGroups = computed(() =>
     { label: '✨ Magische Gegenstände', category: 1 },
     { label: '📦 Sonstiges', category: 2 },
   ]
-    .map((g) => ({ label: g.label, items: availableSpecialItems.value.filter((i) => getItemCategory(i) === g.category) }))
+    .map((g) => ({
+      label: g.label,
+      items: availableSpecialItems.value.filter((i) => getItemCategory(i) === g.category),
+    }))
     .filter((g) => g.items.length > 0),
 )
 
 const equippedWeaponOptions = computed(() => {
-  const weapons = equippedWeapon.value.map((id) => weaponOptions.find((w) => w.id === id)).filter(Boolean) as WeaponOption[]
+  const weapons = equippedWeapon.value
+    .map((id) => weaponOptions.find((w) => w.id === id))
+    .filter(Boolean) as WeaponOption[]
   return weapons.sort((a, b) => a.label.localeCompare(b.label))
 })
 const equippedArmorOptions = computed(() => {
@@ -117,12 +135,12 @@ const equippedArmorOptions = computed(() => {
 })
 
 const equippedSpecialOptions = computed(() =>
-  (equippedSpecialItems.value
-    .map((id) => specialItemOptions.find((i) => i.id === id))
-    .filter(Boolean) as SpecialItemOption[])
-    .sort(appItemComparator),
+  (
+    equippedSpecialItems.value
+      .map((id) => specialItemOptions.find((i) => i.id === id))
+      .filter(Boolean) as SpecialItemOption[]
+  ).sort(appItemComparator),
 )
-
 
 function addWeaponFromSelect() {
   if (!selectedWeaponToAdd.value) return
@@ -568,420 +586,419 @@ const headerHealPotions = computed(() =>
           <span class="equip-item-placeholder">Keine aktiven Gegenstände</span>
         </div>
         <template v-else v-for="(item, idx) in equippedSpecialOptions" :key="item.id">
-        <!-- Kategorie-Label bei Kategoriewechsel -->
-        <div v-if="idx === 0 || (idx > 0 && getItemCategory(equippedSpecialOptions[idx - 1]!) !== getItemCategory(item))" class="equip-group-label">
-          <span v-if="getItemCategory(item) === 0">🧪 Tränke</span>
-          <span v-else-if="getItemCategory(item) === 1">✨ Magische Gegenstände</span>
-          <span v-else>📦 Sonstiges</span>
-        </div>
-        <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
-        <div
-          v-if="item.passive"
-          :class="{
-            'equip-item--selected equip-item--passive': equippedSpecialItems.includes(item.id),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
-          <div class="equip-item-toggle">
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
-              {{ item.bonusLabel ? `${item.bonusLabel} ` : '' }}+{{ item.intelligenceBonus }} 🧠
-            </span>
-            <span v-else-if="item.bonusLabel" class="equip-item-bonus equip-item-bonus--passive">
-              {{ item.bonusLabel }}
-            </span>
-            <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
-              >✓</span
-            >
-          </div>
-        </div>
-
-        <!-- ② FIRE SHIELD (Ring des Feuers – 2 Ladungen, roter Effekt) -->
-        <div
-          v-else-if="item.kind === 'fire-shield'"
-          :class="{
-            'equip-item--fire-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
-            'equip-item--used': isFullyUsed(item),
-            'equip-item--fire-flash': animatingFireItems.includes(item.id),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
+          <!-- Kategorie-Label bei Kategoriewechsel -->
           <div
-            class="equip-item-toggle"
+            v-if="idx === 0 || (idx > 0 && getItemCategory(equippedSpecialOptions[idx - 1]!) !== getItemCategory(item))"
+            class="equip-group-label"
           >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span class="equip-item-bonus equip-item-bonus--fire">{{ getItemBonusLabel(item) }}</span>
-            <!-- Verbrauchsanzeige: rote Kreise -->
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="fire-charges">
-              <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
-            </span>
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
-            <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check">✓</span>
+            <span v-if="getItemCategory(item) === 0">🧪 Tränke</span>
+            <span v-else-if="getItemCategory(item) === 1">✨ Magische Gegenstände</span>
+            <span v-else>📦 Sonstiges</span>
           </div>
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item btn-use-item--fire"
-            type="button"
-            @click="useFireCharge(item.id)"
-          >
-            🔥 Feuerzauber abwehren
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
-
-        <!-- ③a HEAL FIXED (Heiltrank +4 – kein Würfelwurf) -->
-        <div
-          v-else-if="item.kind === 'heal-fixed'"
-          :class="{
-            'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
-            'equip-item--used': isFullyUsed(item),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
+          <!-- ① PASSIVE (e.g. Amulett der Weisheit) -->
           <div
-            class="equip-item-toggle"
+            v-if="item.passive"
+            :class="{
+              'equip-item--selected equip-item--passive': equippedSpecialItems.includes(item.id),
+            }"
+            class="equip-item equip-item--special-wrap"
           >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
-            <span
+            <button
               v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-              class="equip-item-check equip-item-check--heal"
-              >✓</span
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
             >
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </div>
-          <!-- Anzahl -->
-          <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
-            <span class="qty-label">Anzahl</span>
-            <div class="qty-controls">
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
-              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span v-if="item.intelligenceBonus" class="equip-item-bonus equip-item-bonus--passive">
+                {{ item.bonusLabel ? `${item.bonusLabel} ` : '' }}+{{ item.intelligenceBonus }} 🧠
+              </span>
+              <span v-else-if="item.bonusLabel" class="equip-item-bonus equip-item-bonus--passive">
+                {{ item.bonusLabel }}
+              </span>
+              <span v-if="equippedSpecialItems.includes(item.id)" class="equip-item-check equip-item-check--passive"
+                >✓</span
+              >
             </div>
           </div>
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item btn-use-item--heal"
-            type="button"
-            @click="useFixedHeal(item.id)"
-          >
-            ✚ +4 Körperkraft heilen
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
 
-        <!-- ③b HEAL POTION (Heiltrank Würfel – 1W6) -->
-        <div
-          v-else-if="item.kind === 'heal-potion'"
-          :class="{
-            'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
-            'equip-item--used': isFullyUsed(item),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
+          <!-- ② FIRE SHIELD (Ring des Feuers – 2 Ladungen, roter Effekt) -->
           <div
-            class="equip-item-toggle"
+            v-else-if="item.kind === 'fire-shield'"
+            :class="{
+              'equip-item--fire-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+              'equip-item--used': isFullyUsed(item),
+              'equip-item--fire-flash': animatingFireItems.includes(item.id),
+            }"
+            class="equip-item equip-item--special-wrap"
           >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
-            <span
+            <button
               v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-              class="equip-item-check equip-item-check--heal"
-              >✓</span
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
             >
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </div>
-          <!-- Anzahl -->
-          <div
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId !== item.id"
-            class="qty-row"
-          >
-            <span class="qty-label">Anzahl</span>
-            <div class="qty-controls">
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
-              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span class="equip-item-bonus equip-item-bonus--fire">{{ getItemBonusLabel(item) }}</span>
+              <!-- Verbrauchsanzeige: rote Kreise -->
+              <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="fire-charges">
+                <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔴' : '⚫' }}</span>
+              </span>
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
+              <span v-else-if="equippedSpecialItems.includes(item.id)" class="equip-item-check">✓</span>
             </div>
-          </div>
-          <!-- Inline dice dialog -->
-          <div
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId === item.id"
-            class="heal-dialog"
-          >
-            <p class="heal-dialog-label">Gewürfeltes Ergebnis (1W6):</p>
-            <div class="heal-controls">
-              <button :disabled="healRolled <= 1" class="heal-adj" @click="healRolled > 1 && healRolled--">−</button>
-              <span class="heal-value">{{ healRolled }}</span>
-              <button :disabled="healRolled >= 6" class="heal-adj" @click="healRolled < 6 && healRolled++">+</button>
-            </div>
-            <p class="heal-dialog-result">
-              → Heilt
-              <strong>{{
-                Math.min(healRolled, Math.max(0, (defaultStats[character]?.bodyStrength ?? 0) - (bodyStrength ?? 0)))
-              }}</strong>
-              Punkt(e)
-            </p>
-            <div class="heal-actions">
-              <button class="btn-heal-confirm" @click="applyHeal(item.id)">✚ Heilen</button>
-              <button class="btn-heal-cancel" @click="healDialogItemId = null">✕ Abbrechen</button>
-            </div>
-          </div>
-          <button
-            v-else-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item btn-use-item--heal"
-            type="button"
-            @click="openHealDialog(item.id)"
-          >
-            🎲 Würfeln &amp; Heilen
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
-
-        <!-- ④ ATTACK / DEFENSE POTION -->
-        <div
-          v-else-if="item.kind === 'attack-potion' || item.kind === 'defense-potion'"
-          :class="{
-            'equip-item--selected':
-              equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
-            'equip-item--defense-potion-selected':
-              equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
-            'equip-item--used': isFullyUsed(item),
-            'equip-item--magic-flash': animatingItems.includes(item.id),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
-          <div
-            class="equip-item-toggle"
-          >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span class="equip-item-bonus">{{ getItemBonusLabel(item) }}</span>
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
-          </div>
-          <!-- Anzahl -->
-          <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
-            <span class="qty-label">Anzahl</span>
-            <div class="qty-controls">
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
-              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
-            </div>
-          </div>
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item"
-            type="button"
-            @click="item.kind === 'attack-potion' ? useAttackPotion(item.id) : useDefensePotion(item.id)"
-          >
-            ✦ Trinken
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
-
-        <!-- ⑤a MAGIC RING (Ring der Magie: ⚫→🔵 speichern, dann abfeuern) -->
-        <div
-          v-else-if="item.kind === 'magic-ring'"
-          :class="{
-            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
-            'equip-item--used': isFullyUsed(item),
-            'equip-item--magic-flash': animatingItems.includes(item.id),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
-          <div
-            class="equip-item-toggle"
-          >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <!-- Statisches Fähigkeits-Label -->
-            <span class="equip-item-bonus equip-item-bonus--magic">{{ getItemBonusLabel(item) }}</span>
-            <!-- Ladungsanzeige: ⚫ = leer, 🔵 = Zauber gespeichert -->
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
-              {{ getChargesUsed(item) >= 1 ? '🔵' : '⚫' }}
-            </span>
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
-          </div>
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :class="{ 'btn-use-item--fire-spell': getChargesUsed(item) >= 1 }"
-            class="btn-use-item"
-            type="button"
-            @click="useMagicCharge(item.id)"
-          >
-            <template v-if="getChargesUsed(item) === 0">💍 Zauber im Ring speichern</template>
-            <template v-else>✦ Gespeicherten Zauber abfeuern</template>
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
-
-        <!-- ⑥ TOOL (Werkzeug, Wurfdolch – mehrfach vorhanden, verschwindet wenn verbraucht) -->
-        <div v-else-if="item.kind === 'consumable'" class="equip-item equip-item--special-wrap equip-item--selected">
-          <button
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
-          <div class="equip-item-toggle">
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-          </div>
-          <div class="qty-row">
-            <span class="qty-label">Anzahl</span>
-            <div class="qty-controls">
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
-              <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
-              <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
-            </div>
-          </div>
-          <button class="btn-use-item" type="button" @click="useTool(item.id)">{{ item.useLabel ?? '✦ Benutzen' }}</button>
-        </div>
-
-        <!-- ⑤b DEFAULT ACTIVE (Stab der Magie …) -->
-        <div
-          v-else
-          :class="{
-            'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
-            'equip-item--used': isFullyUsed(item),
-            'equip-item--magic-flash': animatingItems.includes(item.id),
-          }"
-          class="equip-item equip-item--special-wrap"
-        >
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            :aria-label="`${item.label} entfernen`"
-            class="equip-item-remove"
-            type="button"
-            @click="removeSpecialItem(item.id)"
-          >
-            ✕
-          </button>
-          <div
-            class="equip-item-toggle"
-          >
-            <span class="equip-item-icon">{{ item.symbol }}</span>
-            <span class="equip-item-content">
-              <span class="equip-item-name">{{ item.label }}</span>
-              <span class="equip-item-note">{{ item.ability }}</span>
-            </span>
-            <span v-if="getItemBonusLabel(item)" class="equip-item-bonus equip-item-bonus--magic">
-              {{ getItemBonusLabel(item) }}
-            </span>
-            <!-- Blue charge dots for multi-use items (kein Stab der Magie) -->
-            <span
-              v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-              class="magic-charges"
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="btn-use-item btn-use-item--fire"
+              type="button"
+              @click="useFireCharge(item.id)"
             >
-              <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔵' : '⚫' }}</span>
-            </span>
-            <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check">✓</span>
-            <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ BENUTZT</span>
+              🔥 Feuerzauber abwehren
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
           </div>
-          <button
-            v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
-            class="btn-use-item"
-            type="button"
-            @click="item.maxUses ? useMagicCharge(item.id) : markItemUsed(item.id)"
+
+          <!-- ③a HEAL FIXED (Heiltrank +4 – kein Würfelwurf) -->
+          <div
+            v-else-if="item.kind === 'heal-fixed'"
+            :class="{
+              'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+              'equip-item--used': isFullyUsed(item),
+            }"
+            class="equip-item equip-item--special-wrap"
           >
-            ✦ Benutzen
-          </button>
-          <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
-            ↺ Wiederherstellen
-          </button>
-        </div>
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
+              <span
+                v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+                class="equip-item-check equip-item-check--heal"
+                >✓</span
+              >
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+            </div>
+            <!-- Anzahl -->
+            <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
+              <span class="qty-label">Anzahl</span>
+              <div class="qty-controls">
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+                <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              </div>
+            </div>
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="btn-use-item btn-use-item--heal"
+              type="button"
+              @click="useFixedHeal(item.id)"
+            >
+              ✚ +4 Körperkraft heilen
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
+          </div>
+
+          <!-- ③b HEAL POTION (Heiltrank Würfel – 1W6) -->
+          <div
+            v-else-if="item.kind === 'heal-potion'"
+            :class="{
+              'equip-item--heal-selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+              'equip-item--used': isFullyUsed(item),
+            }"
+            class="equip-item equip-item--special-wrap"
+          >
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span class="equip-item-bonus equip-item-bonus--heal">{{ getItemBonusLabel(item) }}</span>
+              <span
+                v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+                class="equip-item-check equip-item-check--heal"
+                >✓</span
+              >
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+            </div>
+            <!-- Anzahl -->
+            <div
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId !== item.id"
+              class="qty-row"
+            >
+              <span class="qty-label">Anzahl</span>
+              <div class="qty-controls">
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+                <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              </div>
+            </div>
+            <!-- Inline dice dialog -->
+            <div
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && healDialogItemId === item.id"
+              class="heal-dialog"
+            >
+              <p class="heal-dialog-label">Gewürfeltes Ergebnis (1W6):</p>
+              <div class="heal-controls">
+                <button :disabled="healRolled <= 1" class="heal-adj" @click="healRolled > 1 && healRolled--">−</button>
+                <span class="heal-value">{{ healRolled }}</span>
+                <button :disabled="healRolled >= 6" class="heal-adj" @click="healRolled < 6 && healRolled++">+</button>
+              </div>
+              <p class="heal-dialog-result">
+                → Heilt
+                <strong>{{
+                  Math.min(healRolled, Math.max(0, (defaultStats[character]?.bodyStrength ?? 0) - (bodyStrength ?? 0)))
+                }}</strong>
+                Punkt(e)
+              </p>
+              <div class="heal-actions">
+                <button class="btn-heal-confirm" @click="applyHeal(item.id)">✚ Heilen</button>
+                <button class="btn-heal-cancel" @click="healDialogItemId = null">✕ Abbrechen</button>
+              </div>
+            </div>
+            <button
+              v-else-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="btn-use-item btn-use-item--heal"
+              type="button"
+              @click="openHealDialog(item.id)"
+            >
+              🎲 Würfeln &amp; Heilen
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
+          </div>
+
+          <!-- ④ ATTACK / DEFENSE POTION -->
+          <div
+            v-else-if="item.kind === 'attack-potion' || item.kind === 'defense-potion'"
+            :class="{
+              'equip-item--selected':
+                equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'attack-potion',
+              'equip-item--defense-potion-selected':
+                equippedSpecialItems.includes(item.id) && !isFullyUsed(item) && item.kind === 'defense-potion',
+              'equip-item--used': isFullyUsed(item),
+              'equip-item--magic-flash': animatingItems.includes(item.id),
+            }"
+            class="equip-item equip-item--special-wrap"
+          >
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span class="equip-item-bonus">{{ getItemBonusLabel(item) }}</span>
+              <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check"
+                >✓</span
+              >
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ GETRUNKEN</span>
+            </div>
+            <!-- Anzahl -->
+            <div v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="qty-row">
+              <span class="qty-label">Anzahl</span>
+              <div class="qty-controls">
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+                <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              </div>
+            </div>
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="btn-use-item"
+              type="button"
+              @click="item.kind === 'attack-potion' ? useAttackPotion(item.id) : useDefensePotion(item.id)"
+            >
+              ✦ Trinken
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
+          </div>
+
+          <!-- ⑤a MAGIC RING (Ring der Magie: ⚫→🔵 speichern, dann abfeuern) -->
+          <div
+            v-else-if="item.kind === 'magic-ring'"
+            :class="{
+              'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+              'equip-item--used': isFullyUsed(item),
+              'equip-item--magic-flash': animatingItems.includes(item.id),
+            }"
+            class="equip-item equip-item--special-wrap"
+          >
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <!-- Statisches Fähigkeits-Label -->
+              <span class="equip-item-bonus equip-item-bonus--magic">{{ getItemBonusLabel(item) }}</span>
+              <!-- Ladungsanzeige: ⚫ = leer, 🔵 = Zauber gespeichert -->
+              <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="magic-charges">
+                {{ getChargesUsed(item) >= 1 ? '🔵' : '⚫' }}
+              </span>
+              <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check"
+                >✓</span
+              >
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ VERBRAUCHT</span>
+            </div>
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :class="{ 'btn-use-item--fire-spell': getChargesUsed(item) >= 1 }"
+              class="btn-use-item"
+              type="button"
+              @click="useMagicCharge(item.id)"
+            >
+              <template v-if="getChargesUsed(item) === 0">💍 Zauber im Ring speichern</template>
+              <template v-else>✦ Gespeicherten Zauber abfeuern</template>
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
+          </div>
+
+          <!-- ⑥ TOOL (Werkzeug, Wurfdolch – mehrfach vorhanden, verschwindet wenn verbraucht) -->
+          <div v-else-if="item.kind === 'consumable'" class="equip-item equip-item--special-wrap equip-item--selected">
+            <button
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+            </div>
+            <div class="qty-row">
+              <span class="qty-label">Anzahl</span>
+              <div class="qty-controls">
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, -1)">−</button>
+                <span class="qty-num">{{ getPotionQuantity(item.id) }}</span>
+                <button class="qty-btn" type="button" @click="adjustPotionQuantity(item.id, 1)">+</button>
+              </div>
+            </div>
+            <button class="btn-use-item" type="button" @click="useTool(item.id)">
+              {{ item.useLabel ?? '✦ Benutzen' }}
+            </button>
+          </div>
+
+          <!-- ⑤b DEFAULT ACTIVE (Stab der Magie …) -->
+          <div
+            v-else
+            :class="{
+              'equip-item--selected': equippedSpecialItems.includes(item.id) && !isFullyUsed(item),
+              'equip-item--used': isFullyUsed(item),
+              'equip-item--magic-flash': animatingItems.includes(item.id),
+            }"
+            class="equip-item equip-item--special-wrap"
+          >
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              :aria-label="`${item.label} entfernen`"
+              class="equip-item-remove"
+              type="button"
+              @click="removeSpecialItem(item.id)"
+            >
+              ✕
+            </button>
+            <div class="equip-item-toggle">
+              <span class="equip-item-icon">{{ item.symbol }}</span>
+              <span class="equip-item-content">
+                <span class="equip-item-name">{{ item.label }}</span>
+                <span class="equip-item-note">{{ item.ability }}</span>
+              </span>
+              <span v-if="getItemBonusLabel(item)" class="equip-item-bonus equip-item-bonus--magic">
+                {{ getItemBonusLabel(item) }}
+              </span>
+              <!-- Blue charge dots for multi-use items (kein Stab der Magie) -->
+              <span
+                v-if="item.maxUses && equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+                class="magic-charges"
+              >
+                <span v-for="i in item.maxUses ?? 0" :key="i">{{ i <= getChargesLeft(item) ? '🔵' : '⚫' }}</span>
+              </span>
+              <span v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)" class="equip-item-check"
+                >✓</span
+              >
+              <span v-if="isFullyUsed(item)" class="equip-item-used-badge">✕ BENUTZT</span>
+            </div>
+            <button
+              v-if="equippedSpecialItems.includes(item.id) && !isFullyUsed(item)"
+              class="btn-use-item"
+              type="button"
+              @click="item.maxUses ? useMagicCharge(item.id) : markItemUsed(item.id)"
+            >
+              ✦ Benutzen
+            </button>
+            <button v-if="isFullyUsed(item)" class="btn-restore-item" type="button" @click="resetItemUsed(item.id)">
+              ↺ Wiederherstellen
+            </button>
+          </div>
         </template>
 
         <!-- Dropdown to add a new special item -->
@@ -1057,7 +1074,7 @@ const headerHealPotions = computed(() =>
   font-family: var(--font-fantasy), serif;
   font-size: 0.65rem;
   letter-spacing: 0.05em;
-  border-radius: 99px;
+  border-radius: var(--radius-pill);
   padding: 0.1rem 0.5rem;
   border: 1px solid;
   transition:
@@ -1097,7 +1114,7 @@ const headerHealPotions = computed(() =>
 }
 
 .equip-badge--heal-active {
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   border-color: var(--color-red);
   background-color: color-mix(in srgb, var(--color-red) 12%, transparent);
 }
@@ -1112,7 +1129,7 @@ const headerHealPotions = computed(() =>
 .equip-list {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: var(--space-compact);
 }
 
 .equip-group-label {
@@ -1124,7 +1141,9 @@ const headerHealPotions = computed(() =>
   padding: 0.5rem 0.65rem;
   margin-top: 0.25rem;
   border-bottom: 1px solid var(--hq-divider);
-  transition: color 0.4s, border-color 0.4s;
+  transition:
+    color 0.4s,
+    border-color 0.4s;
 }
 
 .equip-item {
@@ -1160,7 +1179,7 @@ const headerHealPotions = computed(() =>
 button.equip-item {
   display: flex;
   align-items: flex-start;
-  gap: 0.6rem;
+  gap: var(--space-inline);
   padding: 0.55rem 0.65rem;
   min-height: 2.75rem;
 }
@@ -1328,23 +1347,23 @@ button.equip-item {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  padding: 0.55rem 2.25rem 0.55rem 0.65rem;
+  padding: var(--space-item-block) var(--space-remove-reserve) var(--space-item-block) var(--space-card);
   min-height: 2.75rem;
   cursor: default;
 }
 
 .equip-item--special-wrap .equip-item-toggle {
-  padding-right: 2.25rem;
+  padding-right: var(--space-remove-reserve);
   cursor: default;
 }
 
 .equip-item-remove {
   position: absolute;
-  top: 0.3rem;
-  right: 0.3rem;
+  top: var(--space-remove-inset);
+  right: var(--space-remove-inset);
   z-index: 1;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: var(--size-remove-control);
+  height: var(--size-remove-control);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1583,14 +1602,14 @@ button.equip-item {
   font-size: 0.68rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   text-align: center;
 }
 
 .heal-dialog-result {
   font-family: var(--font-body), serif;
   font-size: 0.75rem;
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   text-align: center;
 }
 
@@ -1611,7 +1630,7 @@ button.equip-item {
   border-radius: 50%;
   border: 1.5px solid var(--color-red);
   background: transparent;
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   font-size: 1.1rem;
   cursor: pointer;
   display: flex;
@@ -1632,7 +1651,7 @@ button.equip-item {
 .heal-value {
   font-family: var(--font-fantasy), serif;
   font-size: 1.75rem;
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   min-width: 1.5rem;
   text-align: center;
 }
@@ -1650,7 +1669,7 @@ button.equip-item {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background-color: color-mix(in srgb, var(--color-red) 22%, var(--hq-card-bg-dark));
-  color: color-mix(in srgb, var(--color-red) 65%, white);
+  color: color-mix(in srgb, var(--color-red) 65%, var(--color-white));
   border: 1px solid color-mix(in srgb, var(--color-red) 40%, transparent);
   border-radius: 2px;
   padding: 0.4rem 0.5rem;
