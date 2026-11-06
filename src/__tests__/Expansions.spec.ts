@@ -41,6 +41,7 @@ describe('Expansions', () => {
     const store = useSkillSheetStore()
     const wrapper = mount(ExpansionsModal)
     await wrapper.find('.expansions-btn').trigger('click')
+    expect(wrapper.get('[role="status"]').text()).toBe('Erweiterungen geöffnet')
 
     const rows = wrapper.findAll('.expansion-item')
     expect(rows).toHaveLength(expansionOptions.length)

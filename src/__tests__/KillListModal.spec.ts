@@ -14,14 +14,16 @@ describe('KillListModal button', () => {
     vi.useRealTimers()
   })
 
-  it('counts a kill on a short press without opening the modal', () => {
+  it('counts a kill on a short press without opening the modal', async () => {
     const wrapper = mount(KillListModal)
     const button = wrapper.get('.kill-list-btn')
 
     button.element.dispatchEvent(new Event('pointerdown', { bubbles: true }))
     button.element.dispatchEvent(new Event('pointerup', { bubbles: true }))
+    await wrapper.vm.$nextTick()
 
     expect(useSkillSheetStore().totalKills).toBe(1)
+    expect(wrapper.get('[role="status"]').text()).toContain('Kill gezählt · Gesamt: 1')
     expect(wrapper.find('.modal-dialog').exists()).toBe(false)
   })
 
@@ -34,9 +36,11 @@ describe('KillListModal button', () => {
     await wrapper.vm.$nextTick()
     expect(button.classes()).toContain('long-press')
     button.element.dispatchEvent(new Event('pointerup', { bubbles: true }))
+    await wrapper.vm.$nextTick()
 
     expect(useSkillSheetStore().totalKills).toBe(0)
     expect(wrapper.find('.modal-dialog').exists()).toBe(true)
+    expect(wrapper.get('[role="status"]').text()).toBe('Todesliste geöffnet')
   })
 
   it('counts a kill when activated by keyboard', async () => {

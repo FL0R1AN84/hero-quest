@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useSkillSheetStore } from '@/stores/skillSheet'
 import { expansionOptions } from '@/data/skillSheetData'
@@ -8,10 +8,26 @@ const store = useSkillSheetStore()
 const { enabledExpansions } = storeToRefs(store)
 
 const isOpen = ref(false)
+const feedbackMessage = ref('')
+const feedbackKey = ref(0)
+let feedbackTimer: ReturnType<typeof setTimeout> | undefined
+
+function showFeedback(message: string) {
+  if (feedbackTimer !== undefined) {
+    clearTimeout(feedbackTimer)
+  }
+  feedbackMessage.value = message
+  feedbackKey.value += 1
+  feedbackTimer = setTimeout(() => {
+    feedbackMessage.value = ''
+    feedbackTimer = undefined
+  }, 1400)
+}
 
 function toggleModal() {
   navigator.vibrate?.(20)
   isOpen.value = !isOpen.value
+  showFeedback(isOpen.value ? 'Erweiterungen geöffnet' : 'Erweiterungen geschlossen')
 }
 
 function closeModal() {
@@ -21,10 +37,22 @@ function closeModal() {
 function isActive(id: string): boolean {
   return enabledExpansions.value.includes(id)
 }
+
+onUnmounted(() => {
+  if (feedbackTimer !== undefined) {
+    clearTimeout(feedbackTimer)
+  }
+})
 </script>
 
 <template>
   <div class="expansions-container">
+    <transition name="action-feedback">
+      <div v-if="feedbackMessage" :key="feedbackKey" class="action-feedback" role="status" aria-live="polite">
+        {{ feedbackMessage }}
+      </div>
+    </transition>
+
     <!-- Toggle Button -->
     <button
       :class="{ active: isOpen }"
@@ -79,6 +107,45 @@ function isActive(id: string): boolean {
 <style scoped>
 .expansions-container {
   position: relative;
+}
+
+.action-feedback {
+  position: fixed;
+  right: 1rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1.25rem);
+  left: 1rem;
+  z-index: 1100;
+  width: fit-content;
+  max-width: calc(100vw - 2rem);
+  margin: 0 auto;
+  padding: 0.75rem 1.25rem;
+  border: 2px solid var(--color-gold);
+  border-radius: 999px;
+  background-color: var(--hq-card-bg-dark);
+  box-shadow: 0 0 1.25rem rgb(0 0 0 / 45%), 0 0 0.75rem rgb(246 116 73 / 35%);
+  color: var(--hq-title);
+  font-weight: 700;
+  text-align: center;
+  pointer-events: none;
+  animation: feedback-pop 1.4s ease both;
+}
+
+@keyframes feedback-pop {
+  0% {
+    transform: translateY(0.75rem) scale(0.92);
+    opacity: 0;
+  }
+
+  12%,
+  82% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateY(0);
+    opacity: 0;
+  }
 }
 
 /* Toggle Button */
