@@ -27,18 +27,34 @@ function resetAll() {
 </script>
 
 <template>
-  <p
+  <button
+    type="button"
     :class="{ 'version-unlocked': showReset }"
-    class="text-sm"
-    style="cursor: default; user-select: none"
+    class="version"
     @click="handleVersionClick"
   >
     Version {{ version }}
-  </p>
+  </button>
   <button v-if="showReset" class="reset-btn" @click="resetAll">✦ Alles zurücksetzen</button>
 </template>
 
 <style scoped>
+.version {
+  display: inline-flex;
+  min-height: var(--size-button-min);
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-2) var(--space-4);
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: var(--font-size-body-small);
+  cursor: pointer;
+  user-select: none;
+  touch-action: manipulation;
+}
+
 .reset-btn {
   margin-top: 2rem;
   font-family: var(--font-fantasy), serif;

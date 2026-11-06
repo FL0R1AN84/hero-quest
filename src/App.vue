@@ -16,7 +16,7 @@ import { RouterView } from 'vue-router'
 
 <style scoped>
 .app-footer {
-  padding-block: var(--space-4);
+  padding-block: var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom));
 }
 
 @media (min-width: 480px) {

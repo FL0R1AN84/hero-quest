@@ -178,7 +178,7 @@ function loadFromFile() {
   border-radius: 0;
   overflow: hidden;
   min-height: var(--size-viewport-dynamic);
-  padding: calc(var(--space-6) + env(safe-area-inset-top)) max(var(--space-4), env(safe-area-inset-right))
+  padding: calc(var(--space-10) + env(safe-area-inset-top)) max(var(--space-4), env(safe-area-inset-right))
     calc(var(--space-8) + env(safe-area-inset-bottom)) max(var(--space-4), env(safe-area-inset-left));
   box-shadow: none;
   transition:
