@@ -53,8 +53,6 @@ export const useSkillSheetStore = defineStore(
       }, 0),
     )
 
-    const druideShapeBonus = computed(() => (character.value === 'Druide' && druideShapeShifted.value ? 1 : 0))
-
     // Get today's date in ISO format (YYYY-MM-DD)
     const getTodayDate = (): string => {
       const today = new Date()
@@ -198,7 +196,6 @@ export const useSkillSheetStore = defineStore(
       weaponBonus,
       armorBonus,
       intelligenceBonus,
-      druideShapeBonus,
       reset,
       resetStats,
       toggleDruideShape,
